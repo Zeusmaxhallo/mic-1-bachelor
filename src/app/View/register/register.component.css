@@ -1,0 +1,10 @@
+.mat-grid-tile{
+    background-color: #ff4081;
+    border: 3px solid rgb(68, 0, 255);
+}
+
+.mat-grid-list{
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-top: 2%;
+}
