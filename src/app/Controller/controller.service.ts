@@ -12,4 +12,9 @@ export class ControllerService {
     let PC = this.regProvider.getRegister("PC");
     PC.setValue(PC.getValue() + 1);
   }
+
+  reset(){
+    let PC = this.regProvider.getRegister("PC");
+    PC.setValue(0);
+  }
 }

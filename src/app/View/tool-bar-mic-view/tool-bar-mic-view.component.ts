@@ -18,4 +18,7 @@ export class ToolBarMicViewComponent implements OnInit {
     this.controllerService.step();
   }
 
+  reset(){
+    this.controllerService.reset();
+  }
 }
