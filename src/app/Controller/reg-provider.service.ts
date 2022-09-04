@@ -5,7 +5,7 @@ import { Register } from '../Model/Registers';
   providedIn: 'root'
 })
 export class RegProviderService {
-  private registers: Register[] = [new Register("PC", 4, 32)] 
+  private registers: Register[] = [new Register("PC", 0, 32)] 
 
 
   constructor() { }

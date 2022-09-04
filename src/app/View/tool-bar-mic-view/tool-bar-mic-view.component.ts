@@ -1,5 +1,5 @@
 import { Component, DebugElement, OnInit } from '@angular/core';
-import { RegProviderService } from 'src/app/Controller/reg-provider.service';
+import { ControllerService } from 'src/app/Controller/controller.service';
 
 @Component({
   selector: 'app-tool-bar-mic-view',
@@ -8,16 +8,14 @@ import { RegProviderService } from 'src/app/Controller/reg-provider.service';
 })
 export class ToolBarMicViewComponent implements OnInit {
 
-  constructor(private regProvider: RegProviderService) {
+  constructor(private controllerService: ControllerService) {
   }
 
   ngOnInit(): void {
   }
 
   step(){
-    let PC = this.regProvider.getRegister("PC");
-    PC.setValue(PC.getValue() + 1);
-    //This should probably be done in the Controller
+    this.controllerService.step();
   }
 
 }

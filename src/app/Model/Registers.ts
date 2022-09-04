@@ -17,6 +17,7 @@ export class Register{
         return this.size;
     }
 
+    
     setValue(value: number){
         if(value <= this.size){
             this.value = value;
