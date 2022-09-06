@@ -1,5 +1,6 @@
 <mat-toolbar>
-    <button mat-button>
+    <input #file hidden type="file" (change)="import($event)" accept=".txt">
+    <button mat-button (click)="file.click()">
         Import
     </button>
     <button mat-button>
