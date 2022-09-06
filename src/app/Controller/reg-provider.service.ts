@@ -10,11 +10,11 @@ export class RegProviderService {
 
   constructor() { }
 
-  getRegisters(){
+  getRegisters():Register[]{
     return this.registers;
   }
 
-  getRegister(name: String){
+  getRegister(name: String):Register{
     for(let register of this.registers){
       if(register.getName() === name){
         return register;

@@ -1,25 +1,28 @@
-import { throwError } from "rxjs";
 
 export class Register{
 
     constructor(private name: String, private value: number, private size: number){
     }
 
-    getName(){
+    getName():String{
         return this.name;
     }
 
-    getValue(){
+    getValue():number{
         return this.value;
     }
 
-    getSize(){
+    getSize():number{
         return this.size;
+    }
+
+    private isValidSize(value:number):boolean{
+        return value <= 2**(this.size) && value >= 0;
     }
 
     
     setValue(value: number){
-        if(value <= this.size){
+        if(this.isValidSize(value)){
             this.value = value;
         }
         else{
