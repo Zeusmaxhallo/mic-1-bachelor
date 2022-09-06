@@ -11,6 +11,11 @@ import { ToolBarComponent } from './View/tool-bar/tool-bar.component';
 import {MatButtonModule} from '@angular/material/button';
 import { ToolBarMicViewComponent } from './View/tool-bar-mic-view/tool-bar-mic-view.component';
 import { RegisterComponent } from './View/register/register.component';
+import {TextFieldModule} from '@angular/cdk/text-field';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import { TextFieldComponent } from './View/text-field/text-field.component';
+import { FormsModule } from '@angular/forms';
+
 
 @NgModule({
   declarations: [
@@ -18,14 +23,18 @@ import { RegisterComponent } from './View/register/register.component';
     GridViewComponent,
     ToolBarComponent,
     ToolBarMicViewComponent,
-    RegisterComponent
+    RegisterComponent,
+    TextFieldComponent
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
     MatGridListModule,
     MatToolbarModule,
-    MatButtonModule
+    MatButtonModule,
+    TextFieldModule,
+    MatFormFieldModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
