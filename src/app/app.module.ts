@@ -11,6 +11,7 @@ import { ToolBarComponent } from './View/tool-bar/tool-bar.component';
 import {MatButtonModule} from '@angular/material/button';
 import { ToolBarMicViewComponent } from './View/tool-bar-mic-view/tool-bar-mic-view.component';
 import { RegisterComponent } from './View/register/register.component';
+import { EditorComponent } from './View/editor/editor.component';
 import {TextFieldModule} from '@angular/cdk/text-field';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import { TextFieldComponent } from './View/text-field/text-field.component';
@@ -25,6 +26,7 @@ import { HttpClientModule } from '@angular/common/http';
     ToolBarComponent,
     ToolBarMicViewComponent,
     RegisterComponent,
+    EditorComponent,
     TextFieldComponent
   ],
   imports: [
