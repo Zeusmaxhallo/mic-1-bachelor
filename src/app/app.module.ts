@@ -14,7 +14,6 @@ import { RegisterComponent } from './View/register/register.component';
 import { EditorComponent } from './View/editor/editor.component';
 import {TextFieldModule} from '@angular/cdk/text-field';
 import {MatFormFieldModule} from '@angular/material/form-field';
-import { TextFieldComponent } from './View/text-field/text-field.component';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 
@@ -27,7 +26,6 @@ import { HttpClientModule } from '@angular/common/http';
     ToolBarMicViewComponent,
     RegisterComponent,
     EditorComponent,
-    TextFieldComponent
   ],
   imports: [
     BrowserModule,
