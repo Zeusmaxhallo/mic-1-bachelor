@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import * as FileSaver from 'file-saver';
+import { MacroProviderService } from './macro-provider.service';
 import { RegProviderService } from './reg-provider.service';
 
 @Injectable({
@@ -6,7 +8,7 @@ import { RegProviderService } from './reg-provider.service';
 })
 export class ControllerService {
 
-  constructor(private regProvider: RegProviderService) { }
+  constructor(private regProvider: RegProviderService, private macroProvider: MacroProviderService) { }
 
   step(){
     let PC = this.regProvider.getRegister("PC");
@@ -24,10 +26,18 @@ export class ControllerService {
       let fileReader = new FileReader();
       fileReader.readAsText(file);
       fileReader.onload = (e) => {
-        console.log(fileReader.result);
+        this.macroProvider.setMacro(fileReader.result.toString())
       }
     }else{
       alert("Wrong file type!")
     }
   }
+
+  //downloads a txt file with the macrocode as content
+  export(){
+    var text: string = this.macroProvider.getMacro();
+    var data = new Blob([text], {type: 'text/plain'}); 
+    FileSaver.saveAs(data, 'macro.txt');
+  }
+
 }
