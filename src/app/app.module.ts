@@ -17,6 +17,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import * as FileSaver from 'file-saver';
+import { StackComponent } from './View/stack/stack.component';
 
 
 @NgModule({
@@ -27,6 +28,7 @@ import * as FileSaver from 'file-saver';
     ToolBarMicViewComponent,
     RegisterComponent,
     EditorComponent,
+    StackComponent,
   ],
   imports: [
     BrowserModule,

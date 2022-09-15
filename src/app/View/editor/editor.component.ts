@@ -10,34 +10,38 @@ import { MacroProviderService } from "src/app/Controller/macro-provider.service"
 })
 export class EditorComponent implements AfterViewInit{
 
+  @ViewChild("editor") private editor: ElementRef<HTMLElement>;
+  content: string = "";
+  private aceEditor:ace.Ace.Editor;
+
   constructor(private macroProvider: MacroProviderService) { }
 
-  content: string = "";
-
-  @ViewChild("editor") private editor: ElementRef<HTMLElement>;
+  ngOnInit(): void {
+    this.content = this.macroProvider.getMacro();
+  }
 
   ngAfterViewInit(): void {
 
     ace.config.set("fontSize", "14px");
     ace.config.set('basePath', 'https://unpkg.com/ace-builds@1.4.12/src-noconflict');
 
-    const aceEditor = ace.edit(this.editor.nativeElement);
-    aceEditor.session.setValue(this.content);
+    // create Ace.Editor Object
+    this.aceEditor = ace.edit(this.editor.nativeElement);
 
-    aceEditor.setTheme("ace/theme/gruvbox");
-    aceEditor.session.setMode('ace/mode/javascript');
+    this.aceEditor.session.setValue(this.content);
+    this.aceEditor.setTheme("ace/theme/gruvbox");
+    this.aceEditor.session.setMode('ace/mode/javascript');
 
-    aceEditor.on("change", () =>{
-      this.content = aceEditor.getValue();
+    this.aceEditor.on("input", () =>{
+      this.content = this.aceEditor.getValue();
       
-      //Updates the macrocode on the macro provider
+      // Updates the macrocode on the macro provider
       this.macroProvider.setMacro(this.content);
     })
   }
 
   refresh(){
     this.content = this.macroProvider.getMacro();
-    const aceEditor = ace.edit(this.editor.nativeElement);
-    aceEditor.session.setValue(this.macroProvider.getMacro());
+    this.aceEditor.session.setValue(this.content);
   }
 }

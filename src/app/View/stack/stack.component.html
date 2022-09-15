@@ -1,0 +1,11 @@
+<button mat-raised-button (click)="push()">push</button>
+<button mat-raised-button (click)="pop()">pop</button>
+
+
+<div class="stack-container">
+    <div class="stack-entry" @flyInOut *ngFor="let element of this.stackProvider.getAll()">{{ element }}</div>
+</div>
+
+
+
+

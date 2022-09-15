@@ -1,0 +1,18 @@
+
+
+.stack-container{
+    margin-top: 5%;
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+}
+
+
+.stack-entry{
+    text-align: center;
+    padding: 1%;
+    margin-top: 1%;
+    background-color: #ccc5b9;
+    border: 1px solid #eb5e28;
+}
+

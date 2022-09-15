@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class MacroProviderService {
-  macro: string = "";
+  private macro: string = "";
 
   constructor() { }
 
