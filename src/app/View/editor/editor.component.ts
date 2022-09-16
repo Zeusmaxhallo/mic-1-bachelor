@@ -34,14 +34,16 @@ export class EditorComponent implements AfterViewInit{
 
     this.aceEditor.on("input", () =>{
       this.content = this.aceEditor.getValue();
-      
-      // Updates the macrocode on the macro provider
-      this.macroProvider.setMacro(this.content);
     })
   }
 
   refresh(){
     this.content = this.macroProvider.getMacro();
     this.aceEditor.session.setValue(this.content);
+  }
+
+  // Updates the macrocode on the macro provider and starts interpretation
+  load(){
+    this.macroProvider.setMacro(this.content);
   }
 }
