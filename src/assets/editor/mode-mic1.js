@@ -27,7 +27,7 @@ var Mic1HighlightRules = function () {
             { token: 'string.mic1', regex: /"([^\\"]|\\.)*"/ },
             // sections:
             { token: 'support.function.directive.mic1',
-                regex: '\\b(?:end-var|var|main|end-main|constant|end-constant)\\b',
+                regex: '\\b(?:end-var|var|main|end-main|constant|end-constant|method|end-method)\\b',
                 caseInsensitive: true },
             // comments
             { token: 'comment.mic1', regex: ';.*$' }]
