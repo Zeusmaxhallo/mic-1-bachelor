@@ -1,8 +1,7 @@
 
 export class Register{
 
-    constructor(private name: String, private value: number, private size: number){
-    }
+    constructor(private name: String, private value: number, private size: number){}
 
     getName():String{
         return this.name;
