@@ -18,6 +18,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import * as FileSaver from 'file-saver';
 import { StackComponent } from './View/stack/stack.component';
+import { MicroEditorComponent } from './View/micro-editor/micro-editor.component';
 
 
 @NgModule({
@@ -29,6 +30,7 @@ import { StackComponent } from './View/stack/stack.component';
     RegisterComponent,
     EditorComponent,
     StackComponent,
+    MicroEditorComponent,
   ],
   imports: [
     BrowserModule,

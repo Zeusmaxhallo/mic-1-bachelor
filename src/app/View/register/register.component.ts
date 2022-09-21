@@ -9,10 +9,10 @@ import { Register } from 'src/app/Model/Registers';
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent implements OnInit {
-  register: Register = null;
+  registers: Register[] = [];
 
   constructor(regProvider: RegProviderService) { 
-    this.register = regProvider.getRegister("PC");
+    this.registers = regProvider.getRegisters();
   }
 
   ngOnInit(): void {

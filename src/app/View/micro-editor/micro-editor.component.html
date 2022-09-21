@@ -1,9 +1,7 @@
-
 <div class="app-ace-editor" #editor ></div>
 <button mat-raised-button color="accent" (click)="refresh()">Refresh</button>
 <input #file hidden type="file" (change)="import($event)" accept=".txt">
 <button mat-raised-button color="accent" (click)="file.click()">
     Import
 </button>
-<button mat-raised-button color="accent" (click)="exportMacro()">Export</button>
-
+<button mat-raised-button color="accent" (click)="exportMicro()">Export</button>

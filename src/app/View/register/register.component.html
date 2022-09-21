@@ -1,4 +1,4 @@
-<mat-grid-list cols="3" rowHeight="16:5">
+<mat-grid-list cols="3" rowHeight="16:5" *ngFor="let register of registers">
     <mat-grid-tile colspan="1">
         {{register.getName()}}
     </mat-grid-tile>

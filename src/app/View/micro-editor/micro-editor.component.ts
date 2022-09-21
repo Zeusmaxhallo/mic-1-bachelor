@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from "@angular/core";
-import { MacroProviderService } from "src/app/Controller/macro-provider.service";
+import { MicroProviderService } from "src/app/Controller/micro-provider.service";
 import { ControllerService } from "src/app/Controller/controller.service";
+
 import * as ace from "ace-builds";
 
 
@@ -10,30 +11,29 @@ const THEME = "ace/theme/gruvbox";
 
 
 @Component({
-  selector: "app-editor",
-  templateUrl: "./editor.component.html",
-  styleUrls: ["./editor.component.css"]
+  selector: "app-micro-editor",
+  templateUrl: "./micro-editor.component.html",
+  styleUrls: ["./micro-editor.component.css"]
 })
-export class EditorComponent implements AfterViewInit{
+export class MicroEditorComponent implements AfterViewInit{
 
   @ViewChild("editor") private editor: ElementRef<HTMLElement>;
   content: string = "";
   private aceEditor:ace.Ace.Editor;
-  file: String; 
-  
-  constructor(private macroProvider: MacroProviderService, private controllerService: ControllerService) { }
+  file: string;
+  constructor(private microProvider: MicroProviderService, private controllerService: ControllerService) { }
 
   import(event: any){
     this.file = event.target.files[0];
     this.controllerService.import(this.file);
   }
 
-  exportMacro(){
-    this.controllerService.exportMacro();
+  exportMicro(){
+    this.controllerService.exportMicro();
   }
-  
+
   ngOnInit(): void {
-    this.content = this.macroProvider.getMacro();
+    this.content = this.microProvider.getMicro();
   }
 
   ngAfterViewInit(): void {
@@ -60,12 +60,12 @@ export class EditorComponent implements AfterViewInit{
       this.content = this.aceEditor.getValue();
       
       // Updates the macrocode on the macro provider
-      this.macroProvider.setMacro(this.content);
+      this.microProvider.setMicro(this.content);
     })
   }
 
   refresh(){
-    this.content = this.macroProvider.getMacro();
+    this.content = this.microProvider.getMicro();
     this.aceEditor.session.setValue(this.content);
   }
 }

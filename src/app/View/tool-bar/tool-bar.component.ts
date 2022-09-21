@@ -14,13 +14,17 @@ export class ToolBarComponent implements OnInit {
   ngOnInit(): void {
   }
 
-
   import(event: any){
     this.file = event.target.files[0];
     this.controllerService.import(this.file);
   }
 
-  export(){
-    this.controllerService.export();
+  exportMacro(){
+    this.controllerService.exportMacro();
   }
+
+  exportMicro(){
+    this.controllerService.exportMicro();
+  }
+
 }
