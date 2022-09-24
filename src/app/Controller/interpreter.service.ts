@@ -30,9 +30,7 @@ export class InterpreterService {
   //seperates code to diferent rows and than invokes fixRowContent
   //after we have the fixed code the interpretation of the instructions are started
   initInterpret(content: string){
-    this.codeFixed = [];
-    this.rowNumber = 0;
-    this.statement = "";
+    this.resetVariables();
 
     content = content + "\n"; //is needed for the interpretation
 
@@ -54,7 +52,6 @@ export class InterpreterService {
       this.interpretRow(this.codeFixed[this.executedRow][0], this.executedRow)
     }
     //console.log(this.codeFixed);
-    
     
   }
   
@@ -188,9 +185,13 @@ export class InterpreterService {
 
       //The tokens that are identified are matched to mic-1 instruction or fields and the emulation service is used
       switch(token){
+        case "":
+          break;
         case ".constant":
           this.constantField = true;
           console.log("Constant field to: true");
+          break;
+        case "end-constant":
           break;
         case ".main":
           this.mainField = true;
@@ -203,6 +204,8 @@ export class InterpreterService {
         case ".var":
           this.varField = true;
           console.log("Var field to: true");
+          break;
+        case ".end-var":
           break;
         case ".method":
           this.methodField = true;
@@ -277,8 +280,25 @@ export class InterpreterService {
           this.emulation.wideInstruction(statement);
           break;
         default:
-          break;    
+          console.log("----could not understand " + token);
+          ;    
       }
     }
+  }
+
+  //resets all variables
+  resetVariables(){
+    this.statement = "";
+    this.label = "";
+    this.rowContent = "";
+    this.comment = 0;
+    this.rowNumber = 0;
+    this.executedRow = 1;
+    this.rowContentFixed = [];
+    this.codeFixed = [];
+    this.constantField = false;
+    this.mainField = false;
+    this.varField = false;
+    this.methodField = false;
   }
 }

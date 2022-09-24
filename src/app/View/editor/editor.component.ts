@@ -2,6 +2,7 @@ import { AfterViewInit, Component, ElementRef, ViewChild } from "@angular/core";
 import { MacroProviderService } from "src/app/Controller/macro-provider.service";
 import { ControllerService } from "src/app/Controller/controller.service";
 import * as ace from "ace-builds";
+import { InterpreterService } from "src/app/Controller/interpreter.service";
 
 
 const LANG  = "ace/mode/mic1";
@@ -21,11 +22,11 @@ export class EditorComponent implements AfterViewInit{
   private aceEditor:ace.Ace.Editor;
   file: String; 
   
-  constructor(private macroProvider: MacroProviderService, private controllerService: ControllerService) { }
+  constructor(private macroProvider: MacroProviderService, private controllerService: ControllerService, private interpreter: InterpreterService) { }
 
   import(event: any){
     this.file = event.target.files[0];
-    this.controllerService.import(this.file);
+    this.controllerService.importMacro(this.file);
   }
 
   exportMacro(){
@@ -58,16 +59,19 @@ export class EditorComponent implements AfterViewInit{
 
     this.aceEditor.on("input", () =>{
       this.content = this.aceEditor.getValue();
+      this.macroProvider.setMacro(this.content);
     })
   }
 
-  refresh(){
-    this.content = this.macroProvider.getMacro();
-    this.aceEditor.session.setValue(this.content);
+  ngDoCheck(){
+    if(this.macroProvider.getMacro() !== this.content){
+      this.content = this.macroProvider.getMacro();    
+      this.aceEditor.session.setValue(this.content);  
+    }
   }
 
-  // Updates the macrocode on the macro provider and starts interpretation
+  // starts interpretation with the content of the editor
   load(){
-    this.macroProvider.setMacro(this.content);
+    this.interpreter.initInterpret(this.content);    
   }
 }

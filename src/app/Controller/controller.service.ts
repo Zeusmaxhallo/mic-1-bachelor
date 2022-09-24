@@ -22,15 +22,31 @@ export class ControllerService {
     PC.setValue(0);
   }
 
-  //reads the imported file and does a console log with the content
-  import(file: any){
+  //reads the imported file and sets it in the macroassembler editor
+  importMacro(file: any){
     if(file.type === "text/plain"){
       let fileReader = new FileReader();
       fileReader.readAsText(file);
+
       fileReader.onload = (e) => {
-        this.macroProvider.setMacro(fileReader.result.toString())
-        this.microProvider.setMicro(fileReader.result.toString())
+        this.macroProvider.setMacro(fileReader.result.toString());
       }
+
+    }else{
+      alert("Wrong file type!")
+    }
+  }
+
+  //reads the imported file and sets it in the microprograms editor
+  importMicro(file: any){    
+    if(file.type === "text/plain"){      
+      let fileReader = new FileReader();
+      fileReader.readAsText(file);
+
+      fileReader.onload = (e) => {
+        this.microProvider.setMicro(fileReader.result.toString());
+      }
+
     }else{
       alert("Wrong file type!")
     }

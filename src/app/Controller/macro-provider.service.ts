@@ -7,13 +7,12 @@ import { InterpreterService } from './interpreter.service';
 export class MacroProviderService {
   private macro: string = "";
 
-  constructor(private interpreter: InterpreterService) { }
+  constructor() { }
 
   //Is called when the User presses the import button
   //and loads macro code to the interpreter
   setMacro(macro: string){
     this.macro = macro; 
-    this.interpreter.initInterpret(this.macro);
   }
 
   getMacro(){

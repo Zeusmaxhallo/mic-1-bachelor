@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, ViewChild, ɵɵqueryRefresh } from "@angular/core";
 import { MicroProviderService } from "src/app/Controller/micro-provider.service";
 import { ControllerService } from "src/app/Controller/controller.service";
 
@@ -7,7 +7,6 @@ import * as ace from "ace-builds";
 
 const LANG  = "ace/mode/mic1";
 const THEME = "ace/theme/gruvbox";
-
 
 
 @Component({
@@ -22,15 +21,6 @@ export class MicroEditorComponent implements AfterViewInit{
   private aceEditor:ace.Ace.Editor;
   file: string;
   constructor(private microProvider: MicroProviderService, private controllerService: ControllerService) { }
-
-  import(event: any){
-    this.file = event.target.files[0];
-    this.controllerService.import(this.file);
-  }
-
-  exportMicro(){
-    this.controllerService.exportMicro();
-  }
 
   ngOnInit(): void {
     this.content = this.microProvider.getMicro();
@@ -64,8 +54,15 @@ export class MicroEditorComponent implements AfterViewInit{
     })
   }
 
-  refresh(){
-    this.content = this.microProvider.getMicro();
-    this.aceEditor.session.setValue(this.content);
+  ngDoCheck(){
+    if(this.microProvider.getMicro() !== this.content){
+      this.content = this.microProvider.getMicro();    
+      this.aceEditor.session.setValue(this.content);  
+    }
+  }
+
+  import(event: any){
+    this.file = event.target.files[0];
+    this.controllerService.importMicro(this.file);
   }
 }
