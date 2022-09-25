@@ -49,7 +49,7 @@ export class MicroEditorComponent implements AfterViewInit{
     this.aceEditor.on("input", () =>{
       this.content = this.aceEditor.getValue();
       
-      // Updates the macrocode on the macro provider
+      // Updates the microcode on the micro provider
       this.microProvider.setMicro(this.content);
     })
   }
