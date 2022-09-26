@@ -1,7 +1,6 @@
 import { state } from '@angular/animations';
 import { ParseSourceFile } from '@angular/compiler';
 import { Injectable } from '@angular/core';
-import { EmulationService } from './emulation.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,6 +11,8 @@ export class InterpreterService {
   rowContent: string = ""; //complete row with label and statement
   comment: number = 0; //need for checking if comment is used in code by user
   rowNumber: number = 0; //the number of the row wich is currently used
+  opcode: string = "";
+  operand: string = "";
 
   executedRow: number = 1;
 
@@ -25,7 +26,7 @@ export class InterpreterService {
 
   isNotInstruction: Boolean = false;
 
-  constructor(private emulation: EmulationService){}
+  constructor(){}
 
   //seperates code to diferent rows and than invokes fixRowContent
   //after we have the fixed code the interpretation of the instructions are started
@@ -40,7 +41,7 @@ export class InterpreterService {
       }
       else{
         this.rowNumber++;
-        this.fixRowContent(this.rowContent);
+        this.tokenizer(this.rowContent);
         this.rowContent = "";
 
         this.codeFixed[this.rowNumber] = this.rowContentFixed;
@@ -49,14 +50,14 @@ export class InterpreterService {
       }
     }
     for(this.executedRow; this.executedRow < this.rowNumber; this.executedRow++){
-      this.interpretRow(this.codeFixed[this.executedRow][0], this.executedRow)
+      this.runRow(this.codeFixed[this.executedRow][0], this.executedRow)
     }
     //console.log(this.codeFixed);
     
   }
   
 
-  fixRowContent(rowContent: string){
+  tokenizer(rowContent: string){
     rowContent = rowContent + "\n";
     rowContent = rowContent.replace("\t", ""); 
 
@@ -124,7 +125,7 @@ export class InterpreterService {
 
   //matches identified statements that are stored in codeFixed to IJVM Instructions and uses the emulation service to call the corrosponding methods
   //also checks which field the row is in. That's how constants and var's or methods are identified.
-  interpretRow(statement: string, rowNumber: number){
+  runRow(statement: string, rowNumber: number){
     //logs identified logs and labels with line numbers
     // console.log(rowNumber);
     // console.log("statement: " + row);
@@ -152,7 +153,7 @@ export class InterpreterService {
         }
       }
       else{
-        this.emulation.createConst(statement, rowNumber);
+        this.createConst(statement, rowNumber);
       }
     }
 
@@ -170,7 +171,7 @@ export class InterpreterService {
         }
       }
       else{
-        this.emulation.createVar(statement, rowNumber);
+        this.createVar(statement, rowNumber);
       }
     }
 
@@ -217,67 +218,67 @@ export class InterpreterService {
           break;
 
         case "BIPUSH":
-          this.emulation.bipushInstruction(statement);
+          console.log("BIPUSH");          
           break;
         case "DUP":
-          this.emulation.dupInstruction(statement);
+          console.log("DUP");   
           break;
         case "GOTO":
-          this.emulation.gotoInstruction(statement); 
+          console.log("GOTO");   
           break;
         case "IADD":
-          this.emulation.iaddInstruction(statement);
+          console.log("IADD");   
           break;
         case "IFEQ":
-          this.emulation.ifeqInstruction(statement);
+          console.log("IFEQ");   
           break;
         case "IFLT":
-          this.emulation.ifltInstruction(statement);
+          console.log("IFLT");   
           break;
         case "IF_ICMPEQ":
-          this.emulation.ificmpeqInstruction(statement);
+          console.log("IF_ICMPEQ");   
           break;
         case "IFICMPEQ":
-          this.emulation.ificmpeqInstruction(statement);
+          console.log("IFICMPEQ");   
           break;
         case "IINC":
-          this.emulation.iincInstruction(statement);
+          console.log("IINC");   
           break;
         case "ILOAD":
-          this.emulation.iloadInstruction(statement)
+          console.log("ILOAD");   
           break;
         case "INVOKEVIRTUAL":
-          this.emulation.invokevirtualInstruction(statement);
+          console.log("INVOKEVIRTUAL");   
           break;
         case "IOR":
-          this.emulation.iorInstruction(statement);
+          console.log("IOR");   
           break;
         case "IRETURN":
-          this.emulation.ireturnInstruction(statement);
+          console.log("IRETURN");   
           break;
         case "ISTORE":
-          this.emulation.istoreInstruction(statement);
+          console.log("ISTORE");   
           break;
         case "ISUB":
-          this.emulation.isubInstruction(statement);
+          console.log("ISUB");   
           break;
         case "LDC_W":
-          this.emulation.ldcwInstruction(statement);
+          console.log("LDC_W");   
           break;
         case "LDCW":
-          this.emulation.ldcwInstruction(statement);
+          console.log("LDCW");   
           break;
         case "NOP":
-          this.emulation.nopInstruction(statement);
+          console.log("NOP");   
           break;
         case "POP":
-          this.emulation.popInstruction(statement);
+          console.log("POP");   
           break;
         case "SWAP":
-          this.emulation.swapInstruction(statement);
+          console.log("SWAP");   
           break;
         case "WIDE":
-          this.emulation.wideInstruction(statement);
+          console.log("WIDE");   
           break;
         default:
           console.log("----could not understand " + token);
@@ -300,5 +301,13 @@ export class InterpreterService {
     this.mainField = false;
     this.varField = false;
     this.methodField = false;
+  }
+
+  createConst(statement: string, rowNumber: number){
+    console.log("Create Constant: " + statement);    
+  }
+
+  createVar(statement: string, rowNumber: number){
+    console.log("Create Variable: " + statement);    
   }
 }
