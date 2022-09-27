@@ -6,24 +6,32 @@ import { RegProviderService } from '../reg-provider.service';
 })
 
 export class BBusService {
-  private regProviderService: RegProviderService;
+  private readonly registers: Array<string> = ["MDR", "PC", "MBR", "MBRU", "SP", "LV", "CPPP", "TOS", "OPC"];
+  private value: number;
 
-  constructor(regProviderService: RegProviderService) {
-    this.regProviderService = regProviderService;
+  constructor(private regProviderService: RegProviderService) {
    }
-  
-  getValue(regNum: number): number{
-    switch(regNum){
-      case 0: return this.regProviderService.getRegister("MDR").getValue();
-      case 1: return this.regProviderService.getRegister("PC").getValue();
-      case 2: return this.regProviderService.getRegister("MBR").getValue();
-      case 3: return this.regProviderService.getRegister("MBRU").getValue();
-      case 4: return this.regProviderService.getRegister("SP").getValue();
-      case 5: return this.regProviderService.getRegister("LV").getValue();
-      case 6: return this.regProviderService.getRegister("CPP").getValue();
-      case 7: return this.regProviderService.getRegister("TOS").getValue();
-      case 8: return this.regProviderService.getRegister("OPC").getValue();
-      default: return null;
+
+  public activate(reg: Array<number>): void{
+    if(reg.length != 4){
+      throw new Error("ProtocolError - B-Bus-Operation must have 4 Bits but " + reg.length + " where given");
     }
-  } 
+    
+    // Decode instruction to equivalent register
+    let register: number = parseInt(reg.join(""), 2) 
+    
+    // get register value
+    this.value = this.regProviderService.getRegister(this.registers[register]).getValue(); 
+
+    // print on Console
+    console.log(`B-Bus Operation: ${reg.join("")}
+    |  reading from:  ${this.registers[register]},
+    |  value:         ${this.value}
+    `);
+  }
+
+  getValue(): number{
+    return this.value;
+  }  
+
 }
