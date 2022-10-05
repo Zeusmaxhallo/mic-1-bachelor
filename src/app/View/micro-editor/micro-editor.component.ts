@@ -5,7 +5,7 @@ import { ControllerService } from "src/app/Controller/controller.service";
 import * as ace from "ace-builds";
 
 
-const LANG  = "ace/mode/mic1";
+const LANG  = "ace/mode/micro";
 const THEME = "ace/theme/gruvbox";
 
 

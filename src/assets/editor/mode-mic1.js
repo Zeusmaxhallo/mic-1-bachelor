@@ -11,7 +11,7 @@ var Mic1HighlightRules = function () {
                 caseInsensitive: true },
             // variables:
             { token: 'variable.parameter.register.mic1',
-                regex: '\\b(?:EAX|RAX|AX)\\b',
+                regex: '\\b(?:EAX|RAX|AX|N|Z)\\b',
                 caseInsensitive: true },
             // numbers:
             { token: 'constant.character.decimal.mic1',
@@ -30,7 +30,7 @@ var Mic1HighlightRules = function () {
                 regex: '\\b(?:end-var|var|main|end-main|constant|end-constant|method|end-method)\\b',
                 caseInsensitive: true },
             // comments
-            { token: 'comment.mic1', regex: ';.*$' }]
+            { token: 'comment.mic1', regex: '//.*$' }]
     };
     this.normalizeRules();
 };
