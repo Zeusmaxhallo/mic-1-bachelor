@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { InterpreterService } from './interpreter.service';
+import { MacroTokenizerService } from './macro-tokenizer.service';
 
 describe('InterpreterService', () => {
-  let service: InterpreterService;
+  let service: MacroTokenizerService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(InterpreterService);
+    service = TestBed.inject(MacroTokenizerService);
   });
 
   it('should be created', () => {

@@ -2,7 +2,7 @@ import { AfterViewInit, Component, ElementRef, ViewChild } from "@angular/core";
 import { MacroProviderService } from "src/app/Controller/macro-provider.service";
 import { ControllerService } from "src/app/Controller/controller.service";
 import * as ace from "ace-builds";
-import { InterpreterService } from "src/app/Controller/interpreter.service";
+import { MacroTokenizerService } from "src/app/Controller/macro-tokenizer.service";
 
 
 const LANG  = "ace/mode/mic1";
@@ -22,7 +22,7 @@ export class EditorComponent implements AfterViewInit{
   private aceEditor:ace.Ace.Editor;
   file: String; 
   
-  constructor(private macroProvider: MacroProviderService, private controllerService: ControllerService, private interpreter: InterpreterService) { }
+  constructor(private macroProvider: MacroProviderService, private controllerService: ControllerService, private macroTokenizer: MacroTokenizerService) { }
 
   import(event: any){
     this.file = event.target.files[0];
@@ -72,6 +72,6 @@ export class EditorComponent implements AfterViewInit{
 
   // starts interpretation with the content of the editor
   load(){
-    this.interpreter.initInterpret(this.content);    
+    this.macroTokenizer.init(this.content); 
   }
 }

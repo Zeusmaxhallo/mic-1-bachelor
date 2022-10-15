@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { InterpreterService } from './interpreter.service';
+import { MacroTokenizerService } from './macro-tokenizer.service';
 
 @Injectable({
   providedIn: 'root'
