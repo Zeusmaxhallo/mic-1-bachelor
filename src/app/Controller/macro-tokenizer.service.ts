@@ -64,7 +64,6 @@ export class MacroTokenizerService {
     [/^[a-z]([a-zA-Z0-9]+)?/, "NEW_VARIABLE"]
   ];
 
-  constantField: Boolean = false;
   
   private string: string = "";
   private curser: number = 0;
@@ -79,6 +78,7 @@ export class MacroTokenizerService {
       }
       console.log(token);
     }
+    this.resetTokenizer();
   }
 
   private hasMoreTokens(): Boolean {
@@ -113,10 +113,6 @@ export class MacroTokenizerService {
       if (tokenType == null) {
         return this.getNextToken();
       }
-
-      if(tokenValue == ".constant"){
-        this.constantField = true;      
-      }
       
       return{
         type: tokenType,
@@ -125,6 +121,11 @@ export class MacroTokenizerService {
     }
 
     throw new SyntaxError(`Unexpected token: "${string[0]}"`); 
+  }
+
+  resetTokenizer(){
+    this.string = "";
+    this.curser = 0;
   }
 
 }
