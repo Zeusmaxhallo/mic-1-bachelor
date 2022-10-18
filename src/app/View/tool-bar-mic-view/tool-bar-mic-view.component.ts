@@ -3,6 +3,7 @@ import { ControllerService } from 'src/app/Controller/controller.service';
 import { AluService } from 'src/app/Controller/Emulator/alu.service';
 import { BBusService } from 'src/app/Controller/Emulator/b-bus.service';
 import { CBusService } from 'src/app/Controller/Emulator/c-bus.service';
+import { ParserService } from 'src/app/Controller/Emulator/parser.service';
 import { ShifterService } from 'src/app/Controller/Emulator/shifter.service';
 
 @Component({
@@ -16,7 +17,8 @@ export class ToolBarMicViewComponent implements OnInit {
     private busB: BBusService,
     private alu: AluService,
     private shifter: ShifterService,
-    private busC: CBusService) {}
+    private busC: CBusService,
+    private parser: ParserService) {}
 
   ngOnInit(): void {
   }
@@ -30,9 +32,19 @@ export class ToolBarMicViewComponent implements OnInit {
   }
 
   run(){
-    this.busB.activate([0,0,0,1]);
-    let result = this.alu.calc([1,1,1,0,0,1]);
-    result = this.shifter.shift([0,0], result)
-    this.busC.activate([1,1,1,1,1,1,0,0,0], result)
+    const instruction = prompt("Enter Instruction:");
+    //let instruction = "Label1: H = MDR = TOS = 0 << 8 ;wr;"
+    console.log(instruction)
+    this.parser.init(instruction, 10);
+    this.parser.parse();
+
+    //console.log("H = OPC = PC = -1 ;rd;goto Label1")
+    //this.parser.init("H = OPC = PC = -1;rd;goto Label1", 11);
+    //this.parser.parse();
+
+    this.busB.activate(this.parser.b);
+    let result = this.alu.calc(this.parser.alu.slice(2));
+    result = this.shifter.shift(this.parser.alu.slice(0,2), result)
+    this.busC.activate(this.parser.c, result)
   }
 }

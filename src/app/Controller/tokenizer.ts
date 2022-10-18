@@ -4,14 +4,23 @@ const Spec: any= [
     [/^\d+/, "NUMBER"],
 
     // Registers
-    [/^H/,      "REGISTER"],
-    [/^TOS/,    "REGISTER"],
+    [/^H/,     "REGISTER"],
+    [/^MAR/,   "REGISTER"],
+    [/^MDR/,   "REGISTER"],
+    [/^SP/,    "REGISTER"],
+    [/^LV/,    "REGISTER"],
+    [/^CPP/,   "REGISTER"],
+    [/^TOS/,   "REGISTER"],
+    [/^OPC/,   "REGISTER"],
+    [/^PC/,    "REGISTER"],
+
 
     // Math operators: +/-, AND, OR, >>
     [/^[+\-]/, "ADDITIVE_OPERATOR"],
     [/^AND/, "LOGICAL_OPERATOR"],
     [/^OR/, "LOGICAL_OPERATOR"],
     [/^<</, "BITWISE_OPERATOR"],
+    [/^>>/, "BITWISE_OPERATOR"],
 
     // Assignment operator: =
     [/^=/, "ASSIGNMENT_OPERATOR"],
@@ -21,8 +30,14 @@ const Spec: any= [
     [/^wr/, "MEMORY_INSTRUCTION"],
     [/^fetch/, "MEMORY_INSTRUCTION"],
 
+    // if else
+    [/^if(N)/ , "JUMP"],
+    [/^if(Z)/ , "JUMP"],
+    [/^else/ , "JUMP"],
+
+
     // New Label: e.g Label1:
-    [/^.*:/ , "NEW_LABEL"],
+    [/^\w*:/ , "NEW_LABEL"],
     
     // Divider: ;
     [/^;/, "DIVIDER"],
@@ -40,8 +55,13 @@ const Spec: any= [
     [/^\w*/, "LABEL"]
 ]
 
+export interface Token{
+    type: string;
+    value: string;
+}
 
-class Tokenizer{
+
+export class Tokenizer{
 
     private string: string = "";
     private curser: number = 0; 
@@ -64,7 +84,7 @@ class Tokenizer{
         return matched[0];
     }
    
-    getNextToken():Object{
+    getNextToken():Token{
         if (!this.hasMoreTokens()){
             return null;
         }
@@ -93,18 +113,16 @@ class Tokenizer{
 
         throw new SyntaxError(`Unexpected token: "${string[0]}"`); 
     }
-}
 
-const tokenizer = new Tokenizer();
-
-const string = "Label1: H = TOS = 1 + TOS;wr;goto Main1 "
-tokenizer.init(string);
-
-console.log(string);
-while (true) {
-    let token = tokenizer.getNextToken();
-    if (token == null){
-        break;
+    getAllTokens():Token[]{
+        let tokens: Token[] = [];
+        while(true){
+            let token = this.getNextToken();
+            if(token == null){
+                break;
+            }
+            tokens.push(token);
+        }
+        return tokens;
     }
-    console.log(token);
 }
