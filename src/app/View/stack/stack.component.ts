@@ -38,11 +38,29 @@ export class StackComponent implements OnInit {
   }
 
   push(): void{
-    this.stackProvider.push(Math.floor(Math.random() * 10));
+    this.stackProvider.push(Math.floor(Math.random() * 1000));
+    this.stackProvider.sp = this.stackProvider.size() - 1;
   }
 
   pop(): void{
     console.log(this.stackProvider.pop());
+    this.stackProvider.sp = this.stackProvider.size() - 1;
+  }
+
+  isLV(index: number){
+    return index == this.stackProvider.lv;
+  }
+
+  isSP(index: number){
+    return index == this.stackProvider.sp;
+  }
+
+  dec2hex(number:number){
+    let prefix = "0x"
+    if(number < 16){
+      prefix = prefix + "0"
+    }
+    return prefix + number.toString(16).toUpperCase();
   }
 
 }
