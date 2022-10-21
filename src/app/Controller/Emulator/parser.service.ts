@@ -239,6 +239,8 @@ export class ParserService {
   private aluCase1Reg(aluInstruction: Token[]) {
     // Alu instructions with one Register can be "A", "B", "-A", "A+1", "B+1" or "B-1". 
 
+    if (aluInstruction.length > 4){throw new Error("InvalidAluInstruction");}
+
     // Check of sign (+/-)
     if (aluInstruction[0].type == "ADDITIVE_OPERATOR"){
       // - -> can only be "-A" instruction
@@ -269,6 +271,9 @@ export class ParserService {
 
       // A + 1 || 1 + A
       if ( aluInstruction[0].value == "H" || aluInstruction[2].value == "H" ) {
+        if( aluInstruction[0].value != "1" && aluInstruction[2].value != "1"){
+          throw new Error("InvalidAluInstruction - can only add one");
+        }
         this.alu = [0,0,1,1,1,0,0,1];
         return;
       }
@@ -282,7 +287,7 @@ export class ParserService {
     }
 
     // A
-    if (aluInstruction[0].value == "H"){
+    if (aluInstruction[0].value == "H" && aluInstruction.length <= 2){
       this.alu = [0,0,0,1,1,0,0,0];
       return;
     }
@@ -421,7 +426,7 @@ export class ParserService {
       this.b = regEncoding[register];
       return;
     }
-    throw new Error("UnknownRegister - " + register + "is not a valid B-Bus register");
+    throw new Error("UnknownRegister - " + register + " is not a valid B-Bus register");
     
 
   }

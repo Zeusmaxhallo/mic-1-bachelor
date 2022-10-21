@@ -37,7 +37,7 @@ const Spec: any= [
 
 
     // New Label: e.g Label1:
-    [/^\w*:/ , "NEW_LABEL"],
+    [/^\w+:/ , "NEW_LABEL"],
     
     // Divider: ;
     [/^;/, "DIVIDER"],
@@ -52,7 +52,7 @@ const Spec: any= [
     [/^goto/, "GOTO"],
 
     // Jump Label
-    [/^\w*/, "LABEL"]
+    [/^\w+/, "LABEL"]
 ]
 
 export interface Token{
