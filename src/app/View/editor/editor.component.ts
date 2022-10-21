@@ -72,6 +72,6 @@ export class EditorComponent implements AfterViewInit{
 
   // starts interpretation with the content of the editor
   load(){
-    this.macroTokenizer.init(this.content); 
+    this.macroTokenizer.init(); 
   }
 }

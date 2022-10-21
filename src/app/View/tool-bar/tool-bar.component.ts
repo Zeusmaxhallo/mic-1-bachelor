@@ -32,4 +32,8 @@ export class ToolBarComponent implements OnInit {
     this.controllerService.exportMicro();
   }
 
+  integrationTest(){
+    this.controllerService.integrationTest();    
+  }
+
 }
