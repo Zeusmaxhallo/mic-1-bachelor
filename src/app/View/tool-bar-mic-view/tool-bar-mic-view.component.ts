@@ -33,7 +33,7 @@ export class ToolBarMicViewComponent implements OnInit {
 
   run(){
     const instruction = prompt("Enter Instruction:");
-    //let instruction = "Label1: H = MDR = TOS = 0 << 8 ;wr;"
+    //let instruction = "Label1: H = MDR = TOS = H + PC + 1 << 8 ;wr;"
     console.log(instruction)
     this.parser.init(instruction, 10);
     this.parser.parse();
