@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as FileSaver from 'file-saver';
+import { IntegrationTestService } from './integration-test.service';
 import { MacroProviderService } from './macro-provider.service';
 import { MicroProviderService } from './micro-provider.service';
 import { RegProviderService } from './reg-provider.service';
@@ -10,7 +11,7 @@ import { RegProviderService } from './reg-provider.service';
 export class ControllerService {
 
   constructor(private regProvider: RegProviderService, private macroProvider: MacroProviderService, 
-    private microProvider: MicroProviderService) { }
+    private microProvider: MicroProviderService, private integrationTestService: IntegrationTestService) { }
 
   step(){
     let PC = this.regProvider.getRegister("PC");
@@ -65,4 +66,7 @@ export class ControllerService {
     FileSaver.saveAs(data, 'micro.txt');
   }
 
+  integrationTest(){
+    this.integrationTestService.testMacro();
+  }
 }

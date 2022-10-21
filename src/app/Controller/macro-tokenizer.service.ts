@@ -1,6 +1,7 @@
 import { state } from '@angular/animations';
 import { ParseSourceFile, TokenType } from '@angular/compiler';
 import { Injectable } from '@angular/core';
+import { MacroProviderService } from './macro-provider.service';
 
 @Injectable({
   providedIn: 'root'
@@ -68,15 +69,30 @@ export class MacroTokenizerService {
   private string: string = "";
   private curser: number = 0;
 
-  init(row: string){
-    //console.log(row);
-    this.string = row;
+
+  constructor(private macroProvider: MacroProviderService) { }
+
+
+  init(){
+    this.string = this.macroProvider.getMacro();
     while(true){
       let token = this.getNextToken();
       if(token == null){
         break;
       }
       console.log(token);
+    }
+    this.resetTokenizer();
+  }
+
+  initTest(macro: string){
+    this.string = macro;
+    while(true){
+      let token = this.getNextToken();
+      if(token == null){
+        break;
+      }     
+      //console.log(token); //uncommend if you want to see where it breaks
     }
     this.resetTokenizer();
   }
