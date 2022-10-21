@@ -68,5 +68,6 @@ export class ControllerService {
 
   integrationTest(){
     this.integrationTestService.testMacro();
+    this.integrationTestService.testMicro();
   }
 }

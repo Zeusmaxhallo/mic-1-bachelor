@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MacroProviderService } from './macro-provider.service';
 import { MacroTokenizerService } from './macro-tokenizer.service';
+import { ParserService } from './Emulator/parser.service';
 
 @Injectable({
   providedIn: 'root'
@@ -58,17 +59,44 @@ export class IntegrationTestService {
   end:	IRETURN // tmp is still on the stack so we return it
   .end-method`;
 
+  microInstructions: string[] = [
+    "TOS = H + 1", 
+    "TOS=H+1", 
+    "MDR = TOS", 
+    "ior1:MAR=SP=SP-1; rd", 
+    "MAR=SP-1; wr", 
+    //"(0x57)pop1: MAR=SP=SP-1; rd;", 
+    //"H=MBRU <<8", 
+    //"OPC-H; if(Z) goto T; else goto F", 
+    //"H = MBRU OR H", 
+    //"PC=PC+1; fetch", 
+    //"//Ein Kommentar", 
+    //"T:OPC=PC-1;fetch; goto goto2"
+  ];
 
 
-  constructor(private macroProvider: MacroProviderService, private macroTokenizer: MacroTokenizerService) { }
+  constructor(private macroProvider: MacroProviderService, private macroTokenizer: MacroTokenizerService, 
+    private parserService: ParserService) { }
 
   testMacro(){
     try{
       this.macroTokenizer.initTest(this.macro); 
       console.log("Integration Test for Macroassembler SUCCESSFUL");
-    }
-    catch{
+    } catch (error) {
       console.error("Integration Test for Macroassembler FAILED");
     }   
+  }
+
+  testMicro(){
+    try {
+      for(let i = 0; i < this.microInstructions.length; i++){
+        this.parserService.init(this.microInstructions[i], i);
+      } 
+      console.log("Integration Test for Microprograms SUCCESSFUL");
+      
+    } catch (error) {
+      console.error("Integration Test for Microprograms FAILED")
+    }
+
   }
 }
