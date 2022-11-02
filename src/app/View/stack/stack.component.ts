@@ -2,6 +2,7 @@ import { animate, keyframes, state, style, transition, trigger } from '@angular/
 import { Component, OnInit } from '@angular/core';
 import { AluService } from 'src/app/Controller/Emulator/alu.service';
 import { ShifterService } from 'src/app/Controller/Emulator/shifter.service';
+import { RegProviderService } from 'src/app/Controller/reg-provider.service';
 import { StackProviderService } from 'src/app/Controller/stack-provider.service';
 
 
@@ -32,7 +33,7 @@ import { StackProviderService } from 'src/app/Controller/stack-provider.service'
 })
 export class StackComponent implements OnInit {
   
-  constructor(public stackProvider:StackProviderService) { }
+  constructor(public stackProvider:StackProviderService, private regProvider: RegProviderService) { }
 
   ngOnInit(): void {
   }
@@ -40,11 +41,13 @@ export class StackComponent implements OnInit {
   push(): void{
     this.stackProvider.push(Math.floor(Math.random() * 1000));
     this.stackProvider.sp = this.stackProvider.size() - 1;
+    this.regProvider.getRegister("SP").setValue(this.stackProvider.sp) 
   }
 
   pop(): void{
     console.log(this.stackProvider.pop());
     this.stackProvider.sp = this.stackProvider.size() - 1;
+    this.regProvider.getRegister("SP").setValue(this.stackProvider.sp) 
   }
 
   isLV(index: number){

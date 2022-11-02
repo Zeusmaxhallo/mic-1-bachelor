@@ -23,7 +23,9 @@ export class StackProviderService  {
     if (position < this.items.length){
       this._sp = position;
     }else{ 
-      throw new Error("StackIndex out of range");
+      let toAdd = position - this.items.length + 1;
+      this.items = this.items.concat(new Array(toAdd).fill(""));
+      this._sp = position;
     }
     this.items = [...this.items];
   }
