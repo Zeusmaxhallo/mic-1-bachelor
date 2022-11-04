@@ -43,6 +43,8 @@ export class CBusService {
         this.regProvider.getRegister(this.registers[i]).setValue(value);
         this._writtenRegisters.push(this.registers[i]);
 
+
+        // if SP or LV are -> notify stack
         if(this.registers[i] === "SP"){
           this.stackProvider.sp = value;
         }

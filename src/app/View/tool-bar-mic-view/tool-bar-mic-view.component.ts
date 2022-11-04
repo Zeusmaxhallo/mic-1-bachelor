@@ -3,6 +3,7 @@ import { ControllerService } from 'src/app/Controller/controller.service';
 import { AluService } from 'src/app/Controller/Emulator/alu.service';
 import { BBusService } from 'src/app/Controller/Emulator/b-bus.service';
 import { CBusService } from 'src/app/Controller/Emulator/c-bus.service';
+import { MainMemoryService } from 'src/app/Controller/Emulator/main-memory.service';
 import { ParserService } from 'src/app/Controller/Emulator/parser.service';
 import { ShifterService } from 'src/app/Controller/Emulator/shifter.service';
 
@@ -18,7 +19,8 @@ export class ToolBarMicViewComponent implements OnInit {
     private alu: AluService,
     private shifter: ShifterService,
     private busC: CBusService,
-    private parser: ParserService) {}
+    private parser: ParserService,
+    private memory: MainMemoryService) {}
 
   ngOnInit(): void {
   }
@@ -29,6 +31,21 @@ export class ToolBarMicViewComponent implements OnInit {
 
   reset(){
     this.controllerService.reset();
+
+
+    // ---   test MainMemory functionality  ---
+    this.memory.store_32(0,-16);
+    this.memory.store_32(8,16);
+    this.memory.store_32(16,1023);
+
+    //this.memory.save2LocalStorage();
+    //this.memory.getFromLocalStorage();
+    this.memory.printMemory();
+
+    console.log(this.memory.get_32(0));
+    console.log(this.memory.get_8(3));
+
+
   }
 
   run(){
