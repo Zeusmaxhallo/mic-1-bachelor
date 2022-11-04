@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as FileSaver from 'file-saver';
+import { ParserService } from './Emulator/parser.service';
 import { IntegrationTestService } from './integration-test.service';
 import { MacroProviderService } from './macro-provider.service';
 import { MicroProviderService } from './micro-provider.service';
@@ -11,7 +12,8 @@ import { RegProviderService } from './reg-provider.service';
 export class ControllerService {
 
   constructor(private regProvider: RegProviderService, private macroProvider: MacroProviderService, 
-    private microProvider: MicroProviderService, private integrationTestService: IntegrationTestService) { }
+    private microProvider: MicroProviderService, private integrationTestService: IntegrationTestService,
+    private parser: ParserService) { }
 
   step(){
     let PC = this.regProvider.getRegister("PC");
@@ -69,5 +71,11 @@ export class ControllerService {
   integrationTest(){
     this.integrationTestService.testMacro();
     this.integrationTestService.testMicro();
+  }
+
+  testMicro(){
+    let microLines = this.microProvider.getMicro().split("\n");
+    this.parser.labels = {}; // reset labels or u get DuplicateLabelError after testing twice
+    let microProgram = this.parser.compile(microLines);
   }
 }

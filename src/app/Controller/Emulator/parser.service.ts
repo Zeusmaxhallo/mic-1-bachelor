@@ -2,6 +2,15 @@ import { Injectable } from '@angular/core';
 import { Tokenizer } from '../tokenizer';
 import { Token } from '../tokenizer';
 
+export interface Instruction{
+  addr: Array<number>;
+  jam: Array<number>;
+  alu: Array<number>;
+  c: Array<number>;
+  mem: Array<number>;
+  b: Array<number>;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -12,7 +21,10 @@ export class ParserService {
   private tokenizer = new Tokenizer();
   private tokens: Token[];
 
-  labels:{ [id: string] : number } = {};
+  // jump labels and address
+  public labels:{ [id: string] : number } = {};
+
+  public static print = false;
 
   // address of current instruction
   private address: number;
@@ -26,9 +38,8 @@ export class ParserService {
 
 
 
-  public init(instruction: string, address: number){
-    this.tokenizer.init(instruction);
-    this.tokens = this.tokenizer.getAllTokens();
+  public init(instruction: Token[], address: number){
+    this.tokens = instruction;
     this.address = address
 
     // set all output Bits to 0
@@ -41,7 +52,7 @@ export class ParserService {
   }
 
 
-  parse(){
+  parse(): Instruction{
     if(this.tokens.length == 0){
       throw new Error("EmptyInstructionError");
     }
@@ -70,7 +81,9 @@ export class ParserService {
       }
       
     }
-    console.log(`Parser Output:
+
+    if(ParserService.print){
+      console.log(`Parser Output:
       Addr:  ${this.addr.join("")},
       JAM:   ${this.jam.join("")},
       Alu:   ${this.alu.join("")},
@@ -78,6 +91,11 @@ export class ParserService {
       Mem:   ${this.mem.join("")},
       B:     ${this.b.join("")}, 
     `)
+    }
+
+
+
+    return {addr:this.addr, alu:this.alu, b: this.b, c:this.c, jam:this.jam, mem:this.mem};
 
   }
 
@@ -103,7 +121,7 @@ export class ParserService {
 
     let cursor = 0;
     for (let i = this.addr.length - binaryString.length; i < this.addr.length; i++){
-      this.addr[i] = binaryString[cursor];
+      this.addr[i] = parseInt(binaryString[cursor]);
       cursor ++;
     }
     
@@ -207,7 +225,7 @@ export class ParserService {
   }
 
   private aluCase0Reg(aluInstruction: Token[]) {
-    // Alu Instructions without a any Register can either be "0" , "1" or "-1".
+    // Alu Instructions without any Registers can either be "0" , "1" or "-1".
 
     // check for sign (+/-)
     if (aluInstruction[0].type == "ADDITIVE_OPERATOR") {
@@ -496,4 +514,53 @@ export class ParserService {
     
   }
 
+  compile(input: string[]){
+    let tokens: Token[][] = [];
+    let lastAddress = 0;
+    let microprogram:{[address:number]: Token[]} = {};
+    // tokenize all lines
+    for (let i=0; i < input.length; i++){
+      this.tokenizer.init(input[i]);
+      tokens[i] = this.tokenizer.getAllTokens();
+    }
+
+    // find address for each instruction
+    for(let line of tokens){
+
+      // skip empty lines
+      if(line.length == 0 || tokens.length == 0){continue;}
+
+      // if instruction has given Address, e.g (0xF7) -> take it 
+      if(line[0].type == "ADDRESS"){
+        const match = /[a-fA-F0-9]{2}/.exec(line[0].value);
+        if(match == null){
+          throw new Error(`Unexpected token: ${line[0].value}`);
+        }
+        let address = parseInt(match[0],16);
+        line.shift(); //consume token
+        microprogram[address] = line;
+        lastAddress = address;
+        continue;
+      }
+
+      // if there is no given Address take last Address + 1
+      microprogram[lastAddress + 1] = line;
+      lastAddress++;
+    }
+
+    let output: {[address:number]: Instruction} = {};
+
+    // parse each line
+    for(const [address,tokens] of Object.entries(microprogram)){
+      this.init(tokens,parseInt(address));
+      output[parseInt(address)] = this.parse(); 
+    }
+
+
+    console.log(output);
+
+    console.table(this.labels);
+    return output;
+
+  }
 }

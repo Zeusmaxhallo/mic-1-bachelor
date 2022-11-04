@@ -35,6 +35,8 @@ const Spec: any= [
     [/^if(Z)/ , "JUMP"],
     [/^else/ , "JUMP"],
 
+    // Addresses: e.g (0x7F)
+    [/^\(0x[a-fA-F0-9]+\)/, "ADDRESS"],
 
     // New Label: e.g Label1:
     [/^\w+:/ , "NEW_LABEL"],

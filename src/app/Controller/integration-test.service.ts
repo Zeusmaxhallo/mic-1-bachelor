@@ -87,10 +87,11 @@ export class IntegrationTestService {
     }   
   }
 
+  
   testMicro(){
     try {
       for(let i = 0; i < this.microInstructions.length; i++){
-        this.parserService.init(this.microInstructions[i], i);
+        //this.parserService.init(this.microInstructions[i], i);
       } 
       console.log("Integration Test for Microprograms SUCCESSFUL");
       
