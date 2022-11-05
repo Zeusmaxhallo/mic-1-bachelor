@@ -39,6 +39,8 @@ export class ParserService {
 
 
   public init(instruction: Token[], address: number){
+    console.log(instruction);
+    
     this.tokens = instruction;
     this.address = address
 
@@ -93,10 +95,7 @@ export class ParserService {
     `)
     }
 
-
-
-    return {addr:this.addr, alu:this.alu, b: this.b, c:this.c, jam:this.jam, mem:this.mem};
-
+    return {addr:[...this.addr], alu:[...this.alu], b: [...this.b], c:[...this.c], jam:[...this.jam], mem:[...this.mem]};
   }
 
 

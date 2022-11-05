@@ -1,5 +1,6 @@
 import { Component, DebugElement, OnInit } from '@angular/core';
 import { ControllerService } from 'src/app/Controller/controller.service';
+import { DirectorService } from 'src/app/Controller/director.service';
 import { AluService } from 'src/app/Controller/Emulator/alu.service';
 import { BBusService } from 'src/app/Controller/Emulator/b-bus.service';
 import { CBusService } from 'src/app/Controller/Emulator/c-bus.service';
@@ -20,7 +21,8 @@ export class ToolBarMicViewComponent implements OnInit {
     private shifter: ShifterService,
     private busC: CBusService,
     private parser: ParserService,
-    private memory: MainMemoryService) {}
+    private memory: MainMemoryService,
+    private director: DirectorService,) {}
 
   ngOnInit(): void {
   }
@@ -49,12 +51,13 @@ export class ToolBarMicViewComponent implements OnInit {
   }
 
   run(){
-    this.parser.compile(["Main1: PC=PC+1; fetch;",
-    "(0x60)iadd1: MAR=SP=SP-1; rd",
-    "H=TOS","MDR=TOS=MDR+H; wr;",
-    "(0x64)isub1: MAR=SP=SP-1; rd",
-    "H=TOS"])
-    
+    this.director.step();
+    //this.parser.compile(["Main1: PC=PC+1; fetch;",
+    //"(0x60)iadd1: MAR=SP=SP-1; rd",
+    //"H=TOS","MDR=TOS=MDR+H; wr;",
+    //"(0x64)isub1: MAR=SP=SP-1; rd",
+    //"H=TOS"])
+    //
     //const instruction = prompt("Enter Instruction:");
     //let instruction = "Label1: H = MDR = TOS = H + PC + 1 << 8 ;wr;"
     //console.log(instruction)
