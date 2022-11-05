@@ -2,10 +2,21 @@ import { Injectable } from '@angular/core';
 import { MacroProviderService } from './macro-provider.service';
 import { MacroTokenizerService } from './macro-tokenizer.service';
 import { ParserService } from './Emulator/parser.service';
+import { Tokenizer } from './tokenizer';
+import { BBusService } from './Emulator/b-bus.service';
+import { CBusService } from './Emulator/c-bus.service';
+import { AluService } from './Emulator/alu.service';
+import { ShifterService } from './Emulator/shifter.service';
+
+export interface Token{
+  type: string;
+  value: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
+
 export class IntegrationTestService {
 
   macro: string = 
@@ -60,7 +71,7 @@ export class IntegrationTestService {
   .end-method`;
 
   microInstructions: string[] = [
-    "TOS = H + 1", 
+    "TOS = H + 1; wr", 
     "TOS=H+1", 
     "MDR = TOS", 
     "ior1:MAR=SP=SP-1; rd", 
@@ -74,29 +85,48 @@ export class IntegrationTestService {
     //"T:OPC=PC-1;fetch; goto goto2"
   ];
 
+  tokens: Token[] = null;
 
-  constructor(private macroProvider: MacroProviderService, private macroTokenizer: MacroTokenizerService, 
-    private parserService: ParserService) { }
 
+  constructor(private macroProvider: MacroProviderService, 
+    private macroTokenizer: MacroTokenizerService, 
+    private parserService: ParserService,
+    private tokenizer: Tokenizer,
+    private bBus: BBusService,
+    private cBus: CBusService,
+    private alu: AluService,
+    private shifter: ShifterService
+    ) { }
+
+
+  //Tests the macro Tokenizer
   testMacro(){
     try{
       this.macroTokenizer.initTest(this.macro); 
-      console.log("Integration Test for Macroassembler SUCCESSFUL");
+      alert("Integration Test for Macroassembler SUCCESSFUL");
     } catch (error) {
-      console.error("Integration Test for Macroassembler FAILED");
-    }   
+      alert("Integration Test for Macroassembler FAILED");
+    }  
   }
 
-  
+  //Tests the micro tokenizer and tokenizer, and also tests the BBus, CBus, ALU and the Shifter
   testMicro(){
     try {
       for(let i = 0; i < this.microInstructions.length; i++){
-        //this.parserService.init(this.microInstructions[i], i);
+        this.tokenizer.init(this.microInstructions[i]);
+        this.tokens = this.tokenizer.getAllTokens();
+        
+        this.parserService.init(this.tokens, 0);
+        let parsedResult = this.parserService.parse();
+        this.bBus.activate(parsedResult.b);
+        let result = this.alu.calc(parsedResult.alu.slice(2));
+        result = this.shifter.shift(parsedResult.alu.slice(0,2), result)
+        this.cBus.activate(parsedResult.c,result);        
       } 
-      console.log("Integration Test for Microprograms SUCCESSFUL");
+      alert("Integration Test for Microprograms SUCCESSFUL");
       
     } catch (error) {
-      console.error("Integration Test for Microprograms FAILED")
+      alert("Integration Test for Microprograms FAILED");
     }
 
   }
