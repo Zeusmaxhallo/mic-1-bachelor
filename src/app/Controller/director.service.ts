@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { AluService } from './Emulator/alu.service';
 import { BBusService } from './Emulator/b-bus.service';
 import { CBusService } from './Emulator/c-bus.service';
-import { ParserService } from './Emulator/parser.service';
+import { Instruction, ParserService } from './Emulator/parser.service';
 import { ShifterService } from './Emulator/shifter.service';
+import { MicroProviderService } from './micro-provider.service';
 
 @Injectable({
   providedIn: 'root'
@@ -16,27 +17,29 @@ export class DirectorService {
     private bBus: BBusService,
     private cBus: CBusService,
     private shifter: ShifterService,
+    private microProvider: MicroProviderService,
     ) { }
 
-  public step(){
-    // TOS = PC
-    const tokens = [
-      {type: 'REGISTER', value: 'TOS'},
-      {type: 'ASSIGNMENT_OPERATOR', value: '='},
-      {type: 'REGISTER', value: 'PC'}
-    ]
+  private controlStore: {[address: number]: Instruction};
+  private currentAddress = 16;
 
-    this.parser.init(tokens,0);
-    let parsedResult = this.parser.parse();
-    console.log(parsedResult);
-
-    this.bBus.activate(parsedResult.b);
-    let result = this.alu.calc(parsedResult.alu.slice(2));
-    result = this.shifter.shift(parsedResult.alu.slice(0,2), result)
-    this.cBus.activate(parsedResult.c,result);
-
-
+  public loadMicro(){
+    this.parser.labels = {};
+    this.controlStore = this.parser.compile(this.microProvider.getMicro().split("\n"));
   }
 
+  public step(){
 
+    let microInstruction = this.controlStore[this.currentAddress];
+    
+    this.bBus.activate(microInstruction.b);
+    let result = this.alu.calc(microInstruction.alu.slice(2));
+    result = this.shifter.shift(microInstruction.alu.slice(0,2), result)
+    this.cBus.activate(microInstruction.c,result);
+
+
+    this.currentAddress = parseInt(microInstruction.addr.join(""),2)
+    console.log("next address = " + this.currentAddress);
+
+  }
 }

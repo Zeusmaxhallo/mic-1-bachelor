@@ -39,7 +39,6 @@ export class ParserService {
 
 
   public init(instruction: Token[], address: number){
-    //console.log(instruction);
     
     this.tokens = instruction;
     this.address = address

@@ -51,6 +51,7 @@ export class ToolBarMicViewComponent implements OnInit {
   }
 
   run(){
+    this.director.loadMicro();
     this.director.step();
     //this.parser.compile(["Main1: PC=PC+1; fetch;",
     //"(0x60)iadd1: MAR=SP=SP-1; rd",
