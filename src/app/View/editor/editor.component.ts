@@ -3,6 +3,8 @@ import { MacroProviderService } from "src/app/Controller/macro-provider.service"
 import { ControllerService } from "src/app/Controller/controller.service";
 import * as ace from "ace-builds";
 import { MacroTokenizerService } from "src/app/Controller/macro-tokenizer.service";
+import { MacroParserService } from "src/app/Controller/macro-parser.service";
+import { ControlStoreService } from "src/app/Controller/Emulator/control-store.service";
 
 
 const LANG  = "ace/mode/mic1";
@@ -22,7 +24,12 @@ export class EditorComponent implements AfterViewInit{
   private aceEditor:ace.Ace.Editor;
   file: String; 
   
-  constructor(private macroProvider: MacroProviderService, private controllerService: ControllerService, private macroTokenizer: MacroTokenizerService) { }
+  constructor(private macroProvider: MacroProviderService, 
+    private controllerService: ControllerService, 
+    private macroTokenizer: MacroTokenizerService,
+    private macroParser: MacroParserService,
+    private controlStore: ControlStoreService
+    ) { }
 
   import(event: any){
     this.file = event.target.files[0];
@@ -72,6 +79,8 @@ export class EditorComponent implements AfterViewInit{
 
   // starts interpretation with the content of the editor
   load(){
+    this.controlStore.loadMicro();
     this.macroTokenizer.init(); 
+    this.macroParser.parse();
   }
 }
