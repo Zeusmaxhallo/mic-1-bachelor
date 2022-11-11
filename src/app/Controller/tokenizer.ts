@@ -15,7 +15,8 @@ const Spec: any= [
     [/^PC/,    "REGISTER"],
     [/^MBRU/,  "REGISTER"],
     [/^MBR/,   "REGISTER"],
-
+    [/^Z/,     "REGISTER"],
+    [/^N/,     "REGISTER"],
 
 
     // Math operators: +/-, AND, OR, >>
@@ -34,9 +35,9 @@ const Spec: any= [
     [/^fetch/, "MEMORY_INSTRUCTION"],
 
     // if else
-    [/^if(N)/ , "JUMP"],
-    [/^if(Z)/ , "JUMP"],
-    [/^else/ , "JUMP"],
+    [/^if\(N\)/ , "JUMP"],
+    [/^if\(Z\)/ , "JUMP"],
+    [/^else/ , "ELSE"],
 
     // Jump to Register Address, e.g: goto (MBR)
     [/^\(MBR\)/, "BRANCH_TO_MBR"],

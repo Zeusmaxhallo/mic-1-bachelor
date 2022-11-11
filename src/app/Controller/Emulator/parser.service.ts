@@ -76,6 +76,10 @@ export class ParserService {
           this.goto();
           break;
 
+        case "JUMP":
+          this.setJam();
+          break;
+
         default:
           throw new Error(`Unexpected Token: ${this.tokens[0].value}`);
       }
@@ -94,6 +98,63 @@ export class ParserService {
     }
 
     return { addr: [...this.addr], alu: [...this.alu], b: [...this.b], c: [...this.c], jam: [...this.jam], mem: [...this.mem] };
+  }
+
+  private setJam() {
+
+    if (this.tokens[0].value === "if(N)") {
+      // set JAMN bit
+      this.jam[1] = 1;
+    } else if (this.tokens[0].value === "if(Z)") {
+      //set JAMZ bit
+      this.jam[2] = 1;
+    }
+
+    // consume if(x) Token
+    this.tokens.splice(0,1);
+
+    // consume goto Token
+    if (this.tokens[0].type != "GOTO") {
+      throw new Error(`Unexpected Token: ${this.tokens[0].value}, after if( ) must come "goto"`);
+    }
+    this.tokens = this.tokens.slice(1);
+
+    if (!(this.tokens[0].type == "LABEL")) {
+      throw new Error(`Unexpected Token: ${this.tokens[0].value}, expected a Label`);
+    }
+
+    // consume label Token
+    this.tokens = this.tokens.slice(1);
+
+    if(this.tokens[0].type != "DIVIDER"){
+      throw new Error(`Unexpected Token: ${this.tokens[0].value}, expected ";"`);
+    }
+    //consume Divider
+    this.tokens = this.tokens.slice(1);
+
+    if(this.tokens[0].type != "ELSE" || this.tokens[1].type != "GOTO"){
+      throw new Error(`Unexpected Tokens: ${this.tokens[0].value} ${this.tokens[0].value}, expected "else goto"`);
+    }
+    //consume "else goto" Tokens
+    this.tokens = this.tokens.slice(2);
+
+    if(this.tokens[0].type != "LABEL"){
+      throw new Error(`Unexpected Token: ${this.tokens[0].value}, expected a Label`);
+    }
+    
+    if(!(this.tokens[0].value in this.labels)){
+      throw new Error(`UnknownLabelError -  ${this.tokens[0].value} was never declared`);
+    }
+    this.addr.fill(0);
+    this.setAddr(this.labels[this.tokens[0].value]);
+    // consume Label Token
+    this.tokens = this.tokens.slice(1);
+
+    if(this.tokens.length == 0){return;}
+    if(this.tokens[0].type != "DIVIDER"){throw new Error(`Unexpected Token: ${this.tokens[0].value}, expected ";" or end of line`);}
+    
+    //consume Divider
+    this.tokens.shift
   }
 
   private findNextDivider(): number {
@@ -501,6 +562,8 @@ export class ParserService {
       // all even indexes must be Registers
       if (i % 2 == 0) {
         if (nextToken.type == "REGISTER") {
+          // ignore Z and N
+          if(nextToken.value == "Z" || nextToken.value == "N"){continue;}
           this.c[registers[nextToken.value]] = 1;
         } else {
           throw new Error(`Unexpected Token: ${nextToken.value}`);

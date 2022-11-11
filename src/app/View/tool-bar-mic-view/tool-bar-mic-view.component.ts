@@ -57,16 +57,8 @@ export class ToolBarMicViewComponent implements OnInit {
     //const instruction = prompt("Enter Instruction");
     //this.parser.compile([instruction]);
 
-  
 
-    //this.parser.compile(["Main1: PC=PC+1; fetch;",
-    //"(0x60)iadd1: MAR=SP=SP-1; rd",
-    //"H=TOS","MDR=TOS=MDR+H; wr;",
-    //"(0x64)isub1: MAR=SP=SP-1; rd",
-    //"H=TOS"])
-    //
     //const instruction = prompt("Enter Instruction:");
-    //let instruction = "Label1: H = MDR = TOS = H + PC + 1 << 8 ;wr;"
     //console.log(instruction)
     //this.parser.init(instruction, 10);
     //this.parser.parse();
@@ -75,10 +67,5 @@ export class ToolBarMicViewComponent implements OnInit {
     //this.parser.init("H = OPC = PC = -1;rd;goto Label1", 11);
     //this.parser.parse();
 
-    //this.busB.activate(this.parser.b);
-    //let result = this.alu.calc(this.parser.alu.slice(2));
-    //result = this.shifter.shift(this.parser.alu.slice(0,2), result)
-    //this.busC.activate(this.parser.c, result)
-    //console.table(this.parser.labels);
   }
 }
