@@ -4,9 +4,11 @@ import { DirectorService } from 'src/app/Controller/director.service';
 import { AluService } from 'src/app/Controller/Emulator/alu.service';
 import { BBusService } from 'src/app/Controller/Emulator/b-bus.service';
 import { CBusService } from 'src/app/Controller/Emulator/c-bus.service';
+import { ControlStoreService } from 'src/app/Controller/Emulator/control-store.service';
 import { MainMemoryService } from 'src/app/Controller/Emulator/main-memory.service';
 import { ParserService } from 'src/app/Controller/Emulator/parser.service';
 import { ShifterService } from 'src/app/Controller/Emulator/shifter.service';
+import { RegProviderService } from 'src/app/Controller/reg-provider.service';
 
 @Component({
   selector: 'app-tool-bar-mic-view',
@@ -16,19 +18,17 @@ import { ShifterService } from 'src/app/Controller/Emulator/shifter.service';
 export class ToolBarMicViewComponent implements OnInit {
 
   constructor(private controllerService: ControllerService,
-    private busB: BBusService,
-    private alu: AluService,
-    private shifter: ShifterService,
-    private busC: CBusService,
-    private parser: ParserService,
     private memory: MainMemoryService,
-    private director: DirectorService,) {}
+    private director: DirectorService,
+    private controlStore: ControlStoreService,
+    private regProvider: RegProviderService,) {}
 
   ngOnInit(): void {
   }
 
   step(){
     this.controllerService.step();
+    this.regProvider.getRegister("MBR").setValue(this.regProvider.getRegister("MBR").getValue() + 1);
   }
 
   reset(){
@@ -51,8 +51,14 @@ export class ToolBarMicViewComponent implements OnInit {
   }
 
   run(){
-    this.director.loadMicro();
+    this.controlStore.loadMicro();
     this.director.step();
+
+    //const instruction = prompt("Enter Instruction");
+    //this.parser.compile([instruction]);
+
+  
+
     //this.parser.compile(["Main1: PC=PC+1; fetch;",
     //"(0x60)iadd1: MAR=SP=SP-1; rd",
     //"H=TOS","MDR=TOS=MDR+H; wr;",

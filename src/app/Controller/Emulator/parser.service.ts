@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
+import { RegProviderService } from '../reg-provider.service';
 import { Tokenizer } from '../tokenizer';
 import { Token } from '../tokenizer';
 
-export interface Instruction{
+export interface Instruction {
   addr: Array<number>;
   jam: Array<number>;
   alu: Array<number>;
@@ -16,13 +17,13 @@ export interface Instruction{
 })
 export class ParserService {
 
-  constructor() { }
+  constructor(private RegisterProvider: RegProviderService) { }
 
   private tokenizer = new Tokenizer();
   private tokens: Token[];
 
   // jump labels and address
-  public labels:{ [id: string] : number } = {};
+  public labels: { [id: string]: number } = {};
 
   public static print = false;
 
@@ -38,8 +39,8 @@ export class ParserService {
 
 
 
-  public init(instruction: Token[], address: number){
-    
+  public init(instruction: Token[], address: number) {
+
     this.tokens = instruction;
     this.address = address
 
@@ -53,26 +54,24 @@ export class ParserService {
   }
 
 
-  parse(): Instruction{
-    if(this.tokens.length == 0){
+  parse(): Instruction {
+    if (this.tokens.length == 0) {
       throw new Error("EmptyInstructionError");
     }
 
     this.setAddr(this.address + 1);
-
-    this.newLabel();
 
     this.setCBus();
 
     this.setAlu();
 
     // goto and Memory Instructions are optional
-    while (this.tokens.length != 0){
+    while (this.tokens.length != 0) {
       switch (this.tokens[0].type) {
         case "MEMORY_INSTRUCTION":
           this.setMemory();
-          break;  
-  
+          break;
+
         case "GOTO":
           this.goto();
           break;
@@ -80,10 +79,10 @@ export class ParserService {
         default:
           throw new Error(`Unexpected Token: ${this.tokens[0].value}`);
       }
-      
+
     }
 
-    if(ParserService.print){
+    if (ParserService.print) {
       console.log(`Parser Output:
       Addr:  ${this.addr.join("")},
       JAM:   ${this.jam.join("")},
@@ -94,69 +93,85 @@ export class ParserService {
     `)
     }
 
-    return {addr:[...this.addr], alu:[...this.alu], b: [...this.b], c:[...this.c], jam:[...this.jam], mem:[...this.mem]};
+    return { addr: [...this.addr], alu: [...this.alu], b: [...this.b], c: [...this.c], jam: [...this.jam], mem: [...this.mem] };
   }
 
 
-  private findNextDivider(): number{
+  private findNextDivider(): number {
     let dividerPos = 0
-    for (let i= 0; i<this.tokens.length; i++){
-      if(this.tokens[i].type == "DIVIDER"){
+    for (let i = 0; i < this.tokens.length; i++) {
+      if (this.tokens[i].type == "DIVIDER") {
         dividerPos = i;
         break;
       }
     }
 
     // Found no divider -> no other Operation after
-    if (dividerPos == 0){
+    if (dividerPos == 0) {
       dividerPos = this.tokens.length - 1;
     }
     return dividerPos;
   }
 
-  private setAddr(address: number){
-    let binaryString = ((address) >>> 0 ).toString(2);
+  private setAddr(address: number) {
+    let binaryString = ((address) >>> 0).toString(2);
 
     let cursor = 0;
-    for (let i = this.addr.length - binaryString.length; i < this.addr.length; i++){
+    for (let i = this.addr.length - binaryString.length; i < this.addr.length; i++) {
       this.addr[i] = parseInt(binaryString[cursor]);
-      cursor ++;
+      cursor++;
     }
-    
+
   }
 
   private goto() {
     // find next DIVIDER or end of Instruction
     let dividerPos = this.findNextDivider();
 
-    // after Goto must come a LABEL
-    let labelToken = this.tokens[1]
-    if (labelToken.type != "LABEL"){
-      throw new Error(`Unexpected Token: ${labelToken.value}, a label was expected.`);
-    }
+    // after Goto must come a LABEL or a Branch with MBR-Address
+    let nextToken = this.tokens[1]
+    if (nextToken.type == "LABEL") {
+      // Overwrite nextAddress with the Address of the label
+      this.addr.fill(0);
+      if (nextToken.value in this.labels) {
+        let nextAddress = this.labels[nextToken.value];
+        this.setAddr(nextAddress);
+      } else {
 
-    // Overwrite nextAddress to the Address of the label
-    this.addr.fill(0);
-    if (labelToken.value in this.labels){
-      let nextAddress = this.labels[labelToken.value];
+        throw new Error(`UnknownLabelError: Label "${nextToken.value}" has not yet been created`);
+      }
+    } else if (nextToken.type == "BRANCH_TO_MBR") {
+      // Overwrite nextAddress with the Address in MBR
+      let nextAddress = this.RegisterProvider.getRegister("MBR").getValue();
+      this.addr.fill(0);
       this.setAddr(nextAddress);
-    }else{
-      throw new Error(`UnknownLabelError: Label "${labelToken.value}" has not yet been created`);
+    } else if (nextToken.type == "MULTIWAY_BRANCH_TO_MBR") {
+      let number = parseInt(/0x[a-fA-F0-9]+/.exec(nextToken.value)[0]);
+      // or number with MBR content
+      let mbr = this.RegisterProvider.getRegister("MBR").getValue();
+      let nextAddress = number | mbr;
+
+      // Overwrite nextAddress to new Address
+      this.addr.fill(0);
+      this.setAddr(nextAddress);
+
+    } else {
+      throw new Error(`Unexpected Token: ${nextToken.value}, expected a label or (MBR)`);
     }
 
     // consume Tokens
-    this.tokens = this.tokens.slice(dividerPos+1);
+    this.tokens = this.tokens.slice(dividerPos + 1);
   }
 
   private setMemory() {
     // find DIVIDER or end of instruction
     let dividerPos = this.findNextDivider();
 
-    const memoryInst:{ [id: string] : number } = {"wr":0, "rd": 1, "fetch": 2};
-    
+    const memoryInst: { [id: string]: number } = { "wr": 0, "rd": 1, "fetch": 2 };
+
     // set Mem Bit
     this.mem[memoryInst[this.tokens[0].value]] = 1;
-    
+
     // consume Tokens
     this.tokens = this.tokens.slice(dividerPos + 1);
 
@@ -168,14 +183,14 @@ export class ParserService {
     let dividerPos = this.findNextDivider();
 
     // we can either have zero, one or two Registers in the Alu-Instruction
-    let aluInstruction = this.tokens.slice(0,dividerPos+1);
+    let aluInstruction = this.tokens.slice(0, dividerPos + 1);
     let registerAmount = aluInstruction.filter(x => x.type == "REGISTER").length
 
     // split shifter and Alu instructions
     let shifterInstruction: Token[] = [];
-    for (let i= 0; i < aluInstruction.length; i++){
-      if(aluInstruction[i].type == "BITWISE_OPERATOR"){
-        shifterInstruction = aluInstruction.splice(i,2);
+    for (let i = 0; i < aluInstruction.length; i++) {
+      if (aluInstruction[i].type == "BITWISE_OPERATOR") {
+        shifterInstruction = aluInstruction.splice(i, 2);
       }
     }
 
@@ -184,35 +199,35 @@ export class ParserService {
       case 0:
         this.aluCase0Reg(aluInstruction);
         break;
-      
+
       case 1:
         this.aluCase1Reg(aluInstruction);
         break;
-      
+
       case 2:
         this.aluCase2Reg(aluInstruction);
-        break;  
+        break;
 
       default:
         throw new Error("InvalidAluInstruction - The ALU can only use a maximum of two registers");
     }
 
     // check for shifter instruction
-    if(shifterInstruction.length == 2){
+    if (shifterInstruction.length == 2) {
       // Logical Left Shift
-      if(shifterInstruction[0].value == "<<"){
-        if(shifterInstruction[1].value == "8"){
+      if (shifterInstruction[0].value == "<<") {
+        if (shifterInstruction[1].value == "8") {
           this.alu[0] = 1;
-        }else{
+        } else {
           throw new Error("InvalidAluInstruction - the only valid logical left shift is by 8 bits");
         }
       }
-      
+
       // Arithmetic right shift
-      if(shifterInstruction[0].value == ">>"){
-        if(shifterInstruction[1].value == "1"){
+      if (shifterInstruction[0].value == ">>") {
+        if (shifterInstruction[1].value == "1") {
           this.alu[1] = 1;
-        }else{
+        } else {
           throw new Error("InvalidAluInstruction - the only valid arithmetic right shift is one by bit");
         }
       }
@@ -228,24 +243,24 @@ export class ParserService {
     // check for sign (+/-)
     if (aluInstruction[0].type == "ADDITIVE_OPERATOR") {
       // - -> can only be "-1" instruction
-      if (aluInstruction[0].value == "-"){
-        if(aluInstruction[1].value == "1"){
-          this.alu = [0,0,1,1,0,0,1,0];
+      if (aluInstruction[0].value == "-") {
+        if (aluInstruction[1].value == "1") {
+          this.alu = [0, 0, 1, 1, 0, 0, 1, 0];
           return;
-        }else{ throw new Error("InvalidAluInstruction");}
-      // + -> remove unnecessary sign
-      }else{ aluInstruction.shift(); }
+        } else { throw new Error("InvalidAluInstruction"); }
+        // + -> remove unnecessary sign
+      } else { aluInstruction.shift(); }
     }
 
     // 0 
-    if (aluInstruction[0].value == "0"){
-      this.alu = [0,0,0,1,0,0,0,0];
+    if (aluInstruction[0].value == "0") {
+      this.alu = [0, 0, 0, 1, 0, 0, 0, 0];
       return;
     }
 
     // 1
     if (aluInstruction[0].value == "1") {
-      this.alu = [0,0,1,1,0,0,0,1];
+      this.alu = [0, 0, 1, 1, 0, 0, 0, 1];
       return;
     }
 
@@ -255,18 +270,18 @@ export class ParserService {
   private aluCase1Reg(aluInstruction: Token[]) {
     // Alu instructions with one Register can be "A", "B", "-A", "A+1", "B+1" or "B-1". 
 
-    if (aluInstruction.length > 4){throw new Error("InvalidAluInstruction");}
+    if (aluInstruction.length > 4) { throw new Error("InvalidAluInstruction"); }
 
     // Check of sign (+/-)
-    if (aluInstruction[0].type == "ADDITIVE_OPERATOR"){
+    if (aluInstruction[0].type == "ADDITIVE_OPERATOR") {
       // - -> can only be "-A" instruction
       if (aluInstruction[0].value == "-") {
         if (aluInstruction[1].value == "H") {
-          this.alu = [0,0,1,1,1,0,1,1,];
+          this.alu = [0, 0, 1, 1, 1, 0, 1, 1,];
           return;
-        } else { throw new Error('InvalidAluInstruction - only valid subtraction is "-H" or "-1" ');}
-      // + -> remove unnecessary sign
-      }else{ aluInstruction.shift(); }
+        } else { throw new Error('InvalidAluInstruction - only valid subtraction is "-H" or "-1" '); }
+        // + -> remove unnecessary sign
+      } else { aluInstruction.shift(); }
     }
 
     // first Operand must be a Register or a one
@@ -274,50 +289,50 @@ export class ParserService {
       throw new Error("InvalidAluInstruction");
     }
 
-    
-    if (aluInstruction.length > 2){
+
+    if (aluInstruction.length > 2) {
       // B-1
-      if (aluInstruction[1].value == "-" && aluInstruction[2].value == "1"){
-        this.alu = [0,0,1,1,0,1,1,0];
+      if (aluInstruction[1].value == "-" && aluInstruction[2].value == "1") {
+        this.alu = [0, 0, 1, 1, 0, 1, 1, 0];
         this.setBBus(aluInstruction[0].value);
         return;
       }
 
-      if (aluInstruction[1].value != "+"){ throw new Error("InvalidAluInstruction"); }
+      if (aluInstruction[1].value != "+") { throw new Error("InvalidAluInstruction"); }
 
       // A + 1 || 1 + A
-      if ( aluInstruction[0].value == "H" || aluInstruction[2].value == "H" ) {
-        if( aluInstruction[0].value != "1" && aluInstruction[2].value != "1"){
+      if (aluInstruction[0].value == "H" || aluInstruction[2].value == "H") {
+        if (aluInstruction[0].value != "1" && aluInstruction[2].value != "1") {
           throw new Error("InvalidAluInstruction - can only add one");
         }
-        this.alu = [0,0,1,1,1,0,0,1];
+        this.alu = [0, 0, 1, 1, 1, 0, 0, 1];
         return;
       }
 
       // B + 1 || 1 + B
-      if (aluInstruction[0].value == "1" || aluInstruction[2].value == "1"){
-        this.alu = [0,0,1,1,0,1,0,1];
+      if (aluInstruction[0].value == "1" || aluInstruction[2].value == "1") {
+        this.alu = [0, 0, 1, 1, 0, 1, 0, 1];
         aluInstruction[0].type == "REGISTER" ? this.setBBus(aluInstruction[0].value) : this.setBBus(aluInstruction[2].value);
         return;
       }
     }
 
     // A
-    if (aluInstruction[0].value == "H" && aluInstruction.length <= 2){
-      this.alu = [0,0,0,1,1,0,0,0];
+    if (aluInstruction[0].value == "H" && aluInstruction.length <= 2) {
+      this.alu = [0, 0, 0, 1, 1, 0, 0, 0];
       return;
     }
 
 
     // B
-    this.alu = [0,0,0,1,0,1,0,0];
+    this.alu = [0, 0, 0, 1, 0, 1, 0, 0];
     this.setBBus(aluInstruction[0].value);
 
-    if(aluInstruction.length == 1){
+    if (aluInstruction.length == 1) {
       return;
     }
 
-    if(aluInstruction[1].type != "DIVIDER"){
+    if (aluInstruction[1].type != "DIVIDER") {
       throw new Error("InvalidAluInstruction");
     }
 
@@ -326,47 +341,49 @@ export class ParserService {
   private aluCase2Reg(aluInstruction: Token[]) {
     // Alu instructions with two registers can be "A+B", "A+B+1", "B-A", "A AND B" or "A OR B"
 
-    if(aluInstruction[0].type != "REGISTER" && aluInstruction[0].value != "1"){ throw new Error("InvalidAluInstruction"); }
+    if (aluInstruction[0].type != "REGISTER" && aluInstruction[0].value != "1") { throw new Error("InvalidAluInstruction"); }
 
     // A+B+1
-    if (aluInstruction.length > 4){
+    if (aluInstruction.length > 4) {
       let one = false;
       let h = false;
       let reg = false;
-      for (let i = 0; i<aluInstruction.length; i++){
+      for (let i = 0; i < aluInstruction.length; i++) {
 
         // ignore "+" but "-" can not occur
-        if( aluInstruction[i].type == "ADDITIVE_OPERATOR"){
-          if(aluInstruction[i].value == "+"){continue;}
+        if (aluInstruction[i].type == "ADDITIVE_OPERATOR") {
+          if (aluInstruction[i].value == "+") { continue; }
           throw new Error("InvalidAluInstruction - can not use '-' in this context");
-         }
+        }
 
         // ignore Divider
-        if( aluInstruction[i].type == "DIVIDER"){ continue; }
+        if (aluInstruction[i].type == "DIVIDER") { continue; }
 
         // The "+1" can only occur once
-        if( aluInstruction[i].value == "1"){ 
-          if (!one) {one = true;}
-          else{ throw new Error("InvalidAluInstruction - can only do '+1' once per ALU-instruction");}
-          continue;}
+        if (aluInstruction[i].value == "1") {
+          if (!one) { one = true; }
+          else { throw new Error("InvalidAluInstruction - can only do '+1' once per ALU-instruction"); }
+          continue;
+        }
 
         // H register can only occur once
-        if( aluInstruction[i].value == "H"){
-          if (!h) { h = true;} 
+        if (aluInstruction[i].value == "H") {
+          if (!h) { h = true; }
           else { throw new Error("InvalidAluInstruction - H Register can only occur once"); }
-          continue;}
+          continue;
+        }
 
         // Other register can only occur once
-        if( aluInstruction[i].value != "1" && aluInstruction[i].value != "H"){
-          if(!reg){ 
+        if (aluInstruction[i].value != "1" && aluInstruction[i].value != "H") {
+          if (!reg) {
             reg = true;
             this.setBBus(aluInstruction[i].value);
-          }else{ throw new Error("InvalidAluInstruction - ALU can only calculate with one B-Bus Register per instruction");}
+          } else { throw new Error("InvalidAluInstruction - ALU can only calculate with one B-Bus Register per instruction"); }
         }
 
       }
-      if( !one || !h || !reg){ throw new Error("InvalidAluInstruction"); }
-      this.alu= [0,0,1,1,1,1,0,1];
+      if (!one || !h || !reg) { throw new Error("InvalidAluInstruction"); }
+      this.alu = [0, 0, 1, 1, 1, 1, 0, 1];
       return;
     }
 
@@ -374,169 +391,173 @@ export class ParserService {
     let h = false;
     let reg = false;
     let op = false;
-    for (let i= 0; i< aluInstruction.length; i++){
+    for (let i = 0; i < aluInstruction.length; i++) {
       // ignore Divider
-      if (aluInstruction[i].type == "DIVIDER") {continue;}
-        
+      if (aluInstruction[i].type == "DIVIDER") { continue; }
+
       // Logical Operations
-      if (aluInstruction[i].type == "LOGICAL_OPERATOR"){
-        if(!op){op = true;}
-        else{throw new Error("InvalidAluInstruction - to many Operators in this Alu-instruction")}
+      if (aluInstruction[i].type == "LOGICAL_OPERATOR") {
+        if (!op) { op = true; }
+        else { throw new Error("InvalidAluInstruction - to many Operators in this Alu-instruction") }
 
         // A AND B
-        if(aluInstruction[i].value == "AND"){
-          this.alu = [0,0,0,0,1,1,0,0];
+        if (aluInstruction[i].value == "AND") {
+          this.alu = [0, 0, 0, 0, 1, 1, 0, 0];
           continue;
         }
 
         // A OR B
         if (aluInstruction[i].value == "OR") {
-          this.alu = [0,0,0,1,1,1,0,0];
+          this.alu = [0, 0, 0, 1, 1, 1, 0, 0];
           continue;
         }
         throw new Error("InvalidAluInstruction");
       }
 
       // Additive Operators
-      if(aluInstruction[i].type == "ADDITIVE_OPERATOR"){
-        if(!op){op = true;}
-        else{ throw new Error("InvalidAluInstruction - to many Operators in this Alu-instruction") }
+      if (aluInstruction[i].type == "ADDITIVE_OPERATOR") {
+        if (!op) { op = true; }
+        else { throw new Error("InvalidAluInstruction - to many Operators in this Alu-instruction") }
 
         // A+B
         if (aluInstruction[i].value == "+") {
-          this.alu = [0,0,1,1,1,1,0,0];
+          this.alu = [0, 0, 1, 1, 1, 1, 0, 0];
           continue;
         }
 
         // B-A
         // right operator has to be the H Register
-        if (aluInstruction[i+1].value != "H"){ throw new Error("InvalidAluInstruction - only valid subtrahends are H or 1")}
-        this.alu = [0,0,1,1,1,1,1,1,];
+        if (aluInstruction[i + 1].value != "H") { throw new Error("InvalidAluInstruction - only valid subtrahends are H or 1") }
+        this.alu = [0, 0, 1, 1, 1, 1, 1, 1,];
       }
 
       // H Register can only occur once
-      if (aluInstruction[i].value == "H"){
-        if(!h){
+      if (aluInstruction[i].value == "H") {
+        if (!h) {
           h = true;
           continue;
-        }else{ throw new Error("InvalidAluInstruction - H Register can only be used once per Alu-instruction")}
+        } else { throw new Error("InvalidAluInstruction - H Register can only be used once per Alu-instruction") }
       }
 
       // B-Bus Register can occur only once
-      if (aluInstruction[i].type == "REGISTER"){
-        if(!reg){
+      if (aluInstruction[i].type == "REGISTER") {
+        if (!reg) {
           reg = true;
           this.setBBus(aluInstruction[i].value);
           continue;
-        }else{ throw new Error("InvalidAluInstruction - ALU can only calculate with one B-Bus Register per instruction")}
+        } else { throw new Error("InvalidAluInstruction - ALU can only calculate with one B-Bus Register per instruction") }
       }
     }
 
   }
 
-  private setBBus(register:string){
-    const regEncoding: {[id: string] : number[]} = { "MDR": [0,0,0,0], "PC":[0,0,0,1] , "MBR":[0,0,1,0], "MBRU":[0,0,1,1],
-                          "SP":[0,1,0,0], "LV":[0,1,0,1], "CPPP":[0,1,1,0], "TOS":[0,1,1,1], "OPC":[1,0,0,0]}
-    
+  private setBBus(register: string) {
+    const regEncoding: { [id: string]: number[] } = {
+      "MDR": [0, 0, 0, 0], "PC": [0, 0, 0, 1], "MBR": [0, 0, 1, 0], "MBRU": [0, 0, 1, 1],
+      "SP": [0, 1, 0, 0], "LV": [0, 1, 0, 1], "CPP": [0, 1, 1, 0], "TOS": [0, 1, 1, 1], "OPC": [1, 0, 0, 0]
+    }
+
     if (register in regEncoding) {
       this.b = regEncoding[register];
       return;
     }
     throw new Error("UnknownRegister - " + register + " is not a valid B-Bus register");
-    
+
 
   }
 
-  private setCBus(){
+  private setCBus() {
 
     // c-bus Bits -> find last Assignment -> instruction to the left are c-bus instructions
     let pos = 0
     let foundAssignment = false;
-    for(let i = 0; i < this.tokens.length; i++){
-      if (this.tokens[i].type == "ASSIGNMENT_OPERATOR"){
+    for (let i = 0; i < this.tokens.length; i++) {
+      if (this.tokens[i].type == "ASSIGNMENT_OPERATOR") {
         pos = i;
         foundAssignment = true;
       }
     }
 
-    if(!foundAssignment){throw new Error("SyntaxError - Microinstruction needs at least one assignment (=)");}
+    if (!foundAssignment) { throw new Error("SyntaxError - Microinstruction needs at least one assignment (=)"); }
 
     // all registers than can be written
-    const registers :{ [id: string] : number }={"H":0,"OPC":1,"TOS":2,"CPP":3,"LV":4,"SP":5,"PC":6,"MDR":7,"MAR":8}
+    const registers: { [id: string]: number } = { "H": 0, "OPC": 1, "TOS": 2, "CPP": 3, "LV": 4, "SP": 5, "PC": 6, "MDR": 7, "MAR": 8 }
 
     let nextToken: Token;
-    for (let i=0; i <= pos; i++){
+    for (let i = 0; i <= pos; i++) {
       nextToken = this.tokens[i];
 
       // all even indexes must be Registers
-      if ( i % 2 == 0){
+      if (i % 2 == 0) {
         if (nextToken.type == "REGISTER") {
           this.c[registers[nextToken.value]] = 1;
-        }else{
+        } else {
           throw new Error(`Unexpected Token: ${nextToken.value}`);
-          
+
         }
-      // all odd indexes must be Assignments
-      }else{
+        // all odd indexes must be Assignments
+      } else {
         if (nextToken.type != "ASSIGNMENT_OPERATOR") {
           throw new Error(`Unexpected Token: ${nextToken.value}`);
         }
       }
     }
     // consume tokens
-    this.tokens = this.tokens.slice(pos+1);
+    this.tokens = this.tokens.slice(pos + 1);
   }
 
-  private newLabel(){
-    //look at first token -> token can either be "NEW_LABEL" or "REGISTER"
-    
-    if(this.tokens[0].type == "NEW_LABEL"){
+  private newLabel(tokens:Token[], addr: number) {
+
+    if (tokens[0].type == "NEW_LABEL") {
 
       // consume first Token and remove ":" from Label
-      let labelName = this.tokens.shift().value.slice(0,-1);
+      let labelName = tokens.shift().value.slice(0, -1);
 
       //check if Label already exists -> Error
-      if (labelName in this.labels){
+      if (labelName in this.labels) {
         throw new Error(`DuplicateLabelError - Label "${labelName}" already exists`);
       }
 
       // create new label
-      this.labels[labelName] = this.address;
+      this.labels[labelName] = addr;
 
-      
-    }else if(this.tokens[0].type == "REGISTER"){
-      return;
-    }else{
-      throw new SyntaxError(`Unexpected token: ${this.tokens[0].value}`);
-    }
-    
+    } 
   }
 
-  compile(input: string[]){
+
+  /**  
+   * Find the Address for each micro-instruction and create Labels (if given)
+   * @param input - Array of Instruction Strings
+   * @return dictionary with addresses and Array with Tokens  
+   * */
+  public index(input: string[]): {[address: number] : Token[]} {
     let tokens: Token[][] = [];
     let lastAddress = 0;
-    let microprogram:{[address:number]: Token[]} = {};
+    let microprogram: { [address: number]: Token[] } = {};
+
     // tokenize all lines
-    for (let i=0; i < input.length; i++){
+    for (let i = 0; i < input.length; i++) {
       this.tokenizer.init(input[i]);
       tokens[i] = this.tokenizer.getAllTokens();
     }
 
-    // find address for each instruction
-    for(let line of tokens){
-
+    // find the address for each instruction and (if given) create a Label
+    for (let i = 0; i<tokens.length; i++) {
+      let line = tokens[i]
+      
       // skip empty lines
-      if(line.length == 0 || tokens.length == 0){continue;}
+      if (line.length == 0 || tokens.length == 0) { continue; }
 
       // if instruction has given Address, e.g (0xF7) -> take it 
-      if(line[0].type == "ADDRESS"){
+      if (line[0].type == "ADDRESS") {
         const match = /[a-fA-F0-9]{2}/.exec(line[0].value);
-        if(match == null){
+        if (match == null) {
           throw new Error(`Unexpected token: ${line[0].value}`);
         }
-        let address = parseInt(match[0],16);
+        let address = parseInt(match[0], 16);
         line.shift(); //consume token
         microprogram[address] = line;
+        this.newLabel(line,address);
         lastAddress = address;
         continue;
       }
@@ -544,21 +565,11 @@ export class ParserService {
       // if there is no given Address take last Address + 1
       microprogram[lastAddress + 1] = line;
       lastAddress++;
+      this.newLabel(line,lastAddress);
     }
-
-    let output: {[address:number]: Instruction} = {};
-
-    // parse each line
-    for(const [address,tokens] of Object.entries(microprogram)){
-      this.init(tokens,parseInt(address));
-      output[parseInt(address)] = this.parse(); 
-    }
-
-
-    console.log(output);
 
     console.table(this.labels);
-    return output;
+    return microprogram;
 
   }
 }

@@ -76,6 +76,6 @@ export class ControllerService {
   testMicro(){
     let microLines = this.microProvider.getMicro().split("\n");
     this.parser.labels = {}; // reset labels or u get DuplicateLabelError after testing twice
-    let microProgram = this.parser.compile(microLines);
+    let microProgram = this.parser.index(microLines);
   }
 }

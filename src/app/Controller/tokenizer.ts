@@ -13,6 +13,9 @@ const Spec: any= [
     [/^TOS/,   "REGISTER"],
     [/^OPC/,   "REGISTER"],
     [/^PC/,    "REGISTER"],
+    [/^MBRU/,  "REGISTER"],
+    [/^MBR/,   "REGISTER"],
+
 
 
     // Math operators: +/-, AND, OR, >>
@@ -34,6 +37,12 @@ const Spec: any= [
     [/^if(N)/ , "JUMP"],
     [/^if(Z)/ , "JUMP"],
     [/^else/ , "JUMP"],
+
+    // Jump to Register Address, e.g: goto (MBR)
+    [/^\(MBR\)/, "BRANCH_TO_MBR"],
+
+    // Multiway branch with Register Address, e.g: goto (MBR or 0x100)
+    [/^\(MBR or 0x[a-fA-F0-9]+\)/, "MULTIWAY_BRANCH_TO_MBR"],
 
     // Addresses: e.g (0x7F)
     [/^\(0x[a-fA-F0-9]+\)/, "ADDRESS"],
