@@ -26,13 +26,14 @@ export class DirectorService {
   public step(){
 
     console.log("Executing Instruction at Address: " + this.currentAddress);
-    this.parser.init(this.controlStore.getMicro()[this.currentAddress],this.currentAddress);
-    let microInstruction:Instruction;
-    try {
-      microInstruction = this.parser.parse();
-    } catch (error) {
-      throw new Error(`No Instruction at Address ${this.currentAddress}`);
+    let tokens = this.controlStore.getMicro()[this.currentAddress];
+    if(!tokens){
+      throw new Error(`No Instruction at Address ${this.currentAddress}`); 
     }
+    
+    this.parser.init(tokens,this.currentAddress);
+    let microInstruction = this.parser.parse();
+
     
     this.bBus.activate(microInstruction.b);
     let result = this.alu.calc(microInstruction.alu.slice(2));

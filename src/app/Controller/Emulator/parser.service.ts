@@ -25,7 +25,7 @@ export class ParserService {
   // jump labels and address
   public labels: { [id: string]: number } = {};
 
-  public static print = false;
+  public static print = true;
 
   // address of current instruction
   private address: number;
@@ -96,7 +96,6 @@ export class ParserService {
     return { addr: [...this.addr], alu: [...this.alu], b: [...this.b], c: [...this.c], jam: [...this.jam], mem: [...this.mem] };
   }
 
-
   private findNextDivider(): number {
     let dividerPos = 0
     for (let i = 0; i < this.tokens.length; i++) {
@@ -151,6 +150,9 @@ export class ParserService {
       let mbr = this.RegisterProvider.getRegister("MBR").getValue();
       let nextAddress = number | mbr;
 
+      //set JMPC bit
+      this.jam[0] = 1;
+
       // Overwrite nextAddress to new Address
       this.addr.fill(0);
       this.setAddr(nextAddress);
@@ -181,6 +183,12 @@ export class ParserService {
 
     // find DIVIDER or end of instruction
     let dividerPos = this.findNextDivider();
+    if (this.tokens[0].type === "DIVIDER") {
+      this.alu = [0, 0, 0, 1, 0, 0, 0, 0];
+      // consume Divider Token
+      this.tokens = this.tokens.slice(dividerPos + 1);
+      return;
+    }
 
     // we can either have zero, one or two Registers in the Alu-Instruction
     let aluInstruction = this.tokens.slice(0, dividerPos + 1);
@@ -478,7 +486,10 @@ export class ParserService {
       }
     }
 
-    if (!foundAssignment) { throw new Error("SyntaxError - Microinstruction needs at least one assignment (=)"); }
+    if (!foundAssignment) {
+      this.c.fill(0);
+      return // not tokens to consume
+    }
 
     // all registers than can be written
     const registers: { [id: string]: number } = { "H": 0, "OPC": 1, "TOS": 2, "CPP": 3, "LV": 4, "SP": 5, "PC": 6, "MDR": 7, "MAR": 8 }
@@ -506,7 +517,7 @@ export class ParserService {
     this.tokens = this.tokens.slice(pos + 1);
   }
 
-  private newLabel(tokens:Token[], addr: number) {
+  private newLabel(tokens: Token[], addr: number) {
 
     if (tokens[0].type == "NEW_LABEL") {
 
@@ -520,8 +531,7 @@ export class ParserService {
 
       // create new label
       this.labels[labelName] = addr;
-
-    } 
+    }
   }
 
 
@@ -530,7 +540,7 @@ export class ParserService {
    * @param input - Array of Instruction Strings
    * @return dictionary with addresses and Array with Tokens  
    * */
-  public index(input: string[]): {[address: number] : Token[]} {
+  public index(input: string[]): { [address: number]: Token[] } {
     let tokens: Token[][] = [];
     let lastAddress = 0;
     let microprogram: { [address: number]: Token[] } = {};
@@ -542,9 +552,9 @@ export class ParserService {
     }
 
     // find the address for each instruction and (if given) create a Label
-    for (let i = 0; i<tokens.length; i++) {
+    for (let i = 0; i < tokens.length; i++) {
       let line = tokens[i]
-      
+
       // skip empty lines
       if (line.length == 0 || tokens.length == 0) { continue; }
 
@@ -557,7 +567,7 @@ export class ParserService {
         let address = parseInt(match[0], 16);
         line.shift(); //consume token
         microprogram[address] = line;
-        this.newLabel(line,address);
+        this.newLabel(line, address);
         lastAddress = address;
         continue;
       }
@@ -565,7 +575,7 @@ export class ParserService {
       // if there is no given Address take last Address + 1
       microprogram[lastAddress + 1] = line;
       lastAddress++;
-      this.newLabel(line,lastAddress);
+      this.newLabel(line, lastAddress);
     }
 
     console.table(this.labels);

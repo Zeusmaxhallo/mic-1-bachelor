@@ -1,6 +1,7 @@
 export class Microprogramms{
     micro: string = 
-        `Main1: PC=PC+1; fetch; goto dup1
+        `Main1: PC=PC+1; fetch; goto(MBR)
+(0x00)nop1:; goto Main1
 (0x60)iadd1: MAR=SP=SP-1; rd
 H=TOS
 MDR=TOS=MDR+H; wr; goto Main1
