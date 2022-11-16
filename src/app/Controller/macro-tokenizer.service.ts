@@ -2,7 +2,7 @@ import { state } from '@angular/animations';
 import { ParseSourceFile, TokenType } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 import { MacroProviderService } from './macro-provider.service';
-import { Token } from './tokenizer';
+import { Token } from './micro-tokenizer.service';
 
 @Injectable({
   providedIn: 'root'

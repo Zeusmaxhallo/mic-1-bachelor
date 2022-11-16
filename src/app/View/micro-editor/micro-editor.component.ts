@@ -20,7 +20,12 @@ export class MicroEditorComponent implements AfterViewInit{
   content: string = "";
   private aceEditor:ace.Ace.Editor;
   file: string;
-  constructor(private microProvider: MicroProviderService, private controllerService: ControllerService) { }
+
+  
+  constructor(
+    private microProvider: MicroProviderService, 
+    private controllerService: ControllerService) { }
+
 
   ngOnInit(): void {
     this.content = this.microProvider.getMicro();

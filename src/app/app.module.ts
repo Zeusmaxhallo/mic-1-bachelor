@@ -19,7 +19,6 @@ import { HttpClientModule } from '@angular/common/http';
 import * as FileSaver from 'file-saver';
 import { StackComponent } from './View/stack/stack.component';
 import { MicroEditorComponent } from './View/micro-editor/micro-editor.component';
-import { Tokenizer } from './Controller/tokenizer';
 
 
 @NgModule({
@@ -44,7 +43,7 @@ import { Tokenizer } from './Controller/tokenizer';
     FormsModule,
     HttpClientModule,
   ],
-  providers: [Tokenizer],
+  providers: [],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

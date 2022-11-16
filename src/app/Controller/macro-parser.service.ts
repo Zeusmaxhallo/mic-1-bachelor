@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ControlStoreService } from './Emulator/control-store.service';
 import { MainMemoryService } from './Emulator/main-memory.service';
 import { MacroTokenizerService } from './macro-tokenizer.service';
-import { Token } from './tokenizer';
+import { Token } from './micro-tokenizer.service';
 
 @Injectable({
   providedIn: 'root'

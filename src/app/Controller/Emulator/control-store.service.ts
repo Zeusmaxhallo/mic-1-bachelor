@@ -1,4 +1,4 @@
-import { Token } from '../tokenizer';
+import { Token } from '../micro-tokenizer.service';
 import { Injectable } from '@angular/core';
 import { ParserService, Instruction } from 'src/app/Controller/Emulator/parser.service';
 import { MicroProviderService } from '../micro-provider.service';

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { MacroProviderService } from './macro-provider.service';
 import { MacroTokenizerService } from './macro-tokenizer.service';
 import { ParserService } from './Emulator/parser.service';
-import { Tokenizer } from './tokenizer';
+import { MicroTokenizerService } from './micro-tokenizer.service';
 import { BBusService } from './Emulator/b-bus.service';
 import { CBusService } from './Emulator/c-bus.service';
 import { AluService } from './Emulator/alu.service';
@@ -88,10 +88,11 @@ export class IntegrationTestService {
   tokens: Token[] = null;
 
 
-  constructor(private macroProvider: MacroProviderService, 
+  constructor(
+    private macroProvider: MacroProviderService, 
     private macroTokenizer: MacroTokenizerService, 
     private parserService: ParserService,
-    private tokenizer: Tokenizer,
+    private microTokenizer: MicroTokenizerService,
     private bBus: BBusService,
     private cBus: CBusService,
     private alu: AluService,
@@ -109,12 +110,12 @@ export class IntegrationTestService {
     }  
   }
 
-  //Tests the micro tokenizer and tokenizer, and also tests the BBus, CBus, ALU and the Shifter
+  // Tests the micro tokenizer and tokenizer, and also tests the BBus, CBus, ALU and the Shifter
   testMicro(){
     try {
       for(let i = 0; i < this.microInstructions.length; i++){
-        this.tokenizer.init(this.microInstructions[i]);
-        this.tokens = this.tokenizer.getAllTokens();
+        this.microTokenizer.init(this.microInstructions[i]);
+        this.tokens = this.microTokenizer.getAllTokens();
         
         this.parserService.init(this.tokens, 0);
         let parsedResult = this.parserService.parse();

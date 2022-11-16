@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { RegProviderService } from '../reg-provider.service';
-import { Tokenizer } from '../tokenizer';
-import { Token } from '../tokenizer';
+import { MicroTokenizerService } from '../micro-tokenizer.service';
+import { Token } from '../micro-tokenizer.service';
 
 export interface Instruction {
   addr: Array<number>;
@@ -19,7 +19,7 @@ export class ParserService {
 
   constructor(private RegisterProvider: RegProviderService) { }
 
-  private tokenizer = new Tokenizer();
+  private microTokenizer = new MicroTokenizerService();
   private tokens: Token[];
 
   // jump labels and address
@@ -610,8 +610,8 @@ export class ParserService {
 
     // tokenize all lines
     for (let i = 0; i < input.length; i++) {
-      this.tokenizer.init(input[i]);
-      tokens[i] = this.tokenizer.getAllTokens();
+      this.microTokenizer.init(input[i]);
+      tokens[i] = this.microTokenizer.getAllTokens();
     }
 
     // find the address for each instruction and (if given) create a Label

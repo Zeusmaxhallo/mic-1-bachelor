@@ -11,8 +11,11 @@ import { RegProviderService } from './reg-provider.service';
 })
 export class ControllerService {
 
-  constructor(private regProvider: RegProviderService, private macroProvider: MacroProviderService, 
-    private microProvider: MicroProviderService, private integrationTestService: IntegrationTestService,
+  constructor(
+    private regProvider: RegProviderService, 
+    private macroProvider: MacroProviderService, 
+    private microProvider: MicroProviderService, 
+    private integrationTestService: IntegrationTestService,
     private parser: ParserService) { }
 
   step(){

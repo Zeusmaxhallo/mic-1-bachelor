@@ -24,7 +24,8 @@ export class EditorComponent implements AfterViewInit{
   private aceEditor:ace.Ace.Editor;
   file: String; 
   
-  constructor(private macroProvider: MacroProviderService, 
+  constructor(
+    private macroProvider: MacroProviderService, 
     private controllerService: ControllerService, 
     private macroTokenizer: MacroTokenizerService,
     private macroParser: MacroParserService,

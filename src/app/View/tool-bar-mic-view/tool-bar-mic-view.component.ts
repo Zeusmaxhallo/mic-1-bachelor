@@ -17,7 +17,8 @@ import { RegProviderService } from 'src/app/Controller/reg-provider.service';
 })
 export class ToolBarMicViewComponent implements OnInit {
 
-  constructor(private controllerService: ControllerService,
+  constructor(
+    private controllerService: ControllerService,
     private memory: MainMemoryService,
     private director: DirectorService,
     private controlStore: ControlStoreService,
