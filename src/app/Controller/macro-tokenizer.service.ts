@@ -26,28 +26,7 @@ export class MacroTokenizerService {
     [/^\d+/, "NUMBER"],
 
     // Mnemonics
-    [/^BIPUSH \d+/, "MNEMONIC"],
-    [/^DUP/, "MNEMONIC"],
-    [/^GOTO ([a-zA-Z0-9]+)/, "MNEMONIC"],
-    [/^IADD/, "MNEMONIC"],
-    [/^IAND/, "MNEMONIC"],
-    [/^IFEQ ([a-zA-Z0-9]+)/, "MNEMONIC"],
-    [/^IFLT ([a-zA-Z0-9]+)/, "MNEMONIC"],
-    [/^IF_ICMPEQ ([a-zA-Z0-9]+)/, "MNEMONIC"],
-    [/^IFICMPEQ ([a-zA-Z0-9]+)/, "MNEMONIC"],
-    [/^IINC [a-z]([a-zA-Z0-9]+)? [a-z]([a-zA-Z0-9]+)?/, "MNEMONIC"],
-    [/^ILOAD [a-z]([a-zA-Z0-9]+)?/, "MNEMONIC"],
-    [/^INVOKEVIRTUAL [a-zA-Z]([a-zA-Z0-9]+)?/, "MNEMONIC"],
-    [/^IOR/, "MNEMONIC"],
-    [/^IRETURN/, "MNEMONIC"],
-    [/^ISTORE [a-z]([a-zA-Z0-9]+)?/, "MNEMONIC"],
-    [/^ISUB/, "MNEMONIC"],
-    [/^LDC_W [a-z]([a-zA-Z0-9]+)?/, "MNEMONIC"],
-    [/^LDCW [a-z]([a-zA-Z0-9]+)?/, "MNEMONIC"],
-    [/^NOP/, "MNEMONIC"],
-    [/^POP/, "MNEMONIC"],
-    [/^SWAP/, "MNEMONIC"],
-    [/^WIDE/, "MNEMONIC"],
+    [/^([A-Z]+(_[A-Z]+)*(( \d+)|( [a-zA-Z0-9]+)|( [a-z]([a-zA-Z0-9]+))|( [a-zA-Z]([a-zA-Z0-9]+)))*)/, "MNEMONIC"],
 
     //Fields
     [/^.constant/, "FIELD"],
@@ -84,9 +63,9 @@ export class MacroTokenizerService {
       if(this.token == null){
         break;
       }
-      //console.log(this.token);
+      // console.log(this.token);
       this.tokens.push(this.token);
-    }
+    } 
     this.resetTokenizer();
   }
 
@@ -97,7 +76,7 @@ export class MacroTokenizerService {
       if(token == null){
         break;
       }     
-      //console.log(token); //uncommend if you want to see where it breaks
+      //console.log(token); //uncommend if you want to see where it fails
     }
     this.resetTokenizer();
   }

@@ -22,8 +22,6 @@ export class MacroParserService {
     this.tokens = this.macroTokenizer.getTokens();
     this.setConstant();
     
-    console.log(this.tokens);
-    
     while(this.tokens[0].type === 'FIELD'){      
       if(this.tokens[0].value === '.main'){
         this.mainBlock();
@@ -41,6 +39,7 @@ export class MacroParserService {
     this.memory.printMemory();
   }
 
+  // saves the constants with a value to the Main Memory and slices the constant field and the constant tokens out from the tokensarray
   private setConstant(){
     let startConstIndex = 0;
     let endConstIndex = 0;
@@ -65,11 +64,15 @@ export class MacroParserService {
     constArr = this.tokens.slice(startConstIndex + 1, endConstIndex);
     let constNumber = 0;
     for(let constant of constArr){
-      let constName = constant.value.split(' ')[0];
-      let constValue: number = parseInt(constant.value.split(' ')[1]);
-      this.memory.store_32(1024 + constNumber, constValue);
-      this.constants[constName] = 1024 + constNumber;
-      constNumber += 4;
+      if(constant.type === 'NEW_CONSTANT'){
+        let constName = constant.value.split(' ')[0];
+        let constValue: number = parseInt(constant.value.split(' ')[1]);
+        this.memory.store_32(1024 + constNumber, constValue);
+        this.constants[constName] = 1024 + constNumber;
+        constNumber += 4;
+      }else{
+        throw new Error("The following should not be in the constant field. \nType: " + constant.type + ", Value: " + constant.value);
+      }
     }
 
     if(constArr.length > 0){
@@ -79,20 +82,23 @@ export class MacroParserService {
     }
   }
 
+  // saves the variables with the default value 0 and slices the value field and variable tokens out from the tokensarray
   private setVariable(arr: Token[], startVarIndex: number, endVarIndex: number, addrLocalVar: number){
     let varArr = arr.slice(startVarIndex + 1, endVarIndex);
     let varNumber = 0;
     for(let variable of varArr){
-      let varName: string = variable.value;
-      this.memory.store_32(addrLocalVar + varNumber, 0);
-      this.variables[varName] = addrLocalVar + varNumber;
-      varNumber += 4;
+      if(variable.type === "NEW_VARIABLE"){
+        let varName: string = variable.value;
+        this.memory.store_32(addrLocalVar + varNumber, 0);
+        this.variables[varName] = addrLocalVar + varNumber;
+        varNumber += 4;
+      }else{
+        throw new Error("The following should not be in the variable field. \nType: " + variable.type + ", Value: " + variable.value);
+      }
     }
 
     if(varArr.length > 0){
-      console.log("varArr length: " + varArr.length);
       console.log(varArr);
-            
       arr.splice(startVarIndex, varArr.length + 2);
     }
   }
@@ -100,6 +106,8 @@ export class MacroParserService {
   private mainBlock(){
     let startMainIndex: number;
     let endMainIndex: number;
+
+    // finds start and end of main field
     for(let i = 0; i < this.tokens.length; i++){
       if(this.tokens[i].value === '.main'){
         startMainIndex = i;
@@ -119,11 +127,13 @@ export class MacroParserService {
     let mainBlockArr: Token[] = [];
     mainBlockArr = this.tokens.slice(startMainIndex + 1, endMainIndex);    
 
+    // var field inside the main field
     if(mainBlockArr[0].type === 'FIELD'){
       if(mainBlockArr[0].value !== '.var'){
         throw new Error("This Field is not allowed in this scope: " + mainBlockArr[0].value);
       }
 
+      // just find endVarIndex because the start is always mainBlockArr[0].value
       let endVarIndex = 0;
       for(let i = 0; i < mainBlockArr.length; i++){
         if(mainBlockArr[i].value === '.end-var'){
@@ -131,28 +141,31 @@ export class MacroParserService {
           break;
         }
       }
+
       if(endVarIndex === 0){
         throw new Error("Variablefield not closed. Close it with .end-var");
       }
       this.setVariable(mainBlockArr, 0, endVarIndex, 0);
     }
 
-
+    // instructions in the main field
     for(let instruction of mainBlockArr){
       let instructionToken = instruction.value.split(' ');
       console.log(instructionToken);
       
-      switch (instructionToken.length) {
-        case 1:
-          console.log(this.noParameter(instructionToken[0]));
-          break;
-        case 2:
-          break;
-        case 3:
-          break;      
-        default:
-          throw new Error("Invalid number of parameters!");
-      }
+
+
+      // switch (instructionToken.length) {
+      //   case 1:
+      //     console.log(this.noParameter(instructionToken[0]));
+      //     break;
+      //   case 2:
+      //     break;
+      //   case 3:
+      //     break;      
+      //   default:
+      //     throw new Error("Invalid number of parameters!");
+      // }
     }
   }
 
@@ -172,9 +185,5 @@ export class MacroParserService {
     }
 
     return instructionDict[instruction];
-  }
-
-  private oneParameter(){
-
   }
 }
