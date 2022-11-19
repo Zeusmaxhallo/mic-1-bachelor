@@ -6,11 +6,13 @@ import { Injectable } from '@angular/core';
 export class MainMemoryService {
 
   private memory: {[key:number]: number} = {}
+  private savedItems: {[name: string]: number} = {}
+  private savedItemTypes: {[name: string]: string} = {}
 
   constructor() { }
 
 
-  public store_32(address: number, value: number){
+  public store_32(address: number, value: number, name: string, type: string){
     const buffer = new ArrayBuffer(4);
     const view = new DataView(buffer,0);
 
@@ -20,6 +22,10 @@ export class MainMemoryService {
     this.memory[address + 1] = view.getUint8(1);
     this.memory[address + 2] = view.getUint8(2);
     this.memory[address + 3] = view.getUint8(3);
+
+    //Also add it to the saveItems dictionary, so that the variables, and constants can be found by name
+    this.savedItems[name] = address;
+    this.savedItemTypes[name] = type;
   }
 
   public store_8(address: number, value: number){
@@ -71,6 +77,14 @@ export class MainMemoryService {
       prefix = prefix + "0"
     }
     return prefix + number.toString(16).toUpperCase();
+  }
+
+  public getSavedItemAdress(name: string){
+    return this.savedItems[name];
+  }
+
+  public getSavedItemType(name: string){
+    return this.savedItemTypes[name];
   }
 
 }

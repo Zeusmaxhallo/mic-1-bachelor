@@ -12,6 +12,8 @@ export class MacroParserService {
   private constants: {[name: string]: number} = {};
   private variables: {[name: string]: number} = {};
 
+  private varNumber: number = 0;
+
   constructor(
     private macroTokenizer: MacroTokenizerService,
     private memory: MainMemoryService,
@@ -67,7 +69,7 @@ export class MacroParserService {
       if(constant.type === 'NEW_CONSTANT'){
         let constName = constant.value.split(' ')[0];
         let constValue: number = parseInt(constant.value.split(' ')[1]);
-        this.memory.store_32(1024 + constNumber, constValue);
+        this.memory.store_32(1024 + constNumber, constValue, constName, 'constant');
         this.constants[constName] = 1024 + constNumber;
         constNumber += 4;
       }else{
@@ -85,13 +87,13 @@ export class MacroParserService {
   // saves the variables with the default value 0 and slices the value field and variable tokens out from the tokensarray
   private setVariable(arr: Token[], startVarIndex: number, endVarIndex: number, addrLocalVar: number){
     let varArr = arr.slice(startVarIndex + 1, endVarIndex);
-    let varNumber = 0;
+    this.varNumber = 0;
     for(let variable of varArr){
       if(variable.type === "NEW_VARIABLE"){
         let varName: string = variable.value;
-        this.memory.store_32(addrLocalVar + varNumber, 0);
-        this.variables[varName] = addrLocalVar + varNumber;
-        varNumber += 4;
+        this.memory.store_32(addrLocalVar + this.varNumber, 0, varName, 'variable');
+        this.variables[varName] = addrLocalVar + this.varNumber;
+        this.varNumber += 4;
       }else{
         throw new Error("The following should not be in the variable field. \nType: " + variable.type + ", Value: " + variable.value);
       }
@@ -152,38 +154,36 @@ export class MacroParserService {
     for(let instruction of mainBlockArr){
       let instructionToken = instruction.value.split(' ');
       console.log(instructionToken);
+
+      for(let i = 0; i < instructionToken.length; i++){
+        if(i == 0){
+          let controlStoreAddresses = this.controlStore.getMicroAddr();
+          let instructionAddress = controlStoreAddresses[instructionToken[i]];
+          console.log("Address of " + instructionToken[i] + " is: " + instructionAddress);
+        }else{
+          if(instruction.type === 'MNEMONIC_DIGIT'){
+            let generatedVariableName = "generatedVariableNameNumber";
+            this.memory.store_32(0 + this.varNumber, 5, generatedVariableName + this.varNumber, 'variable');
+            let address = this.memory.getSavedItemAdress(generatedVariableName + this.varNumber);
+            this.varNumber += 4;
+            console.log("Address of " + instructionToken[i] + " is: " + address);
+          }
+          else if(instruction.type === 'MNEMONIC'){
+            let address = this.memory.getSavedItemAdress(instructionToken[i])
+            console.log("Address of " + instructionToken[i] + " is: " + address);
+          }
+          else{
+            throw new Error("Unexpected Token: " + instruction);
+          }
+          
+        }
+      }
       
-
-
-      // switch (instructionToken.length) {
-      //   case 1:
-      //     console.log(this.noParameter(instructionToken[0]));
-      //     break;
-      //   case 2:
-      //     break;
-      //   case 3:
-      //     break;      
-      //   default:
-      //     throw new Error("Invalid number of parameters!");
-      // }
+      
     }
   }
 
   private methodBlock(){
 
-  }
-
-  private noParameter(instruction: string){
-    const instructionDict: {[name: string]: number} = {
-      "IAND": this.controlStore.getMicroAddr()['iand1'],
-      "DUP": this.controlStore.getMicroAddr()['dup1'],
-      //Hier die fehlenden Instructions noch hinzufügen wenn der microparser fertig ist
-    };
-
-    if(!(instruction in instructionDict)){
-      throw new Error("Unknown instruction: " + instruction);
-    }
-
-    return instructionDict[instruction];
   }
 }
