@@ -26,8 +26,8 @@ export class MacroTokenizerService {
     [/^\d+/, "NUMBER"],
 
     // Mnemonics
-    [/^([A-Z]+(_[A-Z]+)*( \d+)+)/, "MNEMONIC_DIGIT"],
-    [/^([A-Z]+(_[A-Z]+)*(( [a-zA-Z0-9]+)|( [a-z]([a-zA-Z0-9]+))|( [a-zA-Z]([a-zA-Z0-9]+)))*)/, "MNEMONIC"],
+    //[/^([A-Z]+(_[A-Z]+)*( \d+)+)/, "MNEMONIC_DIGIT"],
+    [/^([A-Z]+(_[A-Z]+)*(( \d+)|( [a-zA-Z0-9]+)|( [a-z]([a-zA-Z0-9]+))|( [a-zA-Z]([a-zA-Z0-9]+)))*)/, "MNEMONIC"],
 
     //Fields
     [/^.constant/, "FIELD"],
