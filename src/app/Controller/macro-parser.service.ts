@@ -13,6 +13,7 @@ export class MacroParserService {
   private variables: {[name: string]: number} = {};
 
   private varNumber: number = 0;
+  private constNumber: number = 0;
 
   constructor(
     private macroTokenizer: MacroTokenizerService,
@@ -64,14 +65,14 @@ export class MacroParserService {
     }
 
     constArr = this.tokens.slice(startConstIndex + 1, endConstIndex);
-    let constNumber = 0;
+    this.constNumber = 0;
     for(let constant of constArr){
       if(constant.type === 'NEW_CONSTANT'){
         let constName = constant.value.split(' ')[0];
         let constValue: number = parseInt(constant.value.split(' ')[1]);
-        this.memory.store_32(1024 + constNumber, constValue, constName, 'constant');
-        this.constants[constName] = 1024 + constNumber;
-        constNumber += 4;
+        this.memory.store_32(1024 + this.constNumber, constValue, constName, 'constant');
+        this.constants[constName] = 1024 + this.constNumber;
+        this.constNumber += 4;
       }else{
         throw new Error("The following should not be in the constant field. \nType: " + constant.type + ", Value: " + constant.value);
       }
@@ -156,25 +157,44 @@ export class MacroParserService {
       console.log(instructionToken);
 
       for(let i = 0; i < instructionToken.length; i++){
+        // The first element of instruction is always the instruction without parameters
         if(i == 0){
           let controlStoreAddresses = this.controlStore.getMicroAddr();
           let instructionAddress = controlStoreAddresses[instructionToken[i]];
           console.log("Address of " + instructionToken[i] + " is: " + instructionAddress);
-        }else{
-          if(instruction.type === 'MNEMONIC_DIGIT'){
-            let generatedVariableName = "generatedVariableNameNumber";
-            this.memory.store_32(0 + this.varNumber, 5, generatedVariableName + this.varNumber, 'variable');
-            let address = this.memory.getSavedItemAdress(generatedVariableName + this.varNumber);
-            this.varNumber += 4;
-            console.log("Address of " + instructionToken[i] + " is: " + address);
+        }
+        // The following elements are parameters
+        else{
+          let parameter = instructionToken[i];
+          let address = this.memory.getSavedItemAdress(parameter);
+
+          if(address !== undefined){
+            console.log("Address of " + instructionToken[i] + " is: " + address);            
           }
-          else if(instruction.type === 'MNEMONIC'){
-            let address = this.memory.getSavedItemAdress(instructionToken[i])
-            console.log("Address of " + instructionToken[i] + " is: " + address);
-          }
-          else{
-            throw new Error("Unexpected Token: " + instruction);
-          }
+
+          // // instruction with byte as parameter. The byte is saved as a variable first
+          // if(instruction.type === 'MNEMONIC_DIGIT'){
+          //   let generatedVariableName = "generatedVariableNameNumber";
+          //   let value: number = +instructionToken[i];
+          //   this.memory.store_32(this.varNumber, value, generatedVariableName + this.varNumber, 'variable');
+          //   let address = this.memory.getSavedItemAdress(generatedVariableName + this.varNumber);
+          //   this.varNumber += 4;
+          //   console.log("Address of " + instructionToken[i] + " is: " + address);
+          // }
+          // // instruction with any other type of parameter than byte.
+          // else if(instruction.type === 'MNEMONIC'){
+          //   let address = this.memory.getSavedItemAdress(instructionToken[i]);
+          //   // The case when the parameter is a reference to a constant that is not declared yet. Creates new constant with value 0
+          //   if(address === undefined){
+          //     this.memory.store_32(this.constNumber, 0, instructionToken[i], 'constant');
+          //     address = this.memory.getSavedItemAdress(instructionToken[i]);
+          //     this.constNumber += 4;
+          //   }
+          //   console.log("Address of " + instructionToken[i] + " is: " + address);
+          // }
+          // else{
+          //   throw new Error("Unexpected Token: " + instruction);
+          // }
           
         }
       }
