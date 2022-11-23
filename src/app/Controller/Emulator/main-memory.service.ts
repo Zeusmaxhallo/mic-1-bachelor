@@ -12,7 +12,7 @@ export class MainMemoryService {
   constructor() { }
 
 
-  public store_32(address: number, value: number, name: string, type: string){
+  public store_32(address: number, value: number, name?: string, type?: string){
     const buffer = new ArrayBuffer(4);
     const view = new DataView(buffer,0);
 

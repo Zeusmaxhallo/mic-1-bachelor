@@ -37,18 +37,14 @@ export class ToolBarMicViewComponent implements OnInit {
 
 
     // ---   test MainMemory functionality  ---
-    // this.memory.store_32(0,-16);
-    // this.memory.store_32(8,16);
-    // this.memory.store_32(16,1023);
+    this.memory.store_32(0,-16);
+    this.memory.store_32(4,16);
+    this.memory.store_32(16,1023);
+    console.log(this.memory.get_32(4));
 
     //this.memory.save2LocalStorage();
     //this.memory.getFromLocalStorage();
     this.memory.printMemory();
-
-    console.log(this.memory.get_32(0));
-    console.log(this.memory.get_8(3));
-
-
   }
 
   run(){

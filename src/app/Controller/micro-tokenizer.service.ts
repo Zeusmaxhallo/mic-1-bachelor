@@ -5,6 +5,9 @@ const Spec: any= [
   // Numbers:
   [/^\d+/, "NUMBER"],
 
+  // New Label: e.g Label1:
+  [/^\w+:/ , "NEW_LABEL"],
+
   // Registers
   [/^H/,     "REGISTER"],
   [/^MAR/,   "REGISTER"],
@@ -49,9 +52,6 @@ const Spec: any= [
 
   // Addresses: e.g (0x7F)
   [/^\(0x[a-fA-F0-9]+\)/, "ADDRESS"],
-
-  // New Label: e.g Label1:
-  [/^\w+:/ , "NEW_LABEL"],
   
   // Divider: ;
   [/^;/, "DIVIDER"],
