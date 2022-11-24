@@ -1,13 +1,10 @@
-<button mat-raised-button (click)="push()">push</button>
-<button mat-raised-button (click)="pop()">pop</button>
-
 
 <div class="stack-container">
-    <div class="stack-entry" ng   *ngFor="let element of this.stackProvider.getAll(); index as index"><!-- for animation use: @flyInOut -->
-        <div class="SP" [ngClass]="{'hidden': !isSP(index)}">SP></div>
-        <div class="LV" [ngClass]="{'hidden': !isLV(index)}">LV></div>
-        <div class="stack-address"> ({{ dec2hex(index) }})  </div>
-        <div class="stack-value">   {{ element }}           </div>   
+    <div class="stack-entry" ng   *ngFor="let element of this.stackProvider.items | keyvalue;"><!-- for animation use: @flyInOut -->
+        <div class="SP" [ngClass]="{'hidden': !isSP(element.key)}">SP></div>
+        <div class="LV" [ngClass]="{'hidden': !isLV(element.key)}">LV></div>
+        <div class="stack-address">({{ dec2hex(element.key) }})  </div>
+        <div class="stack-value">   {{ element.value }}           </div>   
     </div>
 </div>
 

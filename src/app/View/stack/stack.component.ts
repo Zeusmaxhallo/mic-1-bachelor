@@ -38,32 +38,21 @@ export class StackComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  push(): void{
-    this.stackProvider.push(Math.floor(Math.random() * 1000));
-    this.stackProvider.sp = this.stackProvider.size() - 1;
-    this.regProvider.getRegister("SP").setValue(this.stackProvider.sp) 
+   isLV(address: string):boolean{
+    return parseInt(address) == this.regProvider.getRegister("LV").getValue() * 4;
   }
 
-  pop(): void{
-    console.log(this.stackProvider.pop());
-    this.stackProvider.sp = this.stackProvider.size() - 1;
-    this.regProvider.getRegister("SP").setValue(this.stackProvider.sp) 
+  isSP(address: string):boolean{
+    return parseInt(address) == this.regProvider.getRegister("SP").getValue() * 4;
   }
 
-  isLV(index: number){
-    return index == this.stackProvider.lv;
-  }
-
-  isSP(index: number){
-    return index == this.stackProvider.sp;
-  }
-
-  dec2hex(number:number){
-    let prefix = "0x"
-    if(number < 16){
+  dec2hex(number:string){
+    let num = parseInt(number);
+    let prefix = "0x";
+    if(num < 16){
       prefix = prefix + "0"
     }
-    return prefix + number.toString(16).toUpperCase();
+    return prefix + num.toString(16).toUpperCase();
   }
 
 }
