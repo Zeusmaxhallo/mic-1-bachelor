@@ -8,6 +8,7 @@ export class MainMemoryService {
   private memory: {[key:number]: number} = {}
   private savedItems: {[name: string]: number} = {}
   private savedItemTypes: {[name: string]: string} = {}
+  private labelsDictionary: {[name: string]: number} = {}
 
   constructor() { }
 
@@ -85,6 +86,20 @@ export class MainMemoryService {
 
   public getSavedItemType(name: string){
     return this.savedItemTypes[name];
+  }
+
+  public getLabelAddress(labelName: string){
+    let name = labelName + ":";
+    return this.labelsDictionary[name];
+  }
+
+  public setLabel(labelName: string, address: number){
+    this.labelsDictionary[labelName] = address;
+  }
+
+  public addMethodToDictionary(methodName: string, address: number){
+    this.savedItems[methodName] = address;
+    this.savedItemTypes[methodName] = 'method';
   }
 
 }

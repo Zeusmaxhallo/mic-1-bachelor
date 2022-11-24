@@ -10,8 +10,6 @@ import { Token } from './micro-tokenizer.service';
 
 
 export class MacroTokenizerService {
-  regEx4identifier: string = "^[a-z]([a-zA-Z0-9]+)?"
-
   Spec: any= [
     // New Label: e.g Label1:
     [/^.*:/ , "NEW_LABEL"],
@@ -26,7 +24,6 @@ export class MacroTokenizerService {
     [/^\d+/, "NUMBER"],
 
     // Mnemonics
-    //[/^([A-Z]+(_[A-Z]+)*( \d+)+)/, "MNEMONIC_DIGIT"],
     [/^([A-Z]+(_[A-Z]+)*(( \d+)|( [a-zA-Z0-9]+)|( [a-z]([a-zA-Z0-9]+))|( [a-zA-Z]([a-zA-Z0-9]+)))*)/, "MNEMONIC"],
 
     //Fields
@@ -70,6 +67,7 @@ export class MacroTokenizerService {
     this.resetTokenizer();
   }
 
+  // Is just used by the integrationtest service
   initTest(macro: string){
     this.string = macro;
     while(true){
