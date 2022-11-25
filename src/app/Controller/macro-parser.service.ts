@@ -12,8 +12,19 @@ export class MacroParserService {
   private constants: {[name: string]: number} = {};
   private variables: {[name: string]: number} = {};
 
+  // these are incremented by 4 each time a var, const, etc. is stored in the memory, because they each take 4 bytes of space in the memory.
   private varNumber: number = 0;
   private constNumber: number = 0;
+  private mainParsedTokenNumber = 0;
+  private methodParsedTokenNumber = 0;
+
+  private methodNumber = 0; // is incremented with 1024, because every method has 1024 byte space in the memory
+
+  // The addresses where different areas in the memory start
+  private startConstAddr: number = 2048;
+  private startVarAddr: number = 4096;
+  private startMainAddr: number = 0;
+  private startMethodAddr: number = 8192;
 
   constructor(
     private macroTokenizer: MacroTokenizerService,
@@ -24,14 +35,13 @@ export class MacroParserService {
   parse(){
     this.tokens = this.macroTokenizer.getTokens();
     this.setConstant();
-    
-    while(this.tokens[0].type === 'FIELD'){      
+
+    while(this.tokens.length > 0){
       if(this.tokens[0].value === '.main'){
         this.mainBlock();
       }
       else if(this.tokens[0].value.slice(0, 7) === '.method'){
         this.methodBlock();
-        break;
       }
       else{
         throw new Error("Unexpected Token: " + this.tokens[0].value);
@@ -69,8 +79,8 @@ export class MacroParserService {
       if(constant.type === 'NEW_CONSTANT'){
         let constName = constant.value.split(' ')[0];
         let constValue: number = parseInt(constant.value.split(' ')[1]);
-        this.memory.store_32(2048 + this.constNumber, constValue, constName, 'constant');
-        this.constants[constName] = 2048 + this.constNumber;
+        this.memory.store_32(this.startConstAddr + this.constNumber, constValue, constName, 'constant');
+        this.constants[constName] = this.startConstAddr + this.constNumber;
         this.constNumber += 4;
       }else{
         throw new Error("The following should not be in the constant field. \nType: " + constant.type + ", Value: " + constant.value);
@@ -146,7 +156,8 @@ export class MacroParserService {
       if(endVarIndex === 0){
         throw new Error("Variablefield not closed. Close it with .end-var");
       }
-      this.setVariable(mainBlockArr, 0, endVarIndex, 4096);
+      this.setVariable(mainBlockArr, 0, endVarIndex, this.startVarAddr);
+      this.varNumber += 4;
     }
 
     // instructions in the main field
@@ -162,15 +173,18 @@ export class MacroParserService {
 
           // Instruction that is already in the control store
           if(instructionAddress !== undefined){
+            let addressToSave: number = this.startMainAddr + this.mainParsedTokenNumber;
             console.log("Address of " + instructionToken[0] + " is: " + instructionAddress);
+            this.memory.store_32(addressToSave, instructionAddress, instructionToken[0], 'parsedInstruction')
+            this.mainParsedTokenNumber += 4;
           }
           // Instruction that is not in the control store or label
           else{
             // If it ends with ':' than it is a label
             if(instructionToken[0].endsWith(':')){
-              console.log("LKJFÖLDKJFÖLDKFJÖDOFIJÖDFOLHJNFÖDOLIHFÖDOHNFÖOLIHDFÖLKIDF"); 
               // save label and the address it points to, to the label dictionary in the memory
-                           
+              this.memory.addItemToSavedItemDictionary(instructionToken[0], this.startMainAddr + this.mainParsedTokenNumber);
+              console.log("Create Label " + instructionToken[0] + " that is pointing to " + this.memory.getSavedItemAdress(instructionToken[0]));
             }
             // Throws Error because unknown token
             else{
@@ -182,8 +196,7 @@ export class MacroParserService {
         }
         // The following elements are parameters
         else{
-          let parameter = instructionToken[i];
-          let address = this.memory.getSavedItemAdress(parameter);
+          let address = this.memory.getSavedItemAdress(instructionToken[i]);
         
           // if address of the current parameter is not in the dictionary in the memory,
           // this Parameter is ether a method name, new constant with value 0 or an constant 
@@ -191,28 +204,49 @@ export class MacroParserService {
           if(address === undefined){ 
             // The case that it is a method name         
             if(instructionToken[0] === 'INVOKEVIRTUAL'){
-              this.memory.addMethodToDictionary(instructionToken[i], 8192);
-              console.log("Address of " + instructionToken[i] + " is: 8192");
+              // creates method with name and the address it will begin in the method dictionary
+              let tokenAddr: number = this.startMethodAddr + this.methodNumber;
+              this.memory.addMethodToDictionary(instructionToken[i], tokenAddr);
+              this.methodNumber += 1024;
+              console.log("Address of " + instructionToken[i] + " is: " + tokenAddr);
+
+              // saves the address of the method that will be invoked to the main memory after the INVOKEVIRTUAL
+              let saveToAddress = this.startMainAddr + this.mainParsedTokenNumber;
+              this.memory.store_32(saveToAddress, this.memory.getSavedItemAdress(instructionToken[i]), instructionToken[i], 'parsedParameter')
+              this.mainParsedTokenNumber += 4;
             }
             // The case with BIPUSH where a constant with a spezific value is created
             else if(instructionToken[0] === 'BIPUSH'){
               let value: number = +instructionToken[i];
               let generatedConstantName = "generatedConstantNameNumber";
-              this.memory.store_32(2048 + this.constNumber, value, generatedConstantName + this.constNumber, 'constant');
+              this.memory.store_32(this.startConstAddr + this.constNumber, value, generatedConstantName + this.constNumber, 'constant');
               address = this.memory.getSavedItemAdress(generatedConstantName + this.constNumber);
-              console.log("Address of " + instructionToken[i] + " is " + address);              
               this.constNumber += 4;
+              console.log("Address of " + instructionToken[i] + " is " + address); 
+
+              let saveToAddr: number = this.startMainAddr + this.mainParsedTokenNumber;
+              this.memory.store_32(saveToAddr, address, instructionToken[i], 'parsedParameter');
+              this.mainParsedTokenNumber += 4;
             }
             // The case that it is a constant with value 0
             else{
-              this.memory.store_32(2048 + this.constNumber, 0, instructionToken[i], 'constant');
+              // create constant with value 0 and get it's address
+              this.memory.store_32(this.startConstAddr + this.constNumber, 0, instructionToken[i], 'constant');
               address = this.memory.getSavedItemAdress(instructionToken[i]);
               console.log("Address of " + instructionToken[i] + " is: " + address);
+
+              // store address as a parameter to the last instruction
+              this.memory.store_32(this.startMainAddr + this.mainParsedTokenNumber, address, instructionToken[i], 'parsedParameter');
+              this.mainParsedTokenNumber += 4;
             }
           }
           // The case that the parameter is already in the Dictionary in the memory
           else{
             console.log("Address of " + instructionToken[i] + " is: " + address);
+
+            // store address as a parameter to the last instruction
+            this.memory.store_32(this.startMainAddr + this.mainParsedTokenNumber, address, instructionToken[0], 'parsedParameter');
+            this.mainParsedTokenNumber += 4;
           }  
         }
       }
@@ -263,7 +297,8 @@ export class MacroParserService {
       if(endVarIndex === 0){
         throw new Error("Variablefield not closed. Close it with .end-var");
       }
-      this.setVariable(methodBlockArr, 0, endVarIndex, 4096);
+      this.setVariable(methodBlockArr, 0, endVarIndex, this.startVarAddr);
+      this.varNumber += 4;
     }
 
     // instructions in the main field
@@ -280,27 +315,28 @@ export class MacroParserService {
           // Instruction that is already in the control store
           if(instructionAddress !== undefined){
             console.log("Address of " + instructionToken[0] + " is: " + instructionAddress);
+            this.memory.store_32(this.startMethodAddr + this.methodParsedTokenNumber, instructionAddress, instructionToken[0], 'parsedInstructionMethod')
+            this.methodParsedTokenNumber += 4;
           }
           // Instruction that is not in the control store or label
           else{
             // If it ends with ':' than it is a label
              if(instructionToken[0].endsWith(':')){
-              console.log("LÖKDJFÖLFDJÖLDFJÖOIDFJODFJNDFOHOFHDÖODNF");
               // save label and the address it points to to the label dictionary in memory
+              this.memory.addItemToSavedItemDictionary(instructionToken[0], this.startMethodAddr + this.methodParsedTokenNumber);
+              console.log("Create Label " + instructionToken[0] + " that is pointing to " + this.startMethodAddr + this.methodParsedTokenNumber);
              }
              // Throws Error because unknown token
              else{
               // Comment in when microcode is fully available. And comment out the log
               // throw new Error("Unexpected Token: " + instructionToken[0]);
               console.log("Address of " + instructionToken[0] + " is: " + instructionAddress);
-              
              }
           }
         }
         // The following elements are parameters
         else{
-          let parameter = instructionToken[i];
-          let address = this.memory.getSavedItemAdress(parameter);
+          let address = this.memory.getSavedItemAdress(instructionToken[i]);
         
           // if address of the current parameter is not in the dictionary in the memory,
           // this Parameter is ether a method name, new constant with value 0 or an constant 
@@ -308,34 +344,54 @@ export class MacroParserService {
           if(address === undefined){ 
             // The case that it is a method name         
             if(instructionToken[0] === 'INVOKEVIRTUAL'){
-              this.memory.addMethodToDictionary(instructionToken[i], 8192);
-              console.log("Address of " + instructionToken[i] + " is: 8192");
+              // creates method with name and the address it will begin in the method dictionary
+              let tokenAddr: number = this.startMethodAddr + this.methodNumber;
+              this.memory.addMethodToDictionary(instructionToken[i], tokenAddr);
+              this.methodNumber += 1024;
+              console.log("Address of " + instructionToken[i] + " is: " + tokenAddr);
+
+              // saves the address of the method that will be invoked to the main memory after the INVOKEVIRTUAL
+              let savetoAddr = this.startMethodAddr + this.methodParsedTokenNumber;
+              this.memory.store_32(savetoAddr, this.memory.getSavedItemAdress(instructionToken[i]), instructionToken[i], 'parsedParameter');
+              this.methodParsedTokenNumber += 4;
             }
             // The case with BIPUSH where a constant with a spezific value is created
             else if(instructionToken[0] === 'BIPUSH'){
               let value: number = +instructionToken[i];
               let generatedConstantName = "generatedConstantNameNumber";
-              this.memory.store_32(2048 + this.constNumber, value, generatedConstantName + this.constNumber, 'constant');
+              this.memory.store_32(this.startConstAddr + this.constNumber, value, generatedConstantName + this.constNumber, 'constant');
               address = this.memory.getSavedItemAdress(generatedConstantName + this.constNumber);
-              console.log("Address of " + instructionToken[i] + " is " + address);              
               this.constNumber += 4;
+              console.log("Address of " + instructionToken[i] + " is " + address);
+              let saveToAddr: number = this.startMethodAddr + this.methodParsedTokenNumber;
+              this.memory.store_32(saveToAddr, address, instructionToken[i], 'parsedParameter');
+              this.methodParsedTokenNumber += 4;            
             }
             // The case that it is a constant with value 0
             else{
-              this.memory.store_32(2048 + this.constNumber, 0, instructionToken[i], 'constant');
+              // create constant with value 0 and get it's address
+              this.memory.store_32(this.startConstAddr + this.constNumber, 0, instructionToken[i], 'constant');
               address = this.memory.getSavedItemAdress(instructionToken[i]);
               console.log("Address of " + instructionToken[i] + " is: " + address);
+
+              // store address as a parameter to the last instruction
+              this.memory.store_32(this.startMethodAddr + this.methodParsedTokenNumber, address, instructionToken[i], 'parsedParameter');
+              this.methodParsedTokenNumber += 4;
             }
           }
           // The case that the parameter is already in the Dictionary in the memory
           else{
             console.log("Address of " + instructionToken[i] + " is: " + address);
+
+            // store address as a parameter to the last instruction
+            this.memory.store_32(this.startMethodAddr + this.methodParsedTokenNumber, address, instructionToken[0], 'parsedParameter');
+            this.methodParsedTokenNumber += 4;
           }  
         }
       }
     }
 
-    this.tokens.splice(startMethodIndex, endMethodIndex + 1);
-
+    this.tokens.splice(startMethodIndex, endMethodIndex + 1); // methodblock is sliced out of the tokens when the block is parsed
+    this.methodParsedTokenNumber = 0; // happens because the next methodblock needs to start on the first byte again. It means the first token on the new methodblock is the first token on this new block.
   }
 }

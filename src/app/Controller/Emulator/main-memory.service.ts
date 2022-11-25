@@ -128,6 +128,10 @@ export class MainMemoryService {
     return this.savedItems[name];
   }
 
+  public addItemToSavedItemDictionary(name: string, address: number){
+    this.savedItems[name] = address;
+  }
+
   public getSavedItemType(name: string) {
     return this.savedItemTypes[name];
   }
