@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { RegProviderService } from '../reg-provider.service';
-import { StackProviderService } from '../stack-provider.service';
+
 
 @Injectable({
   providedIn: 'root'
@@ -27,7 +27,7 @@ export class CBusService {
     "MAR",
   ]
 
-  constructor(private regProvider: RegProviderService, private stackProvider: StackProviderService ) {}
+  constructor(private regProvider: RegProviderService) {}
 
   public activate(operation: number[], value: number ): void{
     if (operation.length != 9) {
@@ -42,15 +42,6 @@ export class CBusService {
       if (operation[i]) {
         this.regProvider.getRegister(this.registers[i]).setValue(value);
         this._writtenRegisters.push(this.registers[i]);
-
-
-        // if SP or LV are -> notify stack
-        if(this.registers[i] === "SP"){
-          this.stackProvider.sp = value;
-        }
-        if(this.registers[i] === "LV"){
-          this.stackProvider.lv = value;
-        }
       }
     }
 

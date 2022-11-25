@@ -26,7 +26,7 @@ export class Microprogramms{
         TOS=H; goto Main1
         (0x10)BIPUSH: SP=MAR=SP+1;
         PC=PC+1; fetch
-        MDR=TOS=H;wr; goto Main1;
+        MDR=TOS=MBR;wr; goto Main1;
         (0x15)ILOAD:H=LV;
         iload3: MAR=SP=SP+1;
         PC=PC+1; fetch; wr;

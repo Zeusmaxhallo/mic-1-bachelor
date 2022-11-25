@@ -7,6 +7,7 @@ import { MainMemoryService } from './Emulator/main-memory.service';
 import { Instruction, ParserService } from './Emulator/parser.service';
 import { ShifterService } from './Emulator/shifter.service';
 import { RegProviderService } from './reg-provider.service';
+import { StackProviderService } from './stack-provider.service';
 
 
 @Injectable({
@@ -23,6 +24,7 @@ export class DirectorService {
     private controlStore: ControlStoreService,
     private mainMemory: MainMemoryService,
     private regProvider: RegProviderService,
+    private stackProvider: StackProviderService
   ) { }
 
   private currentAddress = 16;
@@ -68,7 +70,7 @@ export class DirectorService {
     // fetch
     if (microInstruction.mem[2]) {
       if (!this.MBRMemoryQueue[0]) { this.MBRMemoryQueue.push(0); }
-      this.MBRMemoryQueue.push(0, this.regProvider.getRegister("PC").getValue());
+      this.MBRMemoryQueue.push(this.regProvider.getRegister("PC").getValue());
     }
     // read
     if (microInstruction.mem[1]) {
@@ -83,7 +85,7 @@ export class DirectorService {
       this.mainMemory.save2LocalStorage();
     }
 
-
+    this.stackProvider.update(); // update Stack after each step
 
     // set next address
     this.currentAddress = parseInt(microInstruction.addr.join(""), 2)

@@ -1,63 +1,36 @@
 import { Injectable } from '@angular/core';
+import { MainMemoryService } from './Emulator/main-memory.service';
+import { RegProviderService } from './reg-provider.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StackProviderService  {
 
-  private items: Array<number> = [];
+  constructor(
+    private mainMemory: MainMemoryService,
+    private regProvider: RegProviderService,
+    ){}
+
   private _sp: number = 0;
   private _lv: number = 0;
 
+  private _items: {[address:number] : number} = {}
 
-  public set lv(position: number) {
-    if (position < this.items.length) {
-      this._lv = position;
-    }else{ 
-      throw new Error("StackIndex out of range");
+  
+  public get items() : {[address:number]:number} {
+    return this._items;
+  }
+  
+
+
+  public update(){
+    this._items = [];
+    let size = (this.mainMemory.stackStartAddress - this.regProvider.getRegister("SP").getValue() * 4);
+    for(let i = this.mainMemory.stackStartAddress; i <= this.regProvider.getRegister("SP").getValue() * 4; i += 4){
+      this._items[i] = this.mainMemory.get_32(i);
     }
-    this.items = [...this.items];
   }
 
-  public set sp(position: number){
-    if (position < this.items.length){
-      this._sp = position;
-    }else{ 
-      let toAdd = position - this.items.length + 1;
-      this.items = this.items.concat(new Array(toAdd).fill(""));
-      this._sp = position;
-    }
-    this.items = [...this.items];
-  }
-
-  public get lv() : number {
-    return this._lv
-  }
-
-  public get sp() : number {
-    return this._sp
-  }
-
-
-  push(item : number): void{
-      this.items.push(item);
-  }
-
-  pop(): number | undefined{
-      return this.items.pop();
-  }
-
-  size(): number{
-      return this.items.length;
-  }
-
-  peek() : number | undefined{
-      return this.items[this.items.length - 1];
-  }
-
-  /** top of stack is the last item  */
-  getAll() : number[]{ 
-      return this.items;
-  }
 
 }

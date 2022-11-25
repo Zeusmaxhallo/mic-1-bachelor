@@ -37,32 +37,20 @@ export class ToolBarMicViewComponent implements OnInit {
 
 
     // ---   test MainMemory functionality  ---
-    this.memory.store_32(0,-16);
-    this.memory.store_32(4,16);
-    this.memory.store_32(16,1023);
-    console.log(this.memory.get_32(4));
+    this.memory.setCode([0,16,1,16,2,16,3,16,4,16,5,16,6]);  // some example Code (5 x Bipush)
+    this.memory.setConstants([8,16,32,64]);             // some example constants  
 
+    this.memory.printMemory();
+    console.log("first word on stack is at address: " + this.memory.stackStartAddress);
+    
     //this.memory.save2LocalStorage();
     //this.memory.getFromLocalStorage();
-    this.memory.printMemory();
+    
   }
 
   run(){
     this.controlStore.loadMicro();
     this.director.step();
-
-    //const instruction = prompt("Enter Instruction");
-    //this.parser.compile([instruction]);
-
-
-    //const instruction = prompt("Enter Instruction:");
-    //console.log(instruction)
-    //this.parser.init(instruction, 10);
-    //this.parser.parse();
-
-    //console.log("H = OPC = PC = -1 ;rd;goto Label1")
-    //this.parser.init("H = OPC = PC = -1;rd;goto Label1", 11);
-    //this.parser.parse();
-
+    this.memory.save2LocalStorage();
   }
 }
