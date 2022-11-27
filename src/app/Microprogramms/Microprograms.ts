@@ -32,6 +32,7 @@ export class Microprogramms{
         PC=PC+1; fetch; wr;
         TOS=MDR; goto Main1
         (0x36)ISTORE: H=LV
+        MAR=MBR+H
         istore3: MDR=TOS;wr;
         SP=MAR=SP-1;rd
         PC=PC+1;fetch

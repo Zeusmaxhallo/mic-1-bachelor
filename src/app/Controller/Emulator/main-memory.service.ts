@@ -6,10 +6,10 @@ import { RegProviderService } from '../reg-provider.service';
 })
 export class MainMemoryService {
 
-  private memory: {[key:number]: number} = {}
-  private savedItems: {[name: string]: number} = {}
-  private savedItemTypes: {[name: string]: string} = {}
-  private labelsDictionary: {[name: string]: number} = {}
+  private memory: { [key: number]: number } = {}
+  private savedItems: { [name: string]: number } = {}
+  private savedItemTypes: { [name: string]: string } = {}
+  private labelsDictionary: { [name: string]: number } = {}
 
   private methodAreaSize: number;
   private constantPoolSize: number;
@@ -18,7 +18,7 @@ export class MainMemoryService {
 
   constructor(
     private regProvider: RegProviderService,
-    ) { }
+  ) { }
 
   public get stackStartAddress(): number {
     return this._stackStartAddress;
@@ -68,7 +68,7 @@ export class MainMemoryService {
   }
 
   public get_8(address: number): number {
-    if (address >= this.methodAreaSize){console.warn("PC reading outside of Method Area (PC is not pointing to Code)")}
+    if (address >= this.methodAreaSize) { console.warn("PC reading outside of Method Area (PC is not pointing to Code)") }
     if (address in this.memory) {
       return this.memory[address];
     }
@@ -100,7 +100,7 @@ export class MainMemoryService {
   }
 
   public setCode(code: number[]) {
-    this.methodAreaSize = Math.ceil(code.length/4) * 4; // align next Memory Addresses
+    this.methodAreaSize = Math.ceil(code.length / 4) * 4; // align next Memory Addresses
 
     for (let i = 0; i < code.length; i++) {
       this.store_8(i, code[i]);
@@ -117,18 +117,27 @@ export class MainMemoryService {
       this.store_32(this.methodAreaSize + i * 4, constants[i], undefined, undefined, true); // constants start after the MethodArea
     }
     this._stackStartAddress = this.methodAreaSize + this.constantPoolSize;
-    
+
     // Set SP and LV to start of Stack
     this.regProvider.getRegister("SP").setValue(this._stackStartAddress / 4);
     this.regProvider.getRegister("LV").setValue(this._stackStartAddress / 4);
 
   }
 
+  public createVariables(amount: number) {
+    let start = (this.regProvider.getRegister("LV").getValue() + 1) * 4;
+    for (let i = 0; i < amount; i++) {
+      this.store_32(start + i * 4, 0);
+    }
+    this.regProvider.getRegister("SP").setValue(this.regProvider.getRegister("SP").getValue() + amount);
+  }
+
+
   public getSavedItemAdress(name: string) {
     return this.savedItems[name];
   }
 
-  public addItemToSavedItemDictionary(name: string, address: number){
+  public addItemToSavedItemDictionary(name: string, address: number) {
     this.savedItems[name] = address;
   }
 
@@ -136,16 +145,16 @@ export class MainMemoryService {
     return this.savedItemTypes[name];
   }
 
-  public getLabelAddress(labelName: string){
+  public getLabelAddress(labelName: string) {
     let name = labelName + ":";
     return this.labelsDictionary[name];
   }
 
-  public setLabel(labelName: string, address: number){
+  public setLabel(labelName: string, address: number) {
     this.labelsDictionary[labelName] = address;
   }
 
-  public addMethodToDictionary(methodName: string, address: number){
+  public addMethodToDictionary(methodName: string, address: number) {
     this.savedItems[methodName] = address;
     this.savedItemTypes[methodName] = 'method';
   }
