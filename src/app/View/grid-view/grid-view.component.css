@@ -9,4 +9,5 @@ mat-grid-tile{
     padding-right: 2%;
     padding-top: 2%;
     padding-bottom: 2%;
+    overflow-y: auto;
 }

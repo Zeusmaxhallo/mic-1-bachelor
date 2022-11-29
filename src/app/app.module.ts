@@ -19,6 +19,7 @@ import { HttpClientModule } from '@angular/common/http';
 import * as FileSaver from 'file-saver';
 import { StackComponent } from './View/stack/stack.component';
 import { MicroEditorComponent } from './View/micro-editor/micro-editor.component';
+import { MicVisualizationComponent } from './View/mic-visualization/mic-visualization.component';
 
 
 @NgModule({
@@ -31,6 +32,7 @@ import { MicroEditorComponent } from './View/micro-editor/micro-editor.component
     EditorComponent,
     StackComponent,
     MicroEditorComponent,
+    MicVisualizationComponent,
   ],
   imports: [
     BrowserModule,
