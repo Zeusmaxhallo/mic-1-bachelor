@@ -7,10 +7,10 @@ import { RegProviderService } from '../reg-provider.service';
 })
 
 export class BBusService {
-  private readonly registers: Array<string> = ["MDR", "PC", "MBR", "MBRU", "SP", "LV", "CPPP", "TOS", "OPC"];
+  private readonly registers: Array<string> = ["MDR", "PC", "MBR", "MBRU", "SP", "LV", "CPP", "TOS", "OPC"];
   private value: number;
 
-  private messageSource = new BehaviorSubject("0");
+  private messageSource = new BehaviorSubject([]);
   public activation = this.messageSource.asObservable();
 
   constructor(private regProviderService: RegProviderService) {
@@ -33,7 +33,7 @@ export class BBusService {
     |  value:         ${this.value}
     `);
 
-    this.messageSource.next(this.registers[register]);
+    this.messageSource.next([this.registers[register],this.value]);
   }
 
   getValue(): number{

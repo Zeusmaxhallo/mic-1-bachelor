@@ -20,6 +20,7 @@ import * as FileSaver from 'file-saver';
 import { StackComponent } from './View/stack/stack.component';
 import { MicroEditorComponent } from './View/micro-editor/micro-editor.component';
 import { MicVisualizationComponent } from './View/mic-visualization/mic-visualization.component';
+import { BBusComponent } from './View/SVG/b-bus/b-bus.component';
 
 
 @NgModule({
@@ -33,6 +34,7 @@ import { MicVisualizationComponent } from './View/mic-visualization/mic-visualiz
     StackComponent,
     MicroEditorComponent,
     MicVisualizationComponent,
+    BBusComponent,
   ],
   imports: [
     BrowserModule,
