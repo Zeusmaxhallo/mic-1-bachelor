@@ -14,30 +14,41 @@ export class BBusService {
   public activation = this.messageSource.asObservable();
 
   constructor(private regProviderService: RegProviderService) {
-   }
+  }
 
-  public activate(reg: Array<number>): void{
-    if(reg.length != 4){
+  public activate(reg: Array<number>): void {
+    if (reg.length != 4) {
       throw new Error("ProtocolError - B-Bus-Operation must have 4 Bits but " + reg.length + " where given");
     }
-    
+
     // Decode instruction to equivalent register
-    let register: number = parseInt(reg.join(""), 2) 
-    
-    // get register value
-    this.value = this.regProviderService.getRegister(this.registers[register]).getValue(); 
+    let register = this.registers[parseInt(reg.join(""), 2)];
+
+    if (register !== "MBRU") {
+      // get register value
+      this.value = this.regProviderService.getRegister(register).getValue();
+    } else {
+      const buffer = new ArrayBuffer(1);
+      const view = new DataView(buffer, 0);
+
+      view.setInt8(0,this.regProviderService.getRegister("MBR").getValue());
+
+      this.value = view.getUint8(0);
+    }
+
+
 
     // print on Console
     console.log(`B-Bus Operation: ${reg.join("")}
-    |  reading from:  ${this.registers[register]},
+    |  reading from:  ${register},
     |  value:         ${this.value}
     `);
 
-    this.messageSource.next([this.registers[register],this.value]);
+    this.messageSource.next([register, this.value]);
   }
 
-  getValue(): number{
+  getValue(): number {
     return this.value;
-  }  
+  }
 
 }

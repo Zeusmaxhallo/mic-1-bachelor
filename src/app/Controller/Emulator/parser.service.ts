@@ -244,7 +244,7 @@ export class ParserService {
 
     // find DIVIDER or end of instruction
     let dividerPos = this.findNextDivider();
-    if (this.tokens[0].type === "DIVIDER") {
+    if (this.tokens[0].type === "DIVIDER" || this.tokens[0].type === "GOTO") {
       this.alu = [0, 0, 0, 1, 0, 0, 0, 0];
       // consume Divider Token
       this.tokens = this.tokens.slice(dividerPos + 1);

@@ -8,7 +8,7 @@ export class RegProviderService {
   private registers: Register[] = [new Register("PC", 0, 32),
                                   new Register("MAR", 0, 32),
                                   new Register("MDR", 0, 32),
-                                  new Register("MBR", 0, 32),
+                                  new Register("MBR", 0, 8),
                                   new Register("SP", 0, 32),
                                   new Register("LV",0,32),
                                   new Register("CPP", 0, 32),

@@ -49,7 +49,7 @@ export class MainMemoryService {
 
   private store_8(address: number, value: number) {
 
-    if (value < 0 || value >= 256) {
+    if (value < -128 || value >= 128) {
       throw new Error('InvalidSizeException: value must be >= 0 and must fit in a byte');
     }
     this.memory[address] = value;
