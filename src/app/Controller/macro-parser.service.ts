@@ -91,6 +91,11 @@ export class MacroParserService {
       }
     }
 
+    // If there is no constant field
+    if(startConstIndex === endConstIndex){
+      return;
+    }
+
     constArr = this.tokens.slice(startConstIndex + 1, endConstIndex);
     for(let constant of constArr){
       if(constant.type === 'NEW_CONSTANT'){
@@ -210,16 +215,67 @@ export class MacroParserService {
 
         // The following elements are parameters
         else{
+          // if parsedParameter is not undefined after this, the parameter is a constant
           let parsedParameter = this.constantOffsetToCPP[instructionToken[i]];
           
+          // if parsedParameter is not undefined after this, the parameter is a variable
           if(parsedParameter === undefined){
             parsedParameter = this.variableOffsetToLV[instructionToken[i]];
           }
 
+          // if parsedParameter is not NaN after this, the parameter is a byte
           if(parsedParameter === undefined){
             parsedParameter = +instructionToken[i];
           }
+          
+          // If parsed Parameter is NaN than it must be a offset
+          if(isNaN(parsedParameter)){
+            let label = this.labels[instructionToken[i] + ":"];
+            let offset: number = 0;
+            if(label !== undefined){
+              offset = label - this.mainParsedTokenNumber;
+              const buffer = new ArrayBuffer(2);
+              const view = new DataView(buffer, 0);
+              view.setInt16(0, offset); 
+              this.parsedCode.push(view.getUint8(0));
+              this.mainParsedTokenNumber += 1;
+              parsedParameter = view.getUint8(1);
+            }
+            else{
+              // search where the label is in the later code and calculate offset
+              let labelTokenPosition = 0;
+              for(let instruction2 of mainBlockArr){
+                let instructionToken2 = instruction2.value.split(' ');          
+                for(let j = 0; j < instructionToken.length; j++){
+                  if(instructionToken2[j] === instructionToken[i] + ":"){
+                    labelTokenPosition += 1;
+                    offset = labelTokenPosition - this.mainParsedTokenNumber;
+                    break;
+                  }
+                  if(offset !== 0){
+                    break;
+                  }
+                  else{
+                    labelTokenPosition += 1;
+                  }
+                }
+              }
+              if(labelTokenPosition > 0 && offset !== 0){
+                console.log("OFFSET: " + offset);
+                const buffer = new ArrayBuffer(2);
+                const view = new DataView(buffer, 0);
+                view.setInt16(0, offset); 
+                this.parsedCode.push(view.getUint8(0));
+                this.mainParsedTokenNumber += 1;
+                parsedParameter = view.getUint8(1);
+              }
+              else{
+                // throw new Error("Unexpected token: " + instructionToken[i]);
+              }
+            }
+          }
 
+          console.log(parsedParameter);
           this.parsedCode.push(parsedParameter);
           this.mainParsedTokenNumber += 1;
         }
@@ -300,16 +356,67 @@ export class MacroParserService {
 
         // The following elements are parameters
         else{
+          // if parsedParameter is not undefined after this, the parameter is a constant
           let parsedParameter = this.constantOffsetToCPP[instructionToken[i]];
           
+          // if parsedParameter is not undefined after this, the parameter is a variable
           if(parsedParameter === undefined){
             parsedParameter = this.variableOffsetToLV[instructionToken[i]];
           }
 
+          // if parsedParameter is not NaN after this, the parameter is a byte
           if(parsedParameter === undefined){
             parsedParameter = +instructionToken[i];
           }
 
+          // If parsed Parameter is NaN than it must be a offset
+          if(isNaN(parsedParameter)){
+            let label = this.labels[instructionToken[i] + ":"];
+            let offset: number = 0;
+            if(label !== undefined){
+              offset = label - this.mainParsedTokenNumber;
+              const buffer = new ArrayBuffer(2);
+              const view = new DataView(buffer, 0);
+              view.setInt16(0, offset); 
+              this.parsedCode.push(view.getUint8(0));
+              this.mainParsedTokenNumber += 1;
+              parsedParameter = view.getUint8(1);
+            }
+            else{
+              // search where the label is in the later code and calculate offset
+              let labelTokenPosition = 0;
+              for(let instruction2 of methodBlockArr){
+                let instructionToken2 = instruction2.value.split(' ');          
+                for(let j = 0; j < instructionToken.length; j++){
+                  if(instructionToken2[j] === instructionToken[i] + ":"){
+                    labelTokenPosition += 1;
+                    offset = labelTokenPosition - this.mainParsedTokenNumber;
+                    break;
+                  }
+                  if(offset !== 0){
+                    break;
+                  }
+                  else{
+                    labelTokenPosition += 1;
+                  }
+                }
+              }
+              if(labelTokenPosition > 0 && offset !== 0){
+                console.log("OFFSET: " + offset);
+                const buffer = new ArrayBuffer(2);
+                const view = new DataView(buffer, 0);
+                view.setInt16(0, offset); 
+                this.parsedCode.push(view.getUint8(0));
+                this.mainParsedTokenNumber += 1;
+                parsedParameter = view.getUint8(1);
+              }
+              else{
+                // throw new Error("Unexpected token: " + instructionToken[i]);
+              }
+            }
+          }
+
+          console.log(parsedParameter);
           this.parsedCode.push(parsedParameter);
           this.mainParsedTokenNumber += 1;
         }

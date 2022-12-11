@@ -91,7 +91,7 @@ export class Microprogramms{
     PC=PC+1; fetch;
     goto Main1
 
-(0xB6)INVOKEVIRUTAL:PC=PC+1; fetch
+(0xB6)INVOKEVIRTUAL:PC=PC+1; fetch
     H=MBRU <<8
     H = MBRU OR H
     MAR=CPP + H; rd
