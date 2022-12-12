@@ -1,0 +1,23 @@
+<svg:g id="A-Bus">
+    <g id="Arrow 20" filter="url(#filter0_b_0_1)">
+        <path
+            d="M251.556 725.72C251.556 724.615 250.66 723.72 249.556 723.72C248.451 723.72 247.556 724.615 247.556 725.72L251.556 725.72ZM249.556 735L261.103 715L238.009 715L249.556 735Z"
+            fill="#E81E7F" />
+    </g>
+    <rect id="Rectangle 18" x="244.5" y="677.5" width="9" height="45.4" fill="#E81E7F" stroke="#E81E7F" />
+    <path id="A"
+        d="M266.415 712H265.307L268.511 703.273H269.602L272.807 712H271.699L269.091 704.653H269.023L266.415 712ZM266.824 708.591H271.29V709.528H266.824V708.591Z"
+        fill="black" />
+</g>
+
+
+ <!-- Animation -->
+ <svg:circle r="10" fill="Black" [ngClass]="{ disable_bBus: !visible || init}">
+    <animateMotion #anim [attr.path]="path"
+        (beginEvent)="begin()"
+        (endEvent)="end()"
+        [attr.dur]="duration" 
+        repeatCount="1"
+        restart="never"
+        />
+</circle>

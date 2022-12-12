@@ -18,7 +18,7 @@ export class BBusComponent implements AfterViewInit {
   public init = true; // without init the animation starts on Page refresh
   public visible = false;
   public path:string = "M 289  87 365  87 365 723"
-  public value=2; // display the value inside the circle
+  public value:number; // display the value inside the circle
 
   public duration = 1; 
 
@@ -56,6 +56,7 @@ export class BBusComponent implements AfterViewInit {
 
     // set animation path to path of current Register
     this.path = this.paths[reg];
+    this.value = value;
     this.duration = this.calcDuration(this.path);
 
 
@@ -77,7 +78,7 @@ export class BBusComponent implements AfterViewInit {
   end() {
     this.visible = false;
     if(!this.init){
-      this.endEvent.emit("B-Bus animation complete");
+      this.endEvent.emit("bBus");
     }
     
   }
