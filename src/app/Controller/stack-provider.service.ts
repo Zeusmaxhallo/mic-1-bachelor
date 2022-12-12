@@ -15,10 +15,9 @@ export class StackProviderService  {
   private _sp: number = 0;
   private _lv: number = 0;
 
-  private _items: {[address:number] : number} = {}
-
+  private _items: [number,number][] = [];
   
-  public get items() : {[address:number]:number} {
+  public get items() : [number,number][]  {
     return this._items;
   }
   
@@ -28,8 +27,9 @@ export class StackProviderService  {
     this._items = [];
     let size = (this.mainMemory.stackStartAddress - this.regProvider.getRegister("SP").getValue() * 4);
     for(let i = this.mainMemory.stackStartAddress; i <= this.regProvider.getRegister("SP").getValue() * 4; i += 4){
-      this._items[i] = this.mainMemory.get_32(i);
+      this._items.push([i,this.mainMemory.get_32(i)]);
     }
+    console.log(this._items);
   }
 
 

@@ -94,6 +94,8 @@ export class MainMemoryService {
   public setCode(code: number[]) {
     this.methodAreaSize = Math.ceil(code.length / 4) * 4; // align next Memory Addresses
 
+    this.regProvider.getRegister("MBR").setValue(code[0]); // Initialize MBR with first instruction
+
     for (let i = 0; i < code.length; i++) {
       this.store_8(i, code[i]);
       // this.store_32(i*4, code[i]);
