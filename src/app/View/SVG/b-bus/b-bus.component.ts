@@ -18,7 +18,7 @@ export class BBusComponent implements AfterViewInit {
   public init = true; // without init the animation starts on Page refresh
   public visible = false;
   public path:string = "M 289  87 365  87 365 723"
-  public value:number; // display the value inside the circle
+  public value=2; // display the value inside the circle
 
   public duration = 1; 
 
