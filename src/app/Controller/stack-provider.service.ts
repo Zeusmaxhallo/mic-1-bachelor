@@ -29,7 +29,6 @@ export class StackProviderService  {
     for(let i = this.mainMemory.stackStartAddress; i <= this.regProvider.getRegister("SP").getValue() * 4; i += 4){
       this._items.push([i,this.mainMemory.get_32(i)]);
     }
-    console.log(this._items);
   }
 
 
