@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { SvgUtilitiesService } from '../svg-utilities.service';
 
 @Component({
   selector: '[app-b-bus]',
@@ -11,7 +12,7 @@ export class BBusComponent implements AfterViewInit {
   @Output() endEvent = new EventEmitter<string>()
 
 
-  constructor() { }
+  constructor(private svgUtilities: SvgUtilitiesService) { }
 
   ngAfterViewInit(): void { }
 
@@ -34,30 +35,12 @@ export class BBusComponent implements AfterViewInit {
     "OPC" : "M 289 584 365 584 365 723",
   }
 
-  private getPathLength(path:string){
-    let coordinates = path.split(/\s+/).slice(1).map(x=> parseInt(x)) // get [x1,y1,x2,y2,...]coordinates remove "M"
-    const calcDist = (x1:number, y1:number, x2:number, y2:number) => Math.sqrt((x2 - x1)**2 + (y2 - y1)**2);
-
-    let dist = 0;
-    for( let i = 0; i<coordinates.length; i+=2){
-      if(coordinates[i+2] && coordinates[i+3]){
-        dist += calcDist(coordinates[i],coordinates[i+1],coordinates[i+2],coordinates[i+3]);
-      }
-    }
-    return dist
-  }
-
-  private calcDuration(path:string){
-    // t = s/v
-    return this.getPathLength(path)/(this.speed * 100);
-  }
-
   async startAnimation(reg: string, value: number){
 
     // set animation path to path of current Register
     this.path = this.paths[reg];
     this.value = value;
-    this.duration = this.calcDuration(this.path);
+    this.duration = this.svgUtilities.calcDuration(this.path, this.speed);
 
 
     let delay = function (ms:number){

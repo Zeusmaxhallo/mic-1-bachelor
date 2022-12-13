@@ -27,17 +27,16 @@ export class MicVisualizationComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
 
+
     this.bBusService.activation.subscribe(reg => {
       if( reg[0] ){
         let regName = reg[0];
         let regValue = reg[1]
         this.bBus.startAnimation(regName, regValue)
+        this.cBus.startAnimation(["MDR", "H", "LV"],10);
+        this.aBus.startAnimation(10);
       }
     } )
-
-    this.cBus.startAnimation(["MAR"],10);
-    this.aBus.startAnimation(10);
-
   }
 
 }

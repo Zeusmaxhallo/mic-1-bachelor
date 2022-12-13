@@ -92,13 +92,17 @@
 
 
 
+
  <!-- Animation -->
- <svg:circle r="10" fill="Black" [ngClass]="{ disable_bBus: !visible || init}">
-    <animateMotion #anim [attr.path]="path"
-        (beginEvent)="begin()"
-        (endEvent)="end()"
-        [attr.dur]="duration" 
-        repeatCount="1"
-        restart="never"
-        />
-</circle>
+<svg:g *ngFor="let animation of animations" id="animation">
+    <svg:circle r="10" fill="#a1232b" [ngClass]="{ disable_cBus: !animation.visible || init}" [class]="animation.name">
+        <animateMotion #anim [attr.path]="animation.path"
+            (beginEvent)="begin(animation.name)"
+            (endEvent)="end(animation.name)"
+            [attr.dur]="animation.duration" 
+            repeatCount="1"
+            restart="always"
+            />
+    </circle>
+</g>
+

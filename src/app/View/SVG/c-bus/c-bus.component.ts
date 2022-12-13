@@ -1,4 +1,12 @@
-import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, QueryList, ViewChildren } from '@angular/core';
+import { SvgUtilitiesService } from '../svg-utilities.service';
+
+interface animation {
+  name: string,
+  path: string,
+  duration: number,
+  visible: boolean,
+}
 
 @Component({
   selector: '[app-c-bus]',
@@ -7,54 +15,91 @@ import { AfterViewInit, Component, ElementRef, Input, ViewChild } from '@angular
 })
 export class CBusComponent implements AfterViewInit {
   @Input() speed: number = 2;
-  @ViewChild("anim") anim: ElementRef;
+  @ViewChildren("anim") animationReferences: QueryList<ElementRef>;
 
 
   public visible = false;
   public init = true;
+  public value:number;
+  public animations: animation[] = [];
   
-  
-  public duration:number = 3;
-  public path = "M 273 867 123  867 123 17  171 17"
+  private currentlyAnimating: string[] = [];
 
   private paths: {[reg:string]:string} = {
-    "H"   : "M 273 867 123  867 123 659 171 659",
-    "OPC" : "M 273 867 123  867 123 583 171 583",
-    "TOS" : "M 273 867 123  867 123 515 171 515",
-    "CPP" : "M 273 867 123  867 123 443 171 443",
-    "LV"  : "M 273 867 123  867 123 378 171 378",
-    "SP"  : "M 273 867 123  867 123 303 171 303",
-    "PC"  : "M 273 867 123  867 123 157 171 157",
-    "MDR" : "M 273 867 123  867 123 82  171 82",
-    "MAR" : "M 273 867 123  867 123 17  171 17",
+    "H"   : "M 273 867 123 867 123 659 171 659",
+    "OPC" : "M 273 867 123 867 123 583 171 583",
+    "TOS" : "M 273 867 123 867 123 515 171 515",
+    "CPP" : "M 273 867 123 867 123 443 171 443",
+    "LV"  : "M 273 867 123 867 123 378 171 378",
+    "SP"  : "M 273 867 123 867 123 303 171 303",
+    "PC"  : "M 273 867 123 867 123 157 171 157",
+    "MDR" : "M 273 867 123 867 123 82  171 82",
+    "MAR" : "M 273 867 123 867 123 17  171 17",
   }
 
-  constructor() { }
-  ngAfterViewInit(): void {}
+  constructor( private svgUtilities: SvgUtilitiesService) { }
+  ngAfterViewInit(): void {
+    this.resetAnim();
+  }
 
-  startAnimation(regs: Array<string>, value: number){
-    this.path = this.paths[regs[0]];
+  private resetAnim(){
+    let name : keyof typeof this.paths;
+    for (name in this.paths){
+      let anim: animation = {
+        "name" : name,
+        "path": this.paths[name],
+        "duration": this.svgUtilities.calcDuration(this.paths[name], this.speed),
+        "visible": false,
+      }
+      this.animations.push(anim);
+    }
+  }
 
-    //this.duration = 3;
+  async startAnimation(regs: Array<string>, value: number){
 
+    this.currentlyAnimating = regs;
+
+    for (let i = 0; i < this.animations.length; i++){
+      if (regs.includes(this.animations[i].name)){
+        this.animations[i].visible = true;
+        this.animations[i].duration = this.svgUtilities.calcDuration(this.animations[i].path, this.speed);
+      }else {
+        this.animations[i].visible = false;
+      }
+    }
+    
+    this.value = value;
+
+    let delay = function (ms:number){
+      return new Promise( resolve => setTimeout(resolve, ms))
+    }
+    await delay(1);
 
     // start Animation
-    this.anim.nativeElement.beginElement();
+    for (let anim of this.animationReferences.toArray()){
+      anim.nativeElement.beginElement();
+    }
     this.init = false;
   }
 
 
-  begin(){
-    this.visible = true;
-    console.log("c-bus animation start");
-    
+  begin(name:string){
+    if(!this.init && this.currentlyAnimating.includes(name)){
+      this.visible = true;
+      console.log(name + " animation start");
+    }
   }
 
-  end(){
-    this.visible = false;
-    console.log("c-bus animation end")
+  end(name:string){
+    if (!this.currentlyAnimating.includes(name) || this.init){
+      return;
+    }
+    for(let i = 0; i < this.animations.length; i++){
+      if (this.animations[i].name = name){
+        console.log(name + " animation complete")
+        this.animations[i].visible = false;
+        break;
+      }
+    }
   }
-
-
-
 }

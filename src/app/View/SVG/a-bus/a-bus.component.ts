@@ -1,4 +1,5 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { SvgUtilitiesService } from '../svg-utilities.service';
 
 @Component({
   selector: '[app-a-bus]',
@@ -12,30 +13,36 @@ export class ABusComponent implements OnInit {
 
   public visible = false;
   public init = true;
-  
-  
-  public duration:number = 2;
+  public value: number;
+
+
+  public duration: number = 1;
   public path = "M 248.5 677 248.5 722"
 
-  constructor() { }
+  constructor(private svgUtilities: SvgUtilitiesService) { }
 
   ngOnInit(): void {
   }
 
-  startAnimation(value: number){
+  startAnimation(value: number) {
 
+    // set value and animationSpeed
+    this.value = value;
+    this.duration = this.svgUtilities.calcDuration(this.path, this.speed);
+
+    // start animation
     this.anim.nativeElement.beginElement();
-    this.init = false
+    this.init = false;
   }
 
-  begin(){
+  begin() {
     this.visible = true;
     console.log("a-bus animation start");
   }
 
-  end(){
+  end() {
     this.visible = false;
-    if(!this.init){
+    if (!this.init) {
       this.endEvent.emit("a-Bus animation complete");
     }
   }
