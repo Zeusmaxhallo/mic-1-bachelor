@@ -13,7 +13,7 @@ export class MacroParserService {
   private constantOffsetToCPP: {[name: string]: number} = {};
   private variableOffsetToLV: {[name: string]: number} = {};
   private labels: {[name: string]: number} = {};
-  private methods: {[name: string]: string} = {};
+  private methods: {[name: string]: number} = {};
 
   private parsedCode: number[] = [];
   private constants: number[] = [];
@@ -22,6 +22,7 @@ export class MacroParserService {
   private varNumber: number = 0;
   private constNumber: number = 0;
   private parsedTokenNumber = 0;
+  private methodNumber = 0;
 
   constructor(
     private macroTokenizer: MacroTokenizerService,
@@ -34,25 +35,35 @@ export class MacroParserService {
 
     this.tokens = this.macroTokenizer.getTokens();
     this.setConstant();
+    this.searchMethods();
 
     while(this.tokens.length > 0){
       if(this.tokens[0].value === '.main'){
-        if(this.methods["main"] === undefined){
-          this.methods["main"] = "";
-          this.mainBlock();
-        }
-        else{
-          throw new Error("main-method does already exist");
-        }
+        //Adds a Invoke to this main method at the address where this main method begins
+        this.parsedCode.push(182); // 182 is the Adress of INVOKEVIRTUAL
+        const buffer = new ArrayBuffer(2);
+        const view = new DataView(buffer, 0);
+        view.setInt16(0, this.methods["main"]); 
+        this.parsedCode.push(view.getUint8(0));
+        this.parsedCode.push(view.getUint8(1))
+        this.parsedTokenNumber += 3;
+          
+        this.mainBlock();
       }
       else if(this.tokens[0].value.slice(0, 7) === '.method'){
         let methodStr = this.tokens[0].value.slice(8);
-        let methodName = methodStr.slice(0, methodStr.indexOf("("))
-        let methodParameters = methodStr.slice(methodStr.indexOf("("))
-        if(this.methods[methodStr.slice(0, methodStr.indexOf("("))] === undefined){
-          this.methods[methodName] = methodParameters;
-          this.methodBlock();
-        }
+        let methodName = methodStr.slice(0, methodStr.indexOf("("));
+
+        //Adds a Invoke to this method at the address where this method begins
+        this.parsedCode.push(182); // 182 is the Adress of INVOKEVIRTUAL
+        const buffer = new ArrayBuffer(2);
+        const view = new DataView(buffer, 0);
+        view.setInt16(0, this.methods[methodName]); 
+        this.parsedCode.push(view.getUint8(0));
+        this.parsedCode.push(view.getUint8(1))
+        this.parsedTokenNumber += 3;
+
+        this.methodBlock();
       }
       else{
         throw new Error("Unexpected Token: " + this.tokens[0].value);
@@ -249,7 +260,12 @@ export class MacroParserService {
           // If parsed Parameter is NaN than it must be a offset or method
           // Case for method
           if(instructionToken[i-1] === "INVOKEVIRTUAL"){
-            console.log("ITS A METHOD NAME");
+            const buffer = new ArrayBuffer(2);
+            const view = new DataView(buffer, 0);
+            view.setInt16(0, this.methods[instructionToken[i]]); 
+            this.parsedCode.push(view.getUint8(0));
+            this.parsedTokenNumber += 1;
+            parsedParameter = view.getUint8(1);
           }
           // Case for label
           else{
@@ -295,7 +311,7 @@ export class MacroParserService {
                     }
                   }
                 }
-                
+
                 if(labelTokenPosition > 0 && offset !== 0){
                   console.log("OFFSET: " + offset);
                   const buffer = new ArrayBuffer(2);
@@ -491,5 +507,23 @@ export class MacroParserService {
 
     // methodblock is sliced out of the tokens when the block is parsed
     this.tokens.splice(startMethodIndex, endMethodIndex + 1); 
+  }
+
+  searchMethods(){
+    for(let token of this.tokens){
+      let methodStr = this.tokens[0].value.slice(8);
+
+      if(token.type === "FIELD" && token.value === ".main"){
+        this.methodNumber += 1;
+        this.methods["main"] = this.methodNumber;
+      }
+
+      if(token.type === "FIELD" && token.value.slice(0, 7) === ".method"){
+        let methodStr = token.value.slice(8);
+        let methodName = methodStr.slice(0, methodStr.indexOf("("));
+        this.methodNumber += 1;
+        this.methods[methodName] = this.methodNumber;
+      }
+    }
   }
 }
