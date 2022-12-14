@@ -14,6 +14,7 @@ export class MacroParserService {
   private variableOffsetToLV: {[name: string]: number} = {};
   private labels: {[name: string]: number} = {};
   private methods: {[name: string]: number} = {};
+  private methodsParameterNumber: {[name: string]: number} = {};
 
   private parsedCode: number[] = [];
   private constants: number[] = [];
@@ -82,6 +83,7 @@ export class MacroParserService {
     this.variableOffsetToLV = {};
     this.labels = {};
     this.methods = {}
+    this.methodsParameterNumber = {};
     this.parsedCode = [];
     this.constants = [];
     this.variables = [];
@@ -263,11 +265,17 @@ export class MacroParserService {
           // If parsed Parameter is NaN than it must be a offset or method
           // Case for method
           if(instructionToken[i-1] === "INVOKEVIRTUAL"){
+            // method index
             const buffer = new ArrayBuffer(2);
             const view = new DataView(buffer, 0);
             view.setInt16(0, this.methods[instructionToken[i]]); 
             this.parsedCode.push(view.getUint8(0));
-            this.parsedTokenNumber += 1;
+            this.parsedCode.push(view.getUint8(1));
+
+            // parameter count
+            view.setInt16(0, this.methodsParameterNumber[instructionToken[i]]);
+            this.parsedCode.push(view.getUint8(0));
+            this.parsedTokenNumber += 3;
             parsedParameter = view.getUint8(1);
           }
           // Case for label
@@ -438,7 +446,18 @@ export class MacroParserService {
           // If parsed Parameter is NaN than it must be a offset or method
           // Case for method
           if(instructionToken[i-1] === "INVOKEVIRTUAL"){
-            console.log("ITS A METHOD NAME");
+            // method index
+            const buffer = new ArrayBuffer(2);
+            const view = new DataView(buffer, 0);
+            view.setInt16(0, this.methods[instructionToken[i]]); 
+            this.parsedCode.push(view.getUint8(0));
+            this.parsedCode.push(view.getUint8(1));
+
+            //parameter count
+            view.setInt16(0, this.methodsParameterNumber[instructionToken[i]]);
+            this.parsedCode.push(view.getUint8(0));
+            this.parsedTokenNumber += 3;
+            parsedParameter = view.getUint8(1);
           }
           // Case for label
           else{
@@ -524,8 +543,21 @@ export class MacroParserService {
       if(token.type === "FIELD" && token.value.slice(0, 7) === ".method"){
         let methodStr = token.value.slice(8);
         let methodName = methodStr.slice(0, methodStr.indexOf("("));
+        let parameterStr = methodStr.slice(methodStr.indexOf("("), methodStr.indexOf(")")+1);
+        let parameterCount = 0;
+        
         this.methodNumber += 1;
         this.methods[methodName] = this.methodNumber;
+
+        for(let i = 0; i < parameterStr.length; i++){
+          if(parameterStr.charAt(i) === ","){
+            if(parameterCount === 0){
+              parameterCount += 1;
+            }
+            parameterCount += 1;
+          }
+        }
+        this.methodsParameterNumber[methodName] = parameterCount;
       }
     }
   }
