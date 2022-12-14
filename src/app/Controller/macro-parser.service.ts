@@ -80,12 +80,15 @@ export class MacroParserService {
     this.tokens = null;
     this.constantOffsetToCPP = {};
     this.variableOffsetToLV = {};
+    this.labels = {};
+    this.methods = {}
     this.parsedCode = [];
     this.constants = [];
     this.variables = [];
     this.varNumber = 0;
     this.constNumber = 0;
     this.parsedTokenNumber = 0;
+    this.methodNumber = 0;
   }
 
   // saves the constants with a value to the Main Memory and slices the constant field and the constant tokens out from the tokensarray
