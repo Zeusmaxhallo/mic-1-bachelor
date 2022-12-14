@@ -27,7 +27,7 @@ export class DirectorService {
     private stackProvider: StackProviderService
   ) { }
 
-  private currentAddress = 16;
+  private currentAddress = 1;
 
   private MBRMemoryQueue: Array<number> = [];
   private MDRMemoryQueue: Array<number> = [];

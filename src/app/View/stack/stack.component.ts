@@ -38,16 +38,16 @@ export class StackComponent implements OnInit {
   ngOnInit(): void {
   }
 
-   isLV(address: string):boolean{
-    return parseInt(address) == this.regProvider.getRegister("LV").getValue() * 4;
+   isLV(address: number):boolean{
+    return address == this.regProvider.getRegister("LV").getValue() * 4;
   }
 
-  isSP(address: string):boolean{
-    return parseInt(address) == this.regProvider.getRegister("SP").getValue() * 4;
+  isSP(address: number):boolean{
+    return address == this.regProvider.getRegister("SP").getValue() * 4;
   }
 
-  dec2hex(number:string){
-    let num = parseInt(number);
+  dec2hex(number:number){
+    let num = number;
     let prefix = "0x";
     if(num < 16){
       prefix = prefix + "0"

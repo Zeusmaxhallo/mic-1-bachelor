@@ -114,7 +114,7 @@ export class Microprogramms{
     PC=PC+1; fetch
     LV=TOS; goto Main1
 
-(0xAC)IRETURN:MAR=SP=LV; rd
+(0xAF)IRETURN:MAR=SP=LV; rd
     LV=MAR=MDR; rd
     MAR=LV+1
     PC=MDR;rd;fetch

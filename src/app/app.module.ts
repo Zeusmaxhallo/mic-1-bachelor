@@ -21,6 +21,8 @@ import { StackComponent } from './View/stack/stack.component';
 import { MicroEditorComponent } from './View/micro-editor/micro-editor.component';
 import { MicVisualizationComponent } from './View/mic-visualization/mic-visualization.component';
 import { BBusComponent } from './View/SVG/b-bus/b-bus.component';
+import { CBusComponent } from './View/SVG/c-bus/c-bus.component';
+import { ABusComponent } from './View/SVG/a-bus/a-bus.component';
 
 
 @NgModule({
@@ -35,6 +37,8 @@ import { BBusComponent } from './View/SVG/b-bus/b-bus.component';
     MicroEditorComponent,
     MicVisualizationComponent,
     BBusComponent,
+    CBusComponent,
+    ABusComponent,
   ],
   imports: [
     BrowserModule,
