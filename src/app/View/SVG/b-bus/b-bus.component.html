@@ -96,20 +96,19 @@
     </g>
 </g>
 
+
+<!-- animation path (will not be rendered) -->
+<svg:g style="display: none;">
+    <path class="bAnimationPath" [attr.d]="path"/>
+</svg:g>
+
  <!-- Animation -->
  
-<svg:g [ngClass]="{ disable_bBus: !visible || init}">
+<svg:g class="bBusContent" [ngClass]="{ disable_bBus: !visible}"> 
     <path id="Ellipse 1" d="M15.3702 29.65C23.6957 29.65 30.4448 22.9007 30.4448 14.575C30.4448 6.24932 23.6957 -0.5 15.3702 -0.5C7.04479 -0.5 0.2957 6.24932 0.2957 14.575C0.2957 22.9007 7.04479 29.65 15.3702 29.65Z" fill="#D9D9D9" stroke="black"/>
     <text id="value" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter" font-size="12" letter-spacing="0em">
         <tspan x="12.0304" y="17.8636">{{value}}</tspan>
     </text>
-    <animateMotion #anim [attr.path]="path"
-        (beginEvent)="begin()"
-        (endEvent)="end()"
-        [attr.dur]="duration" 
-        repeatCount="1"
-        restart="always"
-        />
 </g>
 
 

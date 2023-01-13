@@ -120,7 +120,7 @@ export class IntegrationTestService {
         this.parserService.init(this.tokens, 0);
         let parsedResult = this.parserService.parse();
         this.bBus.activate(parsedResult.b);
-        let result = this.alu.calc(parsedResult.alu.slice(2));
+        let [result, _] = this.alu.calc(parsedResult.alu.slice(2));
         result = this.shifter.shift(parsedResult.alu.slice(0,2), result)
         this.cBus.activate(parsedResult.c,result);        
       } 

@@ -37,7 +37,7 @@ export class ToolBarMicViewComponent implements OnInit {
 
 
     // ---   test MainMemory functionality  ---
-    this.memory.setCode([0,16,-1,16,2,16,3,16,4,16,5,16,6,54,1,54,2,94,2,100]);  // some example Code
+    this.memory.setCode([0,16,1,16,2,16,3,16,4,16,5,16,6,54,1,54,2,94,2,100]);  // some example Code
     this.memory.setConstants([8,16,32,64]);             // some example constants  
     this.memory.createVariables(2);
 

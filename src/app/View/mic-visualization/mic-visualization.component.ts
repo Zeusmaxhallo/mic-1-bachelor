@@ -1,7 +1,8 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { DirectorService } from 'src/app/Controller/director.service';
-import { BBusService } from 'src/app/Controller/Emulator/b-bus.service';
+import { BBusResult, BBusService } from 'src/app/Controller/Emulator/b-bus.service';
+import { CBusResult } from 'src/app/Controller/Emulator/c-bus.service';
 import { ABusComponent } from '../SVG/a-bus/a-bus.component';
 import { BBusComponent } from '../SVG/b-bus/b-bus.component';
 import { CBusComponent } from '../SVG/c-bus/c-bus.component';
@@ -12,31 +13,58 @@ import { CBusComponent } from '../SVG/c-bus/c-bus.component';
   styleUrls: ['./mic-visualization.component.css']
 })
 export class MicVisualizationComponent implements AfterViewInit {
-  @ViewChild("bBus") bBus:BBusComponent;
-  @ViewChild("cBus") cBus:CBusComponent;
-  @ViewChild("aBus") aBus:ABusComponent;
+  @ViewChild("bBus") bBus: BBusComponent;
+  @ViewChild("cBus") cBus: CBusComponent;
+  @ViewChild("aBus") aBus: ABusComponent;
 
   constructor(
     private bBusService: BBusService,
     private director: DirectorService,
-    ) { }
+  ) { }
 
-  endAnimation(event:string){
+  endAnimation(event: string) {
     console.log(event)
   }
 
   ngAfterViewInit(): void {
 
 
+    this.director.startAnimation.subscribe(
+      results => {
+        if (results[0]){
+          let bBusResult: BBusResult = results[0];
+          let aluResult: number = results[1];
+          let shifterResult: number = results[2];
+          let cBusResult: CBusResult = results[3];
+          let aBusResult: number = results[4];
+
+          let bBusAnimation = this.bBus.startAnimation(bBusResult.register, bBusResult.value);
+          this.aBus.startAnimation(aBusResult);
+          bBusAnimation.then(() => {
+            console.log("B-Bus animation complete");
+            this.cBus.startAnimation(cBusResult.registers, cBusResult.value);
+          })
+        }
+        
+      }
+    )
+
+    /*
     this.bBusService.activation.subscribe(reg => {
-      if( reg[0] ){
+      if (reg[0]) {
         let regName = reg[0];
         let regValue = reg[1]
-        this.bBus.startAnimation(regName, regValue)
-        this.cBus.startAnimation(["MDR", "H", "LV"],10);
-        this.aBus.startAnimation(10);
+        let promise = this.bBus.startAnimation(regName, regValue)
+        promise.then(() => {
+          this.cBus.startAnimation(["MDR", "H", "LV"], 10);
+          this.aBus.startAnimation(10);
+        })
+
+
+
+
       }
-    } )
+    })*/
   }
 
 }

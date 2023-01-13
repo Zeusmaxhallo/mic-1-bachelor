@@ -1,5 +1,7 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { SvgUtilitiesService } from '../svg-utilities.service';
+declare let anime: any;
+
 
 @Component({
   selector: '[app-a-bus]',
@@ -26,25 +28,32 @@ export class ABusComponent implements OnInit {
 
   startAnimation(value: number) {
 
-    // set value and animationSpeed
+    if (!value){return;}
+
     this.value = value;
-    this.duration = this.svgUtilities.calcDuration(this.path, this.speed);
+    console.log("aBus value: ", value)
+    let duration = this.svgUtilities.calcDuration(this.path, this.speed/4);
 
-    // start animation
-    this.anim.nativeElement.beginElement();
-    this.init = false;
-  }
+    let timeline = anime.timeline({
+      easing: 'easeOutExpo',
+      duration: 750,
+      loop: 1,
+      });
 
-  begin() {
-    this.visible = true;
-    console.log("a-bus animation start");
-  }
+    const path = anime.path(".aAnimationPath")
 
-  end() {
-    this.visible = false;
-    if (!this.init) {
-      this.endEvent.emit("a-Bus animation complete");
-    }
+    timeline.add({
+      targets: ".aBusContent",
+      translateX: path("x"),
+      translateY: path('y'),
+      easing: 'linear',
+      duration: duration * 1000,
+      begin: () => {this.visible = true},
+      complete: () => {this.visible = false},
+    })
+
+    return timeline.finished
+
   }
 
 }

@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { SvgUtilitiesService } from '../svg-utilities.service';
+declare let anime: any;
 
 @Component({
   selector: '[app-b-bus]',
@@ -14,7 +15,8 @@ export class BBusComponent implements AfterViewInit {
 
   constructor(private svgUtilities: SvgUtilitiesService) { }
 
-  ngAfterViewInit(): void { }
+  ngAfterViewInit(): void {
+   }
 
   public init = true; // without init the animation starts on Page refresh
   public visible = false;
@@ -36,7 +38,43 @@ export class BBusComponent implements AfterViewInit {
   }
 
   async startAnimation(reg: string, value: number){
+    this.path = this.paths[reg];
+    this.value = value;
+    let duration = this.svgUtilities.calcDuration(this.path, this.speed);
 
+
+    let delay = function (ms:number){
+      return new Promise( resolve => setTimeout(resolve, ms))
+    }
+    await delay(1);
+
+    let timeline = anime.timeline({
+      easing: 'easeOutExpo',
+      duration: 750,
+      loop: 1,
+      });
+
+    const path = anime.path(".bAnimationPath")
+
+    timeline.add({
+      targets: ".bBusContent",
+      translateX: path("x"),
+      translateY: path('y'),
+      easing: 'linear',
+      duration: duration * 1000,
+      begin: () => {this.visible = true},
+      complete: () => {this.visible = false},
+    })
+
+    return timeline.finished
+
+
+
+  }
+
+
+
+  /*
     // set animation path to path of current Register
     this.path = this.paths[reg];
     this.value = value;
@@ -65,4 +103,5 @@ export class BBusComponent implements AfterViewInit {
     }
     
   }
+  */
 }

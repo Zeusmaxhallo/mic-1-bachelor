@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { AluService } from './Emulator/alu.service';
-import { BBusService } from './Emulator/b-bus.service';
-import { CBusService } from './Emulator/c-bus.service';
+import { BBusService, BBusResult } from './Emulator/b-bus.service';
+import { CBusService, CBusResult } from './Emulator/c-bus.service';
 import { ControlStoreService } from './Emulator/control-store.service';
 import { MainMemoryService } from './Emulator/main-memory.service';
 import { Instruction, ParserService } from './Emulator/parser.service';
 import { ShifterService } from './Emulator/shifter.service';
 import { RegProviderService } from './reg-provider.service';
 import { StackProviderService } from './stack-provider.service';
+import { BehaviorSubject } from 'rxjs';
 
 
 @Injectable({
@@ -24,13 +25,18 @@ export class DirectorService {
     private controlStore: ControlStoreService,
     private mainMemory: MainMemoryService,
     private regProvider: RegProviderService,
-    private stackProvider: StackProviderService
+    private stackProvider: StackProviderService,
   ) { }
 
   private currentAddress = 1;
 
   private MBRMemoryQueue: Array<number> = [];
   private MDRMemoryQueue: Array<number> = [];
+
+  private _animationComplete = true;
+
+  private messageSource = new BehaviorSubject([]);
+  public startAnimation = this.messageSource.asObservable();
 
   public step() {
     console.log("Executing Instruction at Address: " + this.currentAddress);
@@ -61,10 +67,13 @@ export class DirectorService {
     let microInstruction = this.parser.parse();
 
     // calculate
-    this.bBus.activate(microInstruction.b);
-    let result = this.alu.calc(microInstruction.alu.slice(2));
-    result = this.shifter.shift(microInstruction.alu.slice(0, 2), result)
-    this.cBus.activate(microInstruction.c, result);
+    let bBusResult = this.bBus.activate(microInstruction.b);
+    let [aluResult, aBusResult] = this.alu.calc(microInstruction.alu.slice(2));
+    let shifterResult = this.shifter.shift(microInstruction.alu.slice(0, 2), aluResult)
+    let cBusResult = this.cBus.activate(microInstruction.c, shifterResult);
+
+    this.animate(bBusResult, aluResult, shifterResult, cBusResult, aBusResult);
+
 
     // memory instructions:
     // fetch
@@ -90,5 +99,19 @@ export class DirectorService {
     // set next address
     this.currentAddress = parseInt(microInstruction.addr.join(""), 2)
   }
+
+  private animate(bBusResult: BBusResult, aluResult: number, shifterResult: number, cBusResult: CBusResult, aBusResult: number) {
+
+    this._animationComplete = false;
+
+    this.messageSource.next([bBusResult, aluResult, shifterResult, cBusResult, aBusResult]);
+  }
+
+
+  public set animationComplete(v: boolean) {
+    this._animationComplete = v;
+  }
+
+
 
 }
