@@ -6,6 +6,7 @@ import { CBusResult } from 'src/app/Controller/Emulator/c-bus.service';
 import { ABusComponent } from '../SVG/a-bus/a-bus.component';
 import { BBusComponent } from '../SVG/b-bus/b-bus.component';
 import { CBusComponent } from '../SVG/c-bus/c-bus.component';
+import { ShifterComponent } from '../SVG/shifter/shifter.component';
 
 @Component({
   selector: 'app-mic-visualization',
@@ -16,6 +17,7 @@ export class MicVisualizationComponent implements AfterViewInit {
   @ViewChild("bBus") bBus: BBusComponent;
   @ViewChild("cBus") cBus: CBusComponent;
   @ViewChild("aBus") aBus: ABusComponent;
+  @ViewChild("shifter") shifter: ShifterComponent;
 
   constructor(
     private bBusService: BBusService,
@@ -31,7 +33,7 @@ export class MicVisualizationComponent implements AfterViewInit {
 
     this.director.startAnimation.subscribe(
       results => {
-        if (results[0]){
+        if (results[0]) {
           let bBusResult: BBusResult = results[0];
           let aluResult: number = results[1];
           let shifterResult: number = results[2];
@@ -42,29 +44,17 @@ export class MicVisualizationComponent implements AfterViewInit {
           this.aBus.startAnimation(aBusResult);
           bBusAnimation.then(() => {
             console.log("B-Bus animation complete");
-            this.cBus.startAnimation(cBusResult.registers, cBusResult.value);
+            let shifterAnimation = this.shifter.startAnimation(aluResult);
+            shifterAnimation.then(() => {
+              this.cBus.startAnimation(["MDR","LV"], cBusResult.value); //cBusResult.registers
+            })
+            
           })
         }
-        
+
       }
     )
 
-    /*
-    this.bBusService.activation.subscribe(reg => {
-      if (reg[0]) {
-        let regName = reg[0];
-        let regValue = reg[1]
-        let promise = this.bBus.startAnimation(regName, regValue)
-        promise.then(() => {
-          this.cBus.startAnimation(["MDR", "H", "LV"], 10);
-          this.aBus.startAnimation(10);
-        })
-
-
-
-
-      }
-    })*/
   }
 
 }

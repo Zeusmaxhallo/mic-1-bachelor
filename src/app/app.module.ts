@@ -23,6 +23,7 @@ import { MicVisualizationComponent } from './View/mic-visualization/mic-visualiz
 import { BBusComponent } from './View/SVG/b-bus/b-bus.component';
 import { CBusComponent } from './View/SVG/c-bus/c-bus.component';
 import { ABusComponent } from './View/SVG/a-bus/a-bus.component';
+import { ShifterComponent } from './View/SVG/shifter/shifter.component';
 
 
 @NgModule({
@@ -39,6 +40,7 @@ import { ABusComponent } from './View/SVG/a-bus/a-bus.component';
     BBusComponent,
     CBusComponent,
     ABusComponent,
+    ShifterComponent,
   ],
   imports: [
     BrowserModule,

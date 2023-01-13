@@ -1,6 +1,8 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChild, ViewChildren } from '@angular/core';
+import { BBusResult } from 'src/app/Controller/Emulator/b-bus.service';
 import { SvgUtilitiesService } from '../svg-utilities.service';
 declare let anime: any;
+
 
 @Component({
   selector: '[app-b-bus]',
@@ -16,35 +18,34 @@ export class BBusComponent implements AfterViewInit {
   constructor(private svgUtilities: SvgUtilitiesService) { }
 
   ngAfterViewInit(): void {
-   }
-
-  public init = true; // without init the animation starts on Page refresh
-  public visible = false;
-  public path:string = "M 289  87 365  87 365 723"
-  public value:number; // display the value inside the circle
-
-  public duration = 1; 
-
-  public paths: {[key:string]: string} = {
-    "MDR" : "M 289  87 365  87 365 723",
-    "PC"  : "M 289 157 365 157 365 723",
-    "MBR" : "M 289 229 365 229 365 723",
-    "MBRU": "M 289 240 365 240 365 723",
-    "SP"  : "M 289 301 365 301 365 723",
-    "LV"  : "M 289 371 365 371 365 723",
-    "CPP" : "M 289 443 365 443 365 723",
-    "TOS" : "M 289 513 365 513 365 723",
-    "OPC" : "M 289 584 365 584 365 723",
   }
 
-  async startAnimation(reg: string, value: number){
+  public visible = false;
+  public path: string = "M 289  87 365  87 365 723"
+  public value: number; // display the value inside the circle
+
+  public duration = 1;
+
+  public paths: { [key: string]: string } = {
+    "MDR": "M 289  87 365  87 365 723",
+    "PC":  "M 289 157 365 157 365 723",
+    "MBR": "M 289 229 365 229 365 723",
+    "MBRU":"M 289 240 365 240 365 723",
+    "SP":  "M 289 301 365 301 365 723",
+    "LV":  "M 289 371 365 371 365 723",
+    "CPP": "M 289 443 365 443 365 723",
+    "TOS": "M 289 513 365 513 365 723",
+    "OPC": "M 289 584 365 584 365 723",
+  }
+
+  async startAnimation(reg: string, value: number) {
     this.path = this.paths[reg];
     this.value = value;
     let duration = this.svgUtilities.calcDuration(this.path, this.speed);
 
 
-    let delay = function (ms:number){
-      return new Promise( resolve => setTimeout(resolve, ms))
+    let delay = function (ms: number) {
+      return new Promise(resolve => setTimeout(resolve, ms))
     }
     await delay(1);
 
@@ -52,7 +53,7 @@ export class BBusComponent implements AfterViewInit {
       easing: 'easeOutExpo',
       duration: 750,
       loop: 1,
-      });
+    });
 
     const path = anime.path(".bAnimationPath")
 
@@ -60,13 +61,13 @@ export class BBusComponent implements AfterViewInit {
       targets: ".bBusContent",
       translateX: path("x"),
       translateY: path('y'),
-      easing: 'linear',
+      easing: 'easeInSine',
       duration: duration * 1000,
-      begin: () => {this.visible = true},
-      complete: () => {this.visible = false},
+      begin: () => { this.visible = true },
+      complete: () => { this.visible = false },
     })
 
-    return timeline.finished
+    return timeline.finished;
 
 
 
