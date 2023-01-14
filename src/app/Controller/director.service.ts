@@ -17,14 +17,15 @@ import { BehaviorSubject } from 'rxjs';
 export class DirectorService {
 
   constructor(
-    private parser: ParserService,
+    
     private alu: AluService,
-    private bBus: BBusService,
     private cBus: CBusService,
+    private bBus: BBusService,
+    private parser: ParserService,
     private shifter: ShifterService,
-    private controlStore: ControlStoreService,
     private mainMemory: MainMemoryService,
     private regProvider: RegProviderService,
+    private controlStore: ControlStoreService,
     private stackProvider: StackProviderService,
   ) { }
 
@@ -35,6 +36,7 @@ export class DirectorService {
 
   private _animationComplete = true;
 
+  // Observable to notify the animation components 
   private messageSource = new BehaviorSubject([]);
   public startAnimation = this.messageSource.asObservable();
 
@@ -72,6 +74,7 @@ export class DirectorService {
     let shifterResult = this.shifter.shift(microInstruction.alu.slice(0, 2), aluResult)
     let cBusResult = this.cBus.activate(microInstruction.c, shifterResult);
 
+    // start animation
     this.animate(bBusResult, aluResult, shifterResult, cBusResult, aBusResult);
 
 
@@ -104,6 +107,7 @@ export class DirectorService {
 
     this._animationComplete = false;
 
+    // Tell Mic-Visualization to start a animation via this Observable
     this.messageSource.next([bBusResult, aluResult, shifterResult, cBusResult, aBusResult]);
   }
 

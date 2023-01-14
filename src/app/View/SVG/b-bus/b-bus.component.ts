@@ -10,7 +10,6 @@ declare let anime: any;
   styleUrls: ['./b-bus.component.css']
 })
 export class BBusComponent implements AfterViewInit {
-  @ViewChild("anim") anim: ElementRef;
   @Input() speed: number = 2;
   @Output() endEvent = new EventEmitter<string>()
 
@@ -27,15 +26,15 @@ export class BBusComponent implements AfterViewInit {
   public duration = 1;
 
   public paths: { [key: string]: string } = {
-    "MDR": "M 289  87 365  87 365 723",
-    "PC":  "M 289 157 365 157 365 723",
-    "MBR": "M 289 229 365 229 365 723",
-    "MBRU":"M 289 240 365 240 365 723",
-    "SP":  "M 289 301 365 301 365 723",
-    "LV":  "M 289 371 365 371 365 723",
-    "CPP": "M 289 443 365 443 365 723",
-    "TOS": "M 289 513 365 513 365 723",
-    "OPC": "M 289 584 365 584 365 723",
+    "MDR": "M   289  87   365  87   365 723",
+    "PC":  "M   289 157   365 157   365 723",
+    "MBR": "M   289 229   365 229   365 723",
+    "MBRU":"M   289 240   365 240   365 723",
+    "SP":  "M   289 301   365 301   365 723",
+    "LV":  "M   289 371   365 371   365 723",
+    "CPP": "M   289 443   365 443   365 723",
+    "TOS": "M   289 513   365 513   365 723",
+    "OPC": "M   289 584   365 584   365 723",
   }
 
   async startAnimation(reg: string, value: number) {
@@ -61,7 +60,7 @@ export class BBusComponent implements AfterViewInit {
       targets: ".bBusContent",
       translateX: path("x"),
       translateY: path('y'),
-      easing: 'easeInSine',
+      easing: 'easeInOutSine',
       duration: duration * 1000,
       begin: () => { this.visible = true },
       complete: () => { this.visible = false },

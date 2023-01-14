@@ -64,6 +64,8 @@ export class AluService {
       throw new Error("ProtocolError - Alu-Operation must have 6 Bits but " + operation.length + " were given"); 
     }
 
+    this.a = undefined;
+
     // Check ENA and ENB
     if(operation[2]){ this.getA();}
     if(operation[3]){ this.getB();}

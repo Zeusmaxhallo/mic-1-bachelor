@@ -17,11 +17,9 @@ interface animation {
 })
 export class CBusComponent implements AfterViewInit {
   @Input() speed: number = 2;
-  @ViewChildren("anim") animationReferences: QueryList<ElementRef>;
 
 
   public visible = false;
-  public init = true;
   public value: number;
   public animations: animation[] = [];
 
@@ -59,8 +57,9 @@ export class CBusComponent implements AfterViewInit {
 
   async startAnimation(regs: Array<string>, value: number) {
 
-    this.currentlyAnimating = regs;
+    this.value = value;
 
+    // set duration and visibility of each animation
     for (let i = 0; i < this.animations.length; i++) {
       if (regs.includes(this.animations[i].name)) {
         this.animations[i].visible = true;
@@ -70,14 +69,17 @@ export class CBusComponent implements AfterViewInit {
       }
     }
 
-    /////
+    let delay = function (ms: number) {
+      return new Promise(resolve => setTimeout(resolve, ms))
+    }
+    await delay(1);
 
-
-
+    // only animate visible animations
     const toAnimate = this.animations.filter(animation => { return animation.visible });
 
     for (let animation of toAnimate) {
 
+      // start each animation independently with own timeline
       let timeline = anime.timeline({
         easing: 'linear',
         loop: 1,
@@ -91,46 +93,10 @@ export class CBusComponent implements AfterViewInit {
         translateY: path('y'),
         easing: 'easeInOutSine',
         duration: animation.duration * 1000,
-        begin: () => { console.log(animation.name, "wurde gestartet")},
-        complete: () => { console.log(animation.name, "ist fertig"); animation.visible= false  },
+        begin: () => { },
+        complete: () => { animation.visible= false },
       })
     }
-
-
-
-    //////
-    this.value = value;
-
-    let delay = function (ms: number) {
-      return new Promise(resolve => setTimeout(resolve, ms))
-    }
-    await delay(1);
-
-    // start Animation
-    for (let anim of this.animationReferences.toArray()) {
-      anim.nativeElement.beginElement();
-    }
-    this.init = false;
   }
 
-
-  begin(name: string) {
-    if (!this.init && this.currentlyAnimating.includes(name)) {
-      this.visible = true;
-      console.log(name + " animation start");
-    }
-  }
-
-  end(name: string) {
-    if (!this.currentlyAnimating.includes(name) || this.init) {
-      return;
-    }
-    for (let i = 0; i < this.animations.length; i++) {
-      if (this.animations[i].name = name) {
-        console.log(name + " animation complete")
-        this.animations[i].visible = false;
-        break;
-      }
-    }
-  }
 }

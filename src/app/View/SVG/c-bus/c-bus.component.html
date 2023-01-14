@@ -96,7 +96,7 @@
  <!-- Animation -->
 <svg:g *ngFor="let animation of animations" id="animation">
     <path [class]="animation.name + 'path'" [attr.d]="animation.path" style="display: hidden;" />
-    <g [ngClass]="{ disable_cBus: !animation.visible || init}" [class]="animation.name + 'animation'">
+    <g [ngClass]="{ disable_cBus: !animation.visible}" [class]="animation.name + 'animation'">
         <path 
             id="Ellipse 1" 
             d="M15.3702 29.65C23.6957 29.65 30.4448 22.9007 30.4448 14.575C30.4448 6.24932 23.6957 -0.5 15.3702 -0.5C7.04479 -0.5 0.2957 6.24932 0.2957 14.575C0.2957 22.9007 7.04479 29.65 15.3702 29.65Z" 

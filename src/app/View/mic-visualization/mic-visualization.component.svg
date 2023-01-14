@@ -209,7 +209,7 @@
 
 
     <!-- shifter-Bus Component -->
-    <g app-shifter #shifter [speed]="2" (endEvent)="endAnimation($event)" />
+    <g app-shifter #shifter [speed]="0.5" (endEvent)="endAnimation($event)" />
 
     <!-- C-Bus Component -->
     <g app-c-bus #cBus [speed]="2" />
@@ -218,7 +218,7 @@
     <g app-b-bus #bBus [speed]="2" (endEvent)="endAnimation($event)" />
 
     <!-- A-Bus Component -->
-    <g app-a-bus #aBus [speed]="2" (endEvent)="endAnimation($event)" />
+    <g app-a-bus #aBus [speed]="0.5" (endEvent)="endAnimation($event)" />
 
     <g id="Shifter">
         <g id="H_3">
