@@ -50,7 +50,7 @@ export class ToolBarMicViewComponent implements OnInit {
   }
 
   run(){
-    this.controlStore.loadMicro();
+    this.director.init();
     this.director.step();
     this.memory.save2LocalStorage();
   }

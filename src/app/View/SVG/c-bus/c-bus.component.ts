@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, ElementRef, Input, QueryList, ViewChildren } from '@angular/core';
+import { AfterViewInit, Component, Input, ViewChild } from '@angular/core';
+import { RegistersComponent } from '../registers/registers.component';
 import { SvgUtilitiesService } from '../svg-utilities.service';
 declare let anime: any;
 
@@ -17,6 +18,7 @@ interface animation {
 })
 export class CBusComponent implements AfterViewInit {
   @Input() speed: number = 2;
+  @ViewChild("registers") registers: RegistersComponent;
 
 
   public visible = false;
@@ -26,15 +28,15 @@ export class CBusComponent implements AfterViewInit {
   private currentlyAnimating: string[] = [];
 
   private paths: { [reg: string]: string } = {
-    "H":    "M 273 845  123 845  123 659  171 659",
-    "OPC":  "M 273 845  123 845  123 583  171 583",
-    "TOS":  "M 273 845  123 845  123 515  171 515",
-    "CPP":  "M 273 845  123 845  123 443  171 443",
-    "LV":   "M 273 845  123 845  123 378  171 378",
-    "SP":   "M 273 845  123 845  123 303  171 303",
-    "PC":   "M 273 845  123 845  123 157  171 157",
-    "MDR":  "M 273 845  123 845  123 82   171 82",
-    "MAR":  "M 273 845  123 845  123 17   171 17",
+    "H": "M 273 845  123 845  123 659  171 659",
+    "OPC": "M 273 845  123 845  123 583  171 583",
+    "TOS": "M 273 845  123 845  123 515  171 515",
+    "CPP": "M 273 845  123 845  123 443  171 443",
+    "LV": "M 273 845  123 845  123 378  171 378",
+    "SP": "M 273 845  123 845  123 303  171 303",
+    "PC": "M 273 845  123 845  123 157  171 157",
+    "MDR": "M 273 845  123 845  123 82   171 82",
+    "MAR": "M 273 845  123 845  123 17   171 17",
   }
 
   constructor(private svgUtilities: SvgUtilitiesService) { }
@@ -77,6 +79,8 @@ export class CBusComponent implements AfterViewInit {
     // only animate visible animations
     const toAnimate = this.animations.filter(animation => { return animation.visible });
 
+    let lastTimeline: any;
+
     for (let animation of toAnimate) {
 
       // start each animation independently with own timeline
@@ -94,9 +98,48 @@ export class CBusComponent implements AfterViewInit {
         easing: 'easeInOutSine',
         duration: animation.duration * 1000,
         begin: () => { },
-        complete: () => { animation.visible= false },
+        complete: () => {
+          animation.visible = false;
+          this.registers.showValue(animation.name, this.value);
+        }
       })
+
+      lastTimeline = timeline;
     }
+
+    if (!lastTimeline){
+      return new Promise(resolve => {setTimeout(resolve, 1)});
+    }
+
+
+    return lastTimeline.finished;
+  }
+
+  public setRegisterValues(register: string, value: number, activateArrow: boolean) {
+    this.registers.showValue(register, value);
+
+    console.log(activateArrow);
+    if(!activateArrow){return;}
+
+    let timeline = anime.timeline({
+      easing: 'linear',
+      loop: 6,
+    });
+
+    const arrowElement = document.querySelector(".memoryArrow" + register);
+    const previousColor = arrowElement.getAttribute("fill");
+
+
+    timeline.add({
+      targets: [arrowElement, ".memoryArrow" + register + "1"],
+      fill: "#FFF",
+      duration: 100,
+    })
+    .add({
+      targets: [arrowElement, ".memoryArrow" + register + "1"],
+      fill: previousColor,
+      duration: 100,
+    })
   }
 
 }

@@ -36,9 +36,23 @@ export class DirectorService {
 
   private _animationComplete = true;
 
-  // Observable to notify the animation components 
-  private messageSource = new BehaviorSubject([]);
-  public startAnimation = this.messageSource.asObservable();
+  // Observables to notify the animation components 
+  private startAnimationSource = new BehaviorSubject([]);
+  public startAnimation = this.startAnimationSource.asObservable();
+
+  private setRegisterValuesSource = new BehaviorSubject([]);
+  public setRegisterValues = this.setRegisterValuesSource.asObservable();
+
+
+  
+  /** Setup the Director*/
+  public init(){
+    this.controlStore.loadMicro();
+    for (const register of this.regProvider.getRegisters()){
+      this.showRegisterValue(register.getName(), register.getValue())
+    }
+
+  }
 
   public step() {
     console.log("Executing Instruction at Address: " + this.currentAddress);
@@ -52,6 +66,7 @@ export class DirectorService {
       let addr = this.MBRMemoryQueue.shift();
       let MBR = this.regProvider.getRegister("MBR");
       MBR.setValue(this.mainMemory.get_8(addr));
+      this.showRegisterValue(MBR.getName(), MBR.getValue(), true);
     } else { this.MBRMemoryQueue.shift(); }
 
 
@@ -59,7 +74,9 @@ export class DirectorService {
     if (this.MDRMemoryQueue[0]) {
       let addr = this.MDRMemoryQueue.shift();
       let MDR = this.regProvider.getRegister("MDR");
-      MDR.setValue(this.mainMemory.get_32(addr))
+      MDR.setValue(this.mainMemory.get_32(addr));
+      this.showRegisterValue(MDR.getName(), MDR.getValue(), true);
+      console.log("MDR holt moped")
     } else { this.MDRMemoryQueue.shift(); }
 
 
@@ -87,7 +104,7 @@ export class DirectorService {
     // read
     if (microInstruction.mem[1]) {
       if (!this.MDRMemoryQueue[0]) { this.MDRMemoryQueue.push(0); }
-      // MDR reads 32Bit Words -> multiply address in MAR * 4
+      // MDR reads 32Bit Words -> multiply address in MAR with 4
       this.MDRMemoryQueue.push(this.regProvider.getRegister("MAR").getValue() * 4);
     }
     //write
@@ -108,14 +125,18 @@ export class DirectorService {
     this._animationComplete = false;
 
     // Tell Mic-Visualization to start a animation via this Observable
-    this.messageSource.next([bBusResult, aluResult, shifterResult, cBusResult, aBusResult]);
+    this.startAnimationSource.next([bBusResult, aluResult, shifterResult, cBusResult, aBusResult]);
+  }
+
+  private showRegisterValue( register: string, value: number, activateMemoryArrow?: boolean ){
+    this.setRegisterValuesSource.next([register, value, activateMemoryArrow == undefined ? false: activateMemoryArrow]);
   }
 
 
   public set animationComplete(v: boolean) {
     this._animationComplete = v;
+    console.log("animations Complete");
   }
-
 
 
 }

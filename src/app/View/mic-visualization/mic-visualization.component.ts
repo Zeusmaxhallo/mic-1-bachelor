@@ -5,6 +5,7 @@ import { CBusResult } from 'src/app/Controller/Emulator/c-bus.service';
 import { ABusComponent } from '../SVG/a-bus/a-bus.component';
 import { BBusComponent } from '../SVG/b-bus/b-bus.component';
 import { CBusComponent } from '../SVG/c-bus/c-bus.component';
+import { RegistersComponent } from '../SVG/registers/registers.component';
 import { ShifterComponent } from '../SVG/shifter/shifter.component';
 
 @Component({
@@ -29,6 +30,17 @@ export class MicVisualizationComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
 
+    this.director.setRegisterValues.subscribe(
+      results => {
+        if (results[0]) {
+          const register:string = results[0];
+          const value: number = results[1];
+          const activateArrow: boolean = results[2];
+          this.cBus.setRegisterValues(register, value, activateArrow);
+        }
+      }
+    )
+
 
     this.director.startAnimation.subscribe(
       results => {
@@ -42,10 +54,10 @@ export class MicVisualizationComponent implements AfterViewInit {
           const bBusAnimation = this.bBus.startAnimation(bBusResult.register, bBusResult.value);
           this.aBus.startAnimation(aBusResult);
           bBusAnimation.then(() => {
-            console.log("B-Bus animation complete");
             const shifterAnimation = this.shifter.startAnimation(aluResult);
             shifterAnimation.then(() => {
-              this.cBus.startAnimation(cBusResult.registers, cBusResult.value); //cBusResult.registers
+              const cBusAnim = this.cBus.startAnimation(cBusResult.registers, cBusResult.value);
+              cBusAnim.then(()=> this.director.animationComplete = true);
             })
             
           })
