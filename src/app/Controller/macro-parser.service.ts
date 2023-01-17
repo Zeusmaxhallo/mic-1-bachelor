@@ -13,8 +13,8 @@ export class MacroParserService {
   private constantOffsetToCPP: {[name: string]: number} = {};
   private variableOffsetToLV: {[name: string]: number} = {};
   private labels: {[name: string]: number} = {};
-  private methods: {[name: string]: number} = {};
-  private methodsParameterNumber: {[name: string]: number} = {};
+  private methods: {[name: string]: number} = {}; // gives a number that is a offset to a const. The value of this const is the startingpoint of this method
+  private methodsParameterNumber: {[name: string]: number} = {}; // gives the number of parameters for a method
 
   private parsedCode: number[] = [];
   private constants: number[] = [];
@@ -22,8 +22,9 @@ export class MacroParserService {
 
   private varNumber: number = 0;
   private constNumber: number = 0;
-  private parsedTokenNumber = 0;
-  private methodNumber = 0;
+  private parsedTokenNumber: number = 0;
+  private methodNumber: number = 0;
+  private currentLocalVarCount: number = 0; // temporary saves the number of current local variables when setVariable() is invoked
 
   constructor(
     private macroTokenizer: MacroTokenizerService,
@@ -40,14 +41,18 @@ export class MacroParserService {
 
     while(this.tokens.length > 0){
       if(this.tokens[0].value === '.main'){
-        //Adds a Invoke to this main method at the address where this main method begins
+        // Adds a Invoke to this main method at the address where this main method begins
         this.parsedCode.push(182); // 182 is the Adress of INVOKEVIRTUAL
         const buffer = new ArrayBuffer(2);
         const view = new DataView(buffer, 0);
-        view.setInt16(0, this.methods["main"]); 
+        view.setInt16(0, this.methods["main"]);
         this.parsedCode.push(view.getUint8(0));
-        this.parsedCode.push(view.getUint8(1))
-        this.parsedTokenNumber += 3;
+        this.parsedCode.push(view.getUint8(1));
+        view.setInt16(0, 1);
+        this.parsedCode.push(view.getUint8(0));
+        this.parsedCode.push(view.getUint8(1));
+        this.parsedTokenNumber += 1; 
+        console.log("---------PARSEDTOKENNUMBER: " + this.parsedTokenNumber + "|main anfang: +5")
           
         this.mainBlock();
       }
@@ -55,14 +60,14 @@ export class MacroParserService {
         let methodStr = this.tokens[0].value.slice(8);
         let methodName = methodStr.slice(0, methodStr.indexOf("("));
 
-        //Adds a Invoke to this method at the address where this method begins
-        this.parsedCode.push(182); // 182 is the Adress of INVOKEVIRTUAL
+        // Adds a Invoke to this method at the address where this method begins
         const buffer = new ArrayBuffer(2);
         const view = new DataView(buffer, 0);
-        view.setInt16(0, this.methods[methodName]); 
+        view.setInt16(0, this.methodsParameterNumber[methodName] + 1); // +1 because objref is also always a parameter 
         this.parsedCode.push(view.getUint8(0));
         this.parsedCode.push(view.getUint8(1))
-        this.parsedTokenNumber += 3;
+        this.parsedTokenNumber += 2;
+        console.log("---------PARSEDTOKENNUMBER: " + this.parsedTokenNumber + "|anzahl parameter für methodeanfang: +2")
 
         this.methodBlock();
       }
@@ -89,7 +94,7 @@ export class MacroParserService {
     this.variables = [];
     this.varNumber = 0;
     this.constNumber = 0;
-    this.parsedTokenNumber = 0;
+    this.parsedTokenNumber = 0; // 1 tokenized token can also lead to more than 1 parsed varlues in the memory
     this.methodNumber = 0;
   }
 
@@ -98,6 +103,13 @@ export class MacroParserService {
     let startConstIndex = 0;
     let endConstIndex = 0;
     let constArr: Token[];
+
+    //create objref with value 0 once
+    let constName = "objref"
+    let constValue: number = 0;
+    this.constantOffsetToCPP[constName] = this.constNumber;
+    this.constNumber += 1;
+    this.constants.push(constValue);
 
     // sets startConstIndex and endConstIndex
     for(let i = 0; i < this.tokens.length; i++){
@@ -134,7 +146,7 @@ export class MacroParserService {
         throw new Error("The following should not be in the constant field. \nType: " + constant.type + ", Value: " + constant.value);
       }
     }
-
+    console.log("objref = 0 is also saved as a constant, but is not listed hiere. The offset to CPP is 0")
     console.table(constArr);
     this.tokens.splice(startConstIndex, endConstIndex + 1);
   }
@@ -158,7 +170,6 @@ export class MacroParserService {
     for(let variable of varArr){
       if(variable.type === "NEW_VARIABLE"){
         let varName: string = variable.value;
-
         this.varNumber += 1;
         this.variableOffsetToLV[varName] = this.varNumber;
         this.variables.push(0);
@@ -167,7 +178,9 @@ export class MacroParserService {
       }
     }
     console.table(varArr);
-    arr.splice(startVarIndex, varArr.length + 2);    
+    this.currentLocalVarCount = varArr.length
+    console.log("LOCAL VARIABLE COUNT: " + (varArr.length));
+    arr.splice(startVarIndex, varArr.length + 2);
   }
 
   private mainBlock(){
@@ -201,6 +214,25 @@ export class MacroParserService {
         throw new Error("This Field is not allowed in this scope: " + mainBlockArr[0].value);
       }   
       this.setVariable(mainBlockArr);
+
+      // writes the number of local variables to the memory
+      const buffer = new ArrayBuffer(2);
+      const view = new DataView(buffer, 0);
+      view.setInt16(0, this.currentLocalVarCount);
+      this.parsedCode.push(view.getUint8(0));
+      this.parsedCode.push(view.getUint8(1));
+      this.parsedTokenNumber += 2;
+      console.log("---------PARSEDTOKENNUMBER: " + this.parsedTokenNumber + "|number of local variables: +2")
+      this.currentLocalVarCount = 0; // reverts the value back to 0, so the next invokation of setVariable() can again count the right number of local variables
+    }
+    else{
+      const buffer = new ArrayBuffer(2);
+      const view = new DataView(buffer, 0);
+      view.setInt16(0, 0);
+      this.parsedCode.push(view.getUint8(0));
+      this.parsedCode.push(view.getUint8(1));
+      this.parsedTokenNumber += 2;
+      console.log("---------PARSEDTOKENNUMBER: " + this.parsedTokenNumber + "|number of local variables: +2")
     }
 
     // instructions in the main field
@@ -218,6 +250,7 @@ export class MacroParserService {
           if(instructionAddress !== undefined){
             this.parsedCode.push(instructionAddress);
             this.parsedTokenNumber += 1;
+            console.log("---------PARSEDTOKENNUMBER: " + this.parsedTokenNumber + "|instruction in control store address: +1")
           }
           // Instruction that is not in the control store or label
           else{
@@ -249,6 +282,7 @@ export class MacroParserService {
             view.setInt16(0, parsedParameterTmp); 
             this.parsedCode.push(view.getUint8(0));
             this.parsedTokenNumber += 1;
+            console.log("---------PARSEDTOKENNUMBER: " + this.parsedTokenNumber + "|const: +2*")
             parsedParameter = view.getUint8(1);
           }
           
@@ -262,7 +296,7 @@ export class MacroParserService {
             parsedParameter = +instructionToken[i];
           }
           
-          // If parsed Parameter is NaN than it must be a offset or method
+          // If parsed Parameter is NaN than it must be an offset or method
           // Case for method
           if(instructionToken[i-1] === "INVOKEVIRTUAL"){
             // method index
@@ -270,12 +304,8 @@ export class MacroParserService {
             const view = new DataView(buffer, 0);
             view.setInt16(0, this.methods[instructionToken[i]]); 
             this.parsedCode.push(view.getUint8(0));
-            this.parsedCode.push(view.getUint8(1));
-
-            // parameter count
-            view.setInt16(0, this.methodsParameterNumber[instructionToken[i]]);
-            this.parsedCode.push(view.getUint8(0));
-            this.parsedTokenNumber += 3;
+            this.parsedTokenNumber += 1;
+            console.log("---------PARSEDTOKENNUMBER: " + this.parsedTokenNumber + "|methodname disp: +2*")
             parsedParameter = view.getUint8(1);
           }
           // Case for label
@@ -291,11 +321,12 @@ export class MacroParserService {
                 view.setInt16(0, offset); 
                 this.parsedCode.push(view.getUint8(0));
                 this.parsedTokenNumber += 1;
+                console.log("---------PARSEDTOKENNUMBER: " + this.parsedTokenNumber + "|label offset: +2*")
                 parsedParameter = view.getUint8(1);
               }
               else{
                 // search where the label is in the later code and calculate offset
-                let labelTokenPosition = 0;
+                let labelTokenPosition = 3;
                 for(let instruction2 of mainBlockArr){
                   let instructionToken2 = instruction2.value.split(' ');          
                   for(let j = 0; j < instructionToken.length; j++){
@@ -330,6 +361,7 @@ export class MacroParserService {
                   view.setInt16(0, offset); 
                   this.parsedCode.push(view.getUint8(0));
                   this.parsedTokenNumber += 1;
+                  console.log("---------PARSEDTOKENNUMBER: " + this.parsedTokenNumber + "|label offset: +2*")
                   parsedParameter = view.getUint8(1);
                 }
                 else{
@@ -342,6 +374,7 @@ export class MacroParserService {
           console.log(parsedParameter);
           this.parsedCode.push(parsedParameter);
           this.parsedTokenNumber += 1;
+          console.log("---------PARSEDTOKENNUMBER: " + this.parsedTokenNumber + "|at the end: +1****")
         }
       }
     }
@@ -382,6 +415,25 @@ export class MacroParserService {
         throw new Error("This Field is not allowed in this scope: " + methodBlockArr[0].value);
       }
       this.setVariable(methodBlockArr);
+
+      // writes the number of local variables to the memory
+      const buffer = new ArrayBuffer(2);
+      const view = new DataView(buffer, 0);
+      view.setInt16(0, this.currentLocalVarCount);
+      this.parsedCode.push(view.getUint8(0));
+      this.parsedCode.push(view.getUint8(1));
+      this.parsedTokenNumber += 2;
+      console.log("---------PARSEDTOKENNUMBER: " + this.parsedTokenNumber + "|var count: +2")
+      this.currentLocalVarCount = 0; // reverts the value back to 0, so the next invokation of setVariable() can again count the right number of local variables
+    }
+    else{
+      const buffer = new ArrayBuffer(2);
+      const view = new DataView(buffer, 0);
+      view.setInt16(0, 0);
+      this.parsedCode.push(view.getUint8(0));
+      this.parsedCode.push(view.getUint8(1));
+      this.parsedTokenNumber += 2;
+      console.log("---------PARSEDTOKENNUMBER: " + this.parsedTokenNumber + "|var count: +2")
     }
 
     // instructions in the main field
@@ -399,6 +451,7 @@ export class MacroParserService {
           if(instructionAddress !== undefined){
             this.parsedCode.push(instructionAddress);
             this.parsedTokenNumber += 1;
+            console.log("---------PARSEDTOKENNUMBER: " + this.parsedTokenNumber + "|instruction in control store: +1")
           }
           // Instruction that is not in the control store or label
           else{
@@ -417,7 +470,7 @@ export class MacroParserService {
           }
         }
 
-        // ------------------------------------ This mainBlock method is from here on not complete ------------------------------------
+        // ------------------------------------ This methodBlock method is from here on not complete ------------------------------------
 
         // The following elements are parameters
         else{
@@ -430,6 +483,7 @@ export class MacroParserService {
             view.setInt16(0, parsedParameterTmp); 
             this.parsedCode.push(view.getUint8(0));
             this.parsedTokenNumber += 1;
+            console.log("---------PARSEDTOKENNUMBER: " + this.parsedTokenNumber + "|constant: +2*")
             parsedParameter = view.getUint8(1);
           }
 
@@ -451,12 +505,8 @@ export class MacroParserService {
             const view = new DataView(buffer, 0);
             view.setInt16(0, this.methods[instructionToken[i]]); 
             this.parsedCode.push(view.getUint8(0));
-            this.parsedCode.push(view.getUint8(1));
-
-            //parameter count
-            view.setInt16(0, this.methodsParameterNumber[instructionToken[i]]);
-            this.parsedCode.push(view.getUint8(0));
-            this.parsedTokenNumber += 3;
+            this.parsedTokenNumber += 1;
+            console.log("---------PARSEDTOKENNUMBER: " + this.parsedTokenNumber + "|methodname offset: +2*")
             parsedParameter = view.getUint8(1);
           }
           // Case for label
@@ -472,6 +522,7 @@ export class MacroParserService {
                 view.setInt16(0, offset); 
                 this.parsedCode.push(view.getUint8(0));
                 this.parsedTokenNumber += 1;
+                console.log("---------PARSEDTOKENNUMBER: " + this.parsedTokenNumber + "|label offset: +2*")
                 parsedParameter = view.getUint8(1);
               }
               else{
@@ -511,6 +562,7 @@ export class MacroParserService {
                   view.setInt16(0, offset); 
                   this.parsedCode.push(view.getUint8(0));
                   this.parsedTokenNumber += 1;
+                  console.log("---------PARSEDTOKENNUMBER: " + this.parsedTokenNumber + "|label offset: +2*")
                   parsedParameter = view.getUint8(1);
                 }
                 else{
@@ -523,6 +575,7 @@ export class MacroParserService {
           console.log(parsedParameter);
           this.parsedCode.push(parsedParameter);
           this.parsedTokenNumber += 1;
+          console.log("---------PARSEDTOKENNUMBER: " + this.parsedTokenNumber + "|am ende: +1****")
         }
       }
     }
