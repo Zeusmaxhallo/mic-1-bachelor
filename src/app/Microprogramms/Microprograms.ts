@@ -49,7 +49,7 @@ export class Microprogramms{
     PC=PC+1;fetch
     TOS=MDR; goto Main1
 
-(0xC4)WIDE: PC=PC+1; fetch; goto(MBR or 0x100)
+(0xB5)WIDE: PC=PC+1; fetch; goto(MBR or 0x100)
 
 (0x32)LDC_W: PC=PC+1; fetch;
     H=MBRU <<8

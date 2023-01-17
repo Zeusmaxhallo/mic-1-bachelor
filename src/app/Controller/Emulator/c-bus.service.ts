@@ -1,6 +1,11 @@
 import { Injectable } from '@angular/core';
 import { RegProviderService } from '../reg-provider.service';
 
+export interface CBusResult{
+  registers: string[];
+  value: number;
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +34,7 @@ export class CBusService {
 
   constructor(private regProvider: RegProviderService) {}
 
-  public activate(operation: number[], value: number ): void{
+  public activate(operation: number[], value: number ): CBusResult{
     if (operation.length != 9) {
       throw new Error("ProtocolError - C-Bus-Operation must have 9 Bits but " + operation.length + " were given");
     }
@@ -50,5 +55,7 @@ export class CBusService {
     |  write value:   ${value},
     |  to Registers:  ${this._writtenRegisters}
     `);
+
+    return {registers: this._writtenRegisters, value: value};
   }
 }

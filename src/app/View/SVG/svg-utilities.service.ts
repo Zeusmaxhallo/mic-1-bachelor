@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
+declare let anime: any;
 
 @Injectable({
   providedIn: 'root'
 })
 export class SvgUtilitiesService {
 
-  constructor() { }
+  constructor() { 
+  }
 
   private getPathLength(path:string){
     let coordinates = path.split(/\s+/).slice(1).map(x=> parseInt(x)) // get [x1,y1,x2,y2,...]coordinates remove "M"

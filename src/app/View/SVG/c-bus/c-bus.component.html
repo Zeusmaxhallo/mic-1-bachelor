@@ -1,10 +1,67 @@
 
+    
+    
+    <!-- Registers Component => Registers will be rendered here -->
+     <svg:g app-registers #registers/>
+
+
+     <svg:g id="Orange arrow">
+        <g id="Orange arrow MAR">
+            <g id="Arrow 20_11" filter="url(#filter10_b_0_1)">
+                <path
+                    d="M92.441 23.4444C93.5455 23.4444 94.441 24.3398 94.441 25.4444C94.441 26.549 93.5455 27.4444 92.441 27.4444V23.4444ZM76 25.4444L96 13.8974V36.9914L76 25.4444Z"
+                    fill="#E97F1C" />
+            </g>
+            <rect id="Rectangle 18_11" x="-0.5" y="-0.5" width="9" height="81.2049"
+                transform="matrix(0 -1 -1 0 177.756 30)" fill="#E97F1C" stroke="#E97F1C" />
+        </g>
+        <g id="Orange arrow PC">
+            <g id="Arrow 20_12" filter="url(#filter11_b_0_1)">
+                <path 
+                    d="M92.6849 164.444C93.7894 164.444 94.6849 165.34 94.6849 166.444C94.6849 167.549 93.7894 168.444 92.6849 168.444V164.444ZM76.2439 166.444L96.2439 154.897V177.991L76.2439 166.444Z"
+                    fill="#E97F1C" />
+            </g>
+            <rect id="Rectangle 18_12" x="-0.5" y="-0.5" width="9" height="81.2049"
+                transform="matrix(0 -1 -1 0 178 171)" fill="#E97F1C" stroke="#E97F1C" />
+        </g>
+        <g id="Orange arrow MBR">
+            <g id="Arrow 20_13" filter="url(#filter12_b_0_1)">
+                <path class="memoryArrowMBR"
+                    d="M162.315 237.556C161.211 237.556 160.315 236.66 160.315 235.556C160.315 234.451 161.211 233.556 162.315 233.556V237.556ZM178.756 235.556L158.756 247.103V224.009L178.756 235.556Z"
+                    fill="#E97F1C" />
+            </g>
+            <rect class="memoryArrowMBR1" 
+                id="Rectangle 18_13" x="0.5" y="0.5" width="9" height="81.2049"
+                transform="matrix(0 1 1 0 76 230)"
+                fill="#E97F1C" stroke="#E97F1C" />
+        </g>
+        <g id="Orange arrow MDR">
+            <g id="Arrow 20_14" filter="url(#filter13_b_0_1)">
+                <path class="memoryArrowMDR"
+                    d="M166.425 102C165.321 102 164.425 101.105 164.425 100C164.425 98.8954 165.321 98 166.425 98V102ZM182.866 100L162.866 111.547V88.453L182.866 100Z"
+                    fill="#E97F1C" />
+            </g>
+            <g id="Mask group">
+                <g id="Arrow 21" filter="url(#filter14_b_0_1)">
+                    <path
+                        d="M92.441 98C93.5455 98 94.441 98.8954 94.441 100C94.441 101.105 93.5455 102 92.441 102V98ZM76 100L96 88.453V111.547L76 100Z"
+                        fill="#E97F1C" />
+                </g>
+            </g>
+            <rect class="memoryArrowMDR1"
+                id="Rectangle 18_14" x="0.5" y="0.5" width="9" height="81.2049"
+                transform="matrix(0 1 1 0 84.2205 95)"
+                fill="#E97F1C" stroke="#E97F1C" />
+        </g>
+    </g>
+
+
+
+ 
     <svg:g id="C-Bus">
         <rect id="Rectangle 19" x="118" y="12" width="10" height="865" fill="#27E32E" />
         <rect id="Rectangle 20" x="123" y="867" width="141" height="10" fill="#27E32E" />
     </g>
-
-
 
     <svg:g id="Green arrow">
         <g id="Green arrow MDR">
@@ -93,16 +150,25 @@
 
 
 
+
  <!-- Animation -->
 <svg:g *ngFor="let animation of animations" id="animation">
-    <svg:circle r="10" fill="#a1232b" [ngClass]="{ disable_cBus: !animation.visible || init}" [class]="animation.name">
-        <animateMotion #anim [attr.path]="animation.path"
-            (beginEvent)="begin(animation.name)"
-            (endEvent)="end(animation.name)"
-            [attr.dur]="animation.duration" 
-            repeatCount="1"
-            restart="always"
-            />
-    </circle>
+    <path [class]="animation.name + 'path'" [attr.d]="animation.path" style="display: hidden;" />
+    <g [ngClass]="{ disable_cBus: !animation.visible}" [class]="animation.name + 'animation'">
+        <path 
+            id="Ellipse 1" 
+            d="M15.3702 29.65C23.6957 29.65 30.4448 22.9007 30.4448 14.575C30.4448 6.24932 23.6957 -0.5 15.3702 -0.5C7.04479 -0.5 0.2957 6.24932 0.2957 14.575C0.2957 22.9007 7.04479 29.65 15.3702 29.65Z" 
+            fill="#D9D9D9" 
+            stroke="black"/>
+        <text id="value" fill="black" xml:space="preserve" style="white-space: pre" font-family="Inter" font-size="12" letter-spacing="0em">
+            <tspan x="12.0304" y="17.8636">{{value}}</tspan>
+        </text>
+    </g>
+    
 </g>
+
+
+
+
+
 

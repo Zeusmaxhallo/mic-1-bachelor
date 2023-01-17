@@ -2,6 +2,11 @@ import { Inject, Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { RegProviderService } from '../reg-provider.service';
 
+export interface BBusResult{
+  register: string;
+  value: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -16,7 +21,12 @@ export class BBusService {
   constructor(private regProviderService: RegProviderService) {
   }
 
-  public activate(reg: Array<number>): void {
+  /**
+   * 
+   * @param reg 
+   * @returns BBusResult :: {register: string, value: number}
+   */
+  public activate(reg: Array<number>): BBusResult {
     if (reg.length != 4) {
       throw new Error("ProtocolError - B-Bus-Operation must have 4 Bits but " + reg.length + " where given");
     }
@@ -45,6 +55,7 @@ export class BBusService {
     `);
 
     this.messageSource.next([register, this.value]);
+    return {register: register, value: this.value}
   }
 
   getValue(): number {
