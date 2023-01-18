@@ -610,6 +610,9 @@ export class MacroParserService {
             parameterCount += 1;
           }
         }
+        if(parameterCount === 0 && parameterStr !== "()"){
+          parameterCount = 1;
+        }
         this.methodsParameterNumber[methodName] = parameterCount;
       }
     }
