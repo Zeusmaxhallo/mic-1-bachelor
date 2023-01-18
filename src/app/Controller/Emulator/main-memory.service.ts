@@ -31,7 +31,7 @@ export class MainMemoryService {
     const buffer = new ArrayBuffer(4);
     const view = new DataView(buffer, 0);
 
-    view.setInt32(0, value);    
+    view.setInt32(0, value);
 
     this.memory[address + 0] = view.getUint8(0);
     this.memory[address + 1] = view.getUint8(1);
@@ -59,12 +59,14 @@ export class MainMemoryService {
     return view.getInt32(0);
   }
 
-  public get_8(address: number): number {
-    if (address >= this.methodAreaSize) { console.warn("PC reading outside of Method Area (PC is not pointing to Code)") }
+  public get_8(address: number, intern?: boolean): number {
+    if (address >= this.methodAreaSize) { console.warn("PC reading outside of Method Area (PC is not pointing to Code)"); console.log(address) }
     if (address in this.memory) {
       return this.memory[address];
     }
-    console.warn(`no value at address: "${address}", returning 0`);
+    if (!intern) {
+      console.warn(`no value at address: "${address}", returning 0`);
+    }
     return 0;
   }
 
@@ -77,11 +79,53 @@ export class MainMemoryService {
   }
 
   public printMemory() {
-    console.log(`Address     Value  `)
-    for (const [key, value] of Object.entries(this.memory)) {
-      console.log(`${this.dec2hex(parseInt(key))}        0b${value.toString(2)} = ${value}`)
-    }
+    //console.log(`Address     Value  `)
+    //for (const [key, value] of Object.entries(this.memory)) {
+    //  console.log(`${this.dec2hex(parseInt(key))}        0b${value.toString(2)} = ${value}`)
+    //}
+    this.printCodeArea();
+    this.printConstantArea();
+    this.printStack();
   }
+
+  private printCodeArea() {
+    console.group('%cMethodArea', 'color: green');
+    console.log(`  Address     Value  `)
+    for (let i = 0; i < this.methodAreaSize; i++) {
+      console.log(`  ${this.dec2hex(i)}        0b${this.get_8(i, true).toString(2)} = ${this.get_8(i, true)}`)
+    }
+    console.groupEnd();
+  }
+
+  private printConstantArea() {
+    console.group('%cConstantPool', 'color: blue');
+    console.log(`  Address     Value  `)
+
+    const start = this.regProvider.getRegister("CPP").getValue() * 4;
+    for (let i = start; i < start + this.constantPoolSize; i += 4) {
+      console.log(`  ${this.dec2hex(i)}        0b${this.get_32(i).toString(2)} = ${this.get_32(i)}`)
+    }
+
+    console.groupEnd();
+  }
+
+  private printStack() {
+    console.group('%cGeneral Memory', 'color: brown');
+
+    console.log(`  Address     Value  `)
+    let start = this.regProvider.getRegister("CPP").getValue() * 4 + this.constantPoolSize;
+
+    let keys = Object.keys(this.memory).filter(address => parseInt(address) >= start).sort();
+
+    for (let i = 0; i < keys.length; i += 4) {
+      console.log(`  ${this.dec2hex(parseInt(keys[i]))}        0b${this.get_32(parseInt(keys[i])).toString(2)} = ${this.get_32(parseInt(keys[i]))}`)
+    }
+
+    console.groupEnd();
+  }
+
+
+
 
   private dec2hex(number: number) {
     let prefix = "0x"
@@ -119,7 +163,7 @@ export class MainMemoryService {
   }
 
   public createVariables(amount: number) {
-    let start = (this.regProvider.getRegister("LV").getValue() + 1) * 4;
+    let start = (this.regProvider.getRegister("LV").getValue()) * 4;
     for (let i = 0; i < amount; i++) {
       this.store_32(start + i * 4, 0);
     }
