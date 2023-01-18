@@ -1,3 +1,4 @@
+import { isNgContainer } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 import { ControlStoreService } from './Emulator/control-store.service';
 import { MainMemoryService } from './Emulator/main-memory.service';
@@ -249,7 +250,7 @@ export class MacroParserService {
     // create constant that has the startingpoint of this main-method in memory as the value. Than replace the 
     // placeholder disp after the INVOKEVIRTUAL with the offset to this constant
     let constName = "dispConstMethod" + this.methods["main"];
-    let constValue: number = this.parsedTokenNumber + 1;
+    let constValue: number = this.parsedTokenNumber;
     this.constantOffsetToCPP[constName] = this.constNumber;
     this.constNumber += 1;
     this.constants.push(constValue);
@@ -419,12 +420,15 @@ export class MacroParserService {
     let endMethodIndex: number;
     let startTokenNumberMethod = this.parsedTokenNumber;
     let methodName: string = "";
+    let parameters: string = "";
+    let parameterNames: string[] = [];
 
-    // finds start and end of method field
+    // finds start and end of method field. Also sets methodName and parameters
     for(let i = 0; i < this.tokens.length; i++){
       if(this.tokens[0].value.slice(0, 7) === '.method'){
         startMethodIndex = i;
         methodName = this.tokens[0].value.slice(8, this.tokens[0].value.indexOf("("));
+        parameters = this.tokens[0].value.slice(this.tokens[0].value.indexOf("(")+1, this.tokens[0].value.indexOf(")")+1);
         for(let j = i; j < this.tokens.length; j++){
           if(this.tokens[j].value === '.end-method'){
             endMethodIndex = j;
@@ -435,6 +439,20 @@ export class MacroParserService {
           throw new Error("Methodfield not closed. Close it with .end-method");
         }
         break;
+      }
+    }
+
+    // adds parameter names to parameterNames array
+    let parameter: string = ""
+    for(let i = 0; i < parameters.length; i++){
+      if(parameters.charAt(i) === ',' || parameters.charAt(i) === ' ' || parameters.charAt(i) === ')'){
+        if(parameter !== ""){
+          parameterNames.push(parameter);
+        }
+        parameter = "";
+      }
+      else{
+        parameter += parameters.charAt(i);
       }
     }
 
@@ -471,9 +489,8 @@ export class MacroParserService {
 
     // create constant that has the startingpoint of this method in memory as the value. Than replace the 
     // placeholder disp after the INVOKEVIRTUAL with the offset to this constant
-    console.log(this.parsedTokenNumber + 1 + "||||||||||||||||||||||||||||||||||||||||||||||||||||||");
     let constName = "dispConstMethod" + this.methods[methodName];
-    let constValue: number = this.parsedTokenNumber + 1;
+    let constValue: number = this.parsedTokenNumber;
     this.constantOffsetToCPP[constName] = this.constNumber;
     this.constNumber += 1;
     this.constants.push(constValue);
@@ -551,7 +568,7 @@ export class MacroParserService {
             parsedParameter = +instructionToken[i];
           }
 
-          // If parsed Parameter is NaN than it must be a offset or method
+          // If parsed Parameter is NaN than it must be a offset, method, or a method parameter
           // Case for method
           if(instructionToken[i-1] === "INVOKEVIRTUAL"){
             // method index
@@ -608,7 +625,7 @@ export class MacroParserService {
                     }
                   }
                 }
-                
+                  
                 if(labelTokenPosition > 0 && offset !== 0){
                   console.log("OFFSET: " + offset);
                   const buffer = new ArrayBuffer(2);
@@ -622,6 +639,14 @@ export class MacroParserService {
                 else{
                   // throw new Error("Unexpected token: " + instructionToken[i]);
                 }
+              }
+            }
+          }
+
+          if(isNaN(parsedParameter)){
+            for(let j = 0; j < parameterNames.length; j++){
+              if(instructionToken[i] === parameterNames[j]){
+                parsedParameter = j+1;
               }
             }
           }
