@@ -48,7 +48,7 @@ export class MacroParserService {
         view.setInt16(0, this.methods["main"]);
         this.parsedCode.push(view.getUint8(0));
         this.parsedCode.push(view.getUint8(1));
-        view.setInt16(0, 1);
+        view.setInt16(0, this.methods["main"]);
         this.parsedCode.push(view.getUint8(0));
         this.parsedCode.push(view.getUint8(1));
         this.parsedTokenNumber += 1; 
@@ -79,7 +79,18 @@ export class MacroParserService {
     this.memory.setConstants(this.constants);
     this.memory.createVariables(this.variables.length);
 
+    console.log("Memory: ");
     this.memory.printMemory();
+    console.log("constantnames and their offset to CPP: ");
+    console.table(this.constantOffsetToCPP)
+    console.log("constant offsets and the value of the constant: ");
+    console.table(this.constants)
+    console.log("list of Methods: ");
+    console.table(this.methods)
+    console.log("variablenames and their offset to LV: ");
+    console.table(this.variableOffsetToLV)
+    console.log("variable offsets and the value of the variable at the end: ");
+    console.table(this.variables)
   }
 
   resetParser(){
@@ -235,6 +246,26 @@ export class MacroParserService {
       console.log("---------PARSEDTOKENNUMBER: " + this.parsedTokenNumber + "|number of local variables: +2")
     }
 
+    // create constant that has the startingpoint of this main-method in memory as the value. Than replace the 
+    // placeholder disp after the INVOKEVIRTUAL with the offset to this constant
+    let constName = "dispConstMethod" + this.methods["main"];
+    let constValue: number = this.parsedTokenNumber + 1;
+    this.constantOffsetToCPP[constName] = this.constNumber;
+    this.constNumber += 1;
+    this.constants.push(constValue);
+    const buffer = new ArrayBuffer(2);
+    const view = new DataView(buffer, 0);
+    view.setInt16(0, this.methods["main"]);
+    let valueByte1: number = view.getUint8(0);
+    let valueByte2: number = view.getUint8(1);
+    view.setInt16(0, this.constantOffsetToCPP[constName]);
+    for(let i = 0; i < this.parsedCode.length; i++){
+      if(this.parsedCode[i] === 182 && this.parsedCode[i+1] === valueByte1 && this.parsedCode[i+2] === valueByte2){
+        this.parsedCode[i+1] = view.getUint8(0);
+        this.parsedCode[i+2] = view.getUint8(1);
+      }
+    }
+
     // instructions in the main field
     for(let instruction of mainBlockArr){
       let instructionToken = instruction.value.split(' ');
@@ -387,11 +418,13 @@ export class MacroParserService {
     let startMethodIndex: number;
     let endMethodIndex: number;
     let startTokenNumberMethod = this.parsedTokenNumber;
+    let methodName: string = "";
 
     // finds start and end of method field
     for(let i = 0; i < this.tokens.length; i++){
       if(this.tokens[0].value.slice(0, 7) === '.method'){
         startMethodIndex = i;
+        methodName = this.tokens[0].value.slice(8, this.tokens[0].value.indexOf("("));
         for(let j = i; j < this.tokens.length; j++){
           if(this.tokens[j].value === '.end-method'){
             endMethodIndex = j;
@@ -434,6 +467,27 @@ export class MacroParserService {
       this.parsedCode.push(view.getUint8(1));
       this.parsedTokenNumber += 2;
       console.log("---------PARSEDTOKENNUMBER: " + this.parsedTokenNumber + "|var count: +2")
+    }
+
+    // create constant that has the startingpoint of this method in memory as the value. Than replace the 
+    // placeholder disp after the INVOKEVIRTUAL with the offset to this constant
+    console.log(this.parsedTokenNumber + 1 + "||||||||||||||||||||||||||||||||||||||||||||||||||||||");
+    let constName = "dispConstMethod" + this.methods[methodName];
+    let constValue: number = this.parsedTokenNumber + 1;
+    this.constantOffsetToCPP[constName] = this.constNumber;
+    this.constNumber += 1;
+    this.constants.push(constValue);
+    const buffer = new ArrayBuffer(2);
+    const view = new DataView(buffer, 0);
+    view.setInt16(0, this.methods[methodName]);
+    let valueByte1: number = view.getUint8(0);
+    let valueByte2: number = view.getUint8(1);
+    view.setInt16(0, this.constantOffsetToCPP[constName]);
+    for(let i = 0; i < this.parsedCode.length; i++){
+      if(this.parsedCode[i] === 182 && this.parsedCode[i+1] === valueByte1 && this.parsedCode[i+2] === valueByte2){
+        this.parsedCode[i+1] = view.getUint8(0);
+        this.parsedCode[i+2] = view.getUint8(1);
+      }
     }
 
     // instructions in the main field
@@ -588,11 +642,16 @@ export class MacroParserService {
     for(let token of this.tokens){
       let methodStr = this.tokens[0].value.slice(8);
 
+      // main-method block is identified and constant that indicatetes where this method begins is created
       if(token.type === "FIELD" && token.value === ".main"){
         this.methodNumber += 1;
         this.methods["main"] = this.methodNumber;
       }
 
+      // other method blocks are identified and there parameters are counted.
+      // it creates an identifying entry to the dictionary methods. The number in this entry is than later
+      // used to place a 2 byte number in the memory after an 'INVOKEVIRTUAL'. This number is than later replaced 
+      // by a offset to a constant that has the place where this method begins as the value.
       if(token.type === "FIELD" && token.value.slice(0, 7) === ".method"){
         let methodStr = token.value.slice(8);
         let methodName = methodStr.slice(0, methodStr.indexOf("("));
