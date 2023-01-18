@@ -28,13 +28,13 @@ export class CBusComponent implements AfterViewInit {
   private currentlyAnimating: string[] = [];
 
   private paths: { [reg: string]: string } = {
-    "H": "M 273 845  123 845  123 659  171 659",
+    "H":   "M 273 845  123 845  123 659  171 659",
     "OPC": "M 273 845  123 845  123 583  171 583",
     "TOS": "M 273 845  123 845  123 515  171 515",
     "CPP": "M 273 845  123 845  123 443  171 443",
-    "LV": "M 273 845  123 845  123 378  171 378",
-    "SP": "M 273 845  123 845  123 303  171 303",
-    "PC": "M 273 845  123 845  123 157  171 157",
+    "LV":  "M 273 845  123 845  123 378  171 378",
+    "SP":  "M 273 845  123 845  123 303  171 303",
+    "PC":  "M 273 845  123 845  123 157  171 157",
     "MDR": "M 273 845  123 845  123 82   171 82",
     "MAR": "M 273 845  123 845  123 17   171 17",
   }
@@ -118,9 +118,10 @@ export class CBusComponent implements AfterViewInit {
   public setRegisterValues(register: string, value: number, activateArrow: boolean) {
     this.registers.showValue(register, value);
 
-    console.log(activateArrow);
+    // return if we don't have to animate arrow
     if(!activateArrow){return;}
 
+    // animate the Memory Arrow
     let timeline = anime.timeline({
       easing: 'linear',
       loop: 6,
