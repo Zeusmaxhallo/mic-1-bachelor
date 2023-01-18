@@ -418,7 +418,7 @@ export class MacroParserService {
   private methodBlock(){
     let startMethodIndex: number;
     let endMethodIndex: number;
-    let startTokenNumberMethod = this.parsedTokenNumber;
+    let startTokenNumberMethod = this.parsedTokenNumber + 2;
     let methodName: string = "";
     let parameters: string = "";
     let parameterNames: string[] = [];
@@ -569,6 +569,7 @@ export class MacroParserService {
           }
 
           // If parsed Parameter is NaN than it must be a offset, method, or a method parameter
+          // The check for method parameters comes not here. So just offset and method
           // Case for method
           if(instructionToken[i-1] === "INVOKEVIRTUAL"){
             // method index
@@ -643,6 +644,7 @@ export class MacroParserService {
             }
           }
 
+          // case for parameternames
           if(isNaN(parsedParameter)){
             for(let j = 0; j < parameterNames.length; j++){
               if(instructionToken[i] === parameterNames[j]){
