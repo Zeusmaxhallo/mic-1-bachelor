@@ -39,6 +39,7 @@ export class MacroParserService {
     this.tokens = this.macroTokenizer.getTokens();
     this.setConstant();
     this.searchMethods();
+    this.searchAllLabels();
 
     while(this.tokens.length > 0){
       if(this.tokens[0].value === '.main'){
@@ -92,6 +93,8 @@ export class MacroParserService {
     console.table(this.variableOffsetToLV)
     console.log("variable offsets and the value of the variable at the end: ");
     console.table(this.variables)
+    console.log("List of Labels and there positions")
+    console.table(this.labels)
   }
 
   resetParser(){
@@ -328,9 +331,10 @@ export class MacroParserService {
             parsedParameter = +instructionToken[i];
           }
           
-          // If parsed Parameter is NaN than it must be an offset or method
+          // If parsed Parameter is NaN than it must be a offset, method, or a method parameter
+          // The check for method parameters comes not here. So just offset and method
           // Case for method
-          if(instructionToken[i-1] === "INVOKEVIRTUAL"){
+          if(this.methods[instructionToken[i]] >= 0){
             // method index
             const buffer = new ArrayBuffer(2);
             const view = new DataView(buffer, 0);
@@ -345,7 +349,7 @@ export class MacroParserService {
             if(isNaN(parsedParameter)){
               let label = this.labels[instructionToken[i] + ":"];
               let offset: number = 0;
-              if(label !== undefined){
+              if(label !== undefined && label > 0){
                 offset = label - this.parsedTokenNumber;
                 console.log("OFFSET: " + offset);
                 const buffer = new ArrayBuffer(2);
@@ -371,9 +375,7 @@ export class MacroParserService {
                       break;
                     }
                     else{
-                      if(instructionToken2[j-1] === "GOTO" || instructionToken2[j-1] === "IF_ICMPEQ" 
-                      || instructionToken2[j-1] === "IFEQ" || instructionToken2[j-1] === "IFLT" 
-                      || instructionToken2[j-1] === "INVOKEVIRTUAL" || instructionToken2[j-1] === "LDC_W"){
+                      if(this.labels[instructionToken2[j] + ":"] === -1){
                         labelTokenPosition += 2;
                       }
                       else if(instructionToken2[j] === undefined || instructionToken2[j].endsWith(":")){
@@ -571,7 +573,7 @@ export class MacroParserService {
           // If parsed Parameter is NaN than it must be a offset, method, or a method parameter
           // The check for method parameters comes not here. So just offset and method
           // Case for method
-          if(instructionToken[i-1] === "INVOKEVIRTUAL"){
+          if(this.methods[instructionToken[i]] >= 0){
             // method index
             const buffer = new ArrayBuffer(2);
             const view = new DataView(buffer, 0);
@@ -586,7 +588,7 @@ export class MacroParserService {
             if(isNaN(parsedParameter)){
               let label = this.labels[instructionToken[i] + ":"];
               let offset: number = 0;
-              if(label !== undefined){
+              if(label !== undefined && label > 0){
                 offset = label - this.parsedTokenNumber;
                 console.log("OFFSET: " + offset);
                 const buffer = new ArrayBuffer(2);
@@ -612,9 +614,7 @@ export class MacroParserService {
                       break;
                     }
                     else{
-                      if(instructionToken2[j-1] === "GOTO" || instructionToken2[j-1] === "IF_ICMPEQ" 
-                      || instructionToken2[j-1] === "IFEQ" || instructionToken2[j-1] === "IFLT" 
-                      || instructionToken2[j-1] === "INVOKEVIRTUAL" || instructionToken2[j-1] === "LDC_W"){
+                      if(this.labels[instructionToken2[j] + ":"] === -1){
                         labelTokenPosition += 2;
                       }
                       else if(instructionToken2[j] === undefined || instructionToken2[j].endsWith(":")){
@@ -703,4 +703,14 @@ export class MacroParserService {
       }
     }
   }
+
+  // All labels are found and saved in a dictionary. There position is temporary set to -1 and is set later.
+  searchAllLabels(){
+    for(let i = 0; i < this.tokens.length; i++){
+      if(this.tokens[i].type === "NEW_LABEL"){
+        this.labels[this.tokens[i].value] = -1;
+      }
+    }
+  }
+
 }
