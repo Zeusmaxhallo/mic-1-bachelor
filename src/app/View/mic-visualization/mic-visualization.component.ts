@@ -19,6 +19,8 @@ export class MicVisualizationComponent implements AfterViewInit {
   @ViewChild("aBus") aBus: ABusComponent;
   @ViewChild("shifter") shifter: ShifterComponent;
 
+  animationSpeed = 2;
+
   constructor(
     private bBusService: BBusService,
     private director: DirectorService,
@@ -43,7 +45,7 @@ export class MicVisualizationComponent implements AfterViewInit {
 
 
     this.director.startAnimation.subscribe(
-      results => {
+      async results => {
         if (results[0]) {
           const bBusResult: BBusResult = results[0];
           const aluResult: number = results[1];
@@ -51,6 +53,13 @@ export class MicVisualizationComponent implements AfterViewInit {
           const cBusResult: CBusResult = results[3];
           const aBusResult: number = results[4];
 
+          this.animationSpeed = this.director.animationSpeed;
+
+          let delay = function (ms: number) {
+            return new Promise(resolve => setTimeout(resolve, ms))
+          }
+          await delay(1);
+          
           const bBusAnimation = this.bBus.startAnimation(bBusResult.register, bBusResult.value);
           this.aBus.startAnimation(aBusResult);
           bBusAnimation.then(() => {

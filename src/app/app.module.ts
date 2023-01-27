@@ -5,7 +5,10 @@ import { AppComponent } from './app.component';
 import { GridViewComponent } from './View/grid-view/grid-view.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+import {MatSliderModule} from '@angular/material/slider';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatGridListModule} from '@angular/material/grid-list';
+import {MatCardModule} from '@angular/material/card';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import { ToolBarComponent } from './View/tool-bar/tool-bar.component';
 import {MatButtonModule} from '@angular/material/button';
@@ -54,6 +57,9 @@ import { RegistersComponent } from './View/SVG/registers/registers.component';
     MatFormFieldModule,
     FormsModule,
     HttpClientModule,
+    MatCheckboxModule,
+    MatCardModule,
+    MatSliderModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

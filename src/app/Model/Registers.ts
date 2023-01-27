@@ -15,15 +15,11 @@ export class Register{
         return this.size;
     }
 
-    // private isValidSize(value:number):boolean{
-    //     // normally we have a 32 signed integer [-2147483648 to 2147483647]
-    //     return value < 2**(this.size - 1)  && value >= - (2**(this.size - 1));
-    // }
-
     private isValidSize(value:number):boolean{
-        // Accepts values that fit in 8 bits unsigned
-        return value < 2**(this.size)  && value >= 0;
+        // normally we have a 32 signed integer [-2147483648 to 2147483647]
+        return value < 2**(this.size - 1)  && value >= - (2**(this.size - 1));
     }
+
 
     
     setValue(value: number){

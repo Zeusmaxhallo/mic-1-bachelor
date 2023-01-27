@@ -13,6 +13,8 @@ export class MainMemoryService {
 
   private _stackStartAddress = 0;
 
+  public finished = false;
+
   constructor(
     private regProvider: RegProviderService,
   ) { }
@@ -60,7 +62,10 @@ export class MainMemoryService {
   }
 
   public get_8(address: number, intern?: boolean): number {
-    if (address >= this.methodAreaSize) { console.warn("PC reading outside of Method Area (PC is not pointing to Code)"); console.log(address) }
+    if (address >= this.methodAreaSize) { 
+      console.warn("PC reading outside of Method Area (PC is not pointing to Code), current PC value: ", address);
+      this.finished = true;
+    }
     if (address in this.memory) {
       return this.memory[address];
     }
@@ -111,16 +116,15 @@ export class MainMemoryService {
 
   private printStack() {
     console.group('%cGeneral Memory', 'color: brown');
-
     console.log(`  Address     Value  `)
-    let start = this.regProvider.getRegister("CPP").getValue() * 4 + this.constantPoolSize;
 
+    let start = this.regProvider.getRegister("CPP").getValue() * 4 + this.constantPoolSize;
     let keys = Object.keys(this.memory).filter(address => parseInt(address) >= start).sort();
 
     for (let i = 0; i < keys.length; i += 4) {
       console.log(`  ${this.dec2hex(parseInt(keys[i]))}        0b${this.get_32(parseInt(keys[i])).toString(2)} = ${this.get_32(parseInt(keys[i]))}`)
     }
-
+    
     console.groupEnd();
   }
 
@@ -136,6 +140,7 @@ export class MainMemoryService {
   }
 
   public setCode(code: number[]) {
+    console.log(code)
     this.methodAreaSize = Math.ceil(code.length / 4) * 4; // align next Memory Addresses
 
     this.regProvider.getRegister("MBR").setValue(code[0]); // Initialize MBR with first instruction
@@ -143,6 +148,7 @@ export class MainMemoryService {
     for (let i = 0; i < code.length; i++) {
       this.store_8(i, code[i]);
     }
+    this.finished = false;
   }
 
   /**

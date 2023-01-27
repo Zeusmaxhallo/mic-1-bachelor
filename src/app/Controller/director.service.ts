@@ -17,7 +17,7 @@ import { BehaviorSubject } from 'rxjs';
 export class DirectorService {
 
   constructor(
-    
+
     private alu: AluService,
     private cBus: CBusService,
     private bBus: BBusService,
@@ -35,6 +35,14 @@ export class DirectorService {
   private MDRMemoryQueue: Array<number> = [];
 
   private _animationComplete = true;
+  private _isReady = new BehaviorSubject<boolean>(true);
+  private isReady = this._isReady.asObservable();
+
+  public isRunning = false;
+
+
+  public animationSpeed = 2;
+  public animationEnabled = true;
 
   // Observables to notify the animation components 
   private startAnimationSource = new BehaviorSubject([]);
@@ -43,15 +51,40 @@ export class DirectorService {
   private setRegisterValuesSource = new BehaviorSubject([]);
   public setRegisterValues = this.setRegisterValuesSource.asObservable();
 
+  private _finishedRun = new BehaviorSubject<boolean>(false);
+  public finishedRun = this._finishedRun.asObservable();
 
-  
+
+
   /** Setup the Director*/
-  public init(){
+  public init() {
     this.controlStore.loadMicro();
-    for (const register of this.regProvider.getRegisters()){
+    for (const register of this.regProvider.getRegisters()) {
       this.showRegisterValue(register.getName(), register.getValue())
     }
 
+  }
+
+  public run() {
+    this.isRunning = true;
+    this.init();
+
+    let sub = this.isReady.subscribe(
+      val => {
+        if (!this.mainMemory.finished) {
+          this.step();
+        } else {
+          if(this.currentAddress === 1){
+            sub.unsubscribe()
+            this.mainMemory.finished = false;
+            this.isRunning = false;
+            this._finishedRun.next(true);
+          }else{
+            this.step();
+          }
+        }
+      }
+    )
   }
 
   public step() {
@@ -66,7 +99,7 @@ export class DirectorService {
       let addr = this.MBRMemoryQueue.shift();
       let MBR = this.regProvider.getRegister("MBR");
       MBR.setValue(this.mainMemory.get_8(addr));
-      this.showRegisterValue(MBR.getName(), MBR.getValue(), true);
+      this.showRegisterValue(MBR.getName(), MBR.getValue(), this.animationEnabled);
     } else { this.MBRMemoryQueue.shift(); }
 
 
@@ -75,8 +108,7 @@ export class DirectorService {
       let addr = this.MDRMemoryQueue.shift();
       let MDR = this.regProvider.getRegister("MDR");
       MDR.setValue(this.mainMemory.get_32(addr));
-      this.showRegisterValue(MDR.getName(), MDR.getValue(), true);
-      console.log("MDR holt moped")
+      this.showRegisterValue(MDR.getName(), MDR.getValue(), this.animationEnabled);
     } else { this.MDRMemoryQueue.shift(); }
 
 
@@ -122,20 +154,25 @@ export class DirectorService {
 
   private animate(bBusResult: BBusResult, aluResult: number, shifterResult: number, cBusResult: CBusResult, aBusResult: number) {
 
-    this._animationComplete = false;
+    if (this.animationEnabled) {
+      this._animationComplete = false;
 
-    // Tell Mic-Visualization to start a animation via this Observable
-    this.startAnimationSource.next([bBusResult, aluResult, shifterResult, cBusResult, aBusResult]);
+      // Tell Mic-Visualization to start a animation via this Observable
+      this.startAnimationSource.next([bBusResult, aluResult, shifterResult, cBusResult, aBusResult]);
+    } else {
+      this._isReady.next(true);
+    }
   }
 
-  private showRegisterValue( register: string, value: number, activateMemoryArrow?: boolean ){
-    this.setRegisterValuesSource.next([register, value, activateMemoryArrow == undefined ? false: activateMemoryArrow]);
+  private showRegisterValue(register: string, value: number, activateMemoryArrow?: boolean) {
+    this.setRegisterValuesSource.next([register, value, activateMemoryArrow == undefined ? false : activateMemoryArrow]);
   }
 
 
   public set animationComplete(v: boolean) {
     this._animationComplete = v;
     console.log("animations Complete");
+    if (this._animationComplete) { this._isReady.next(true) }
   }
 
 

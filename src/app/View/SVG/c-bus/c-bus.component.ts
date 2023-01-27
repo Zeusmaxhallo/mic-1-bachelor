@@ -134,12 +134,12 @@ export class CBusComponent implements AfterViewInit {
     timeline.add({
       targets: [arrowElement, ".memoryArrow" + register + "1"],
       fill: "#FFF",
-      duration: 100,
+      duration: 400 / this.speed,
     })
     .add({
       targets: [arrowElement, ".memoryArrow" + register + "1"],
       fill: previousColor,
-      duration: 100,
+      duration: 400/ this.speed,
     })
   }
 

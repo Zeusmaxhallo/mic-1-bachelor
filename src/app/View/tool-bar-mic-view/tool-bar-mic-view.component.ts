@@ -1,13 +1,8 @@
 import { Component, DebugElement, OnInit } from '@angular/core';
 import { ControllerService } from 'src/app/Controller/controller.service';
 import { DirectorService } from 'src/app/Controller/director.service';
-import { AluService } from 'src/app/Controller/Emulator/alu.service';
-import { BBusService } from 'src/app/Controller/Emulator/b-bus.service';
-import { CBusService } from 'src/app/Controller/Emulator/c-bus.service';
 import { ControlStoreService } from 'src/app/Controller/Emulator/control-store.service';
 import { MainMemoryService } from 'src/app/Controller/Emulator/main-memory.service';
-import { ParserService } from 'src/app/Controller/Emulator/parser.service';
-import { ShifterService } from 'src/app/Controller/Emulator/shifter.service';
 import { RegProviderService } from 'src/app/Controller/reg-provider.service';
 
 @Component({
@@ -17,6 +12,11 @@ import { RegProviderService } from 'src/app/Controller/reg-provider.service';
 })
 export class ToolBarMicViewComponent implements OnInit {
 
+  animate = true;
+  animationSpeed = 2;
+
+  disableRunButton = false;
+
   constructor(
     private controllerService: ControllerService,
     private memory: MainMemoryService,
@@ -24,25 +24,26 @@ export class ToolBarMicViewComponent implements OnInit {
     private controlStore: ControlStoreService,
     private regProvider: RegProviderService,) {}
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   step(){
-    this.controllerService.step();
-    this.regProvider.getRegister("MBR").setValue(this.regProvider.getRegister("MBR").getValue() + 1);
+    this.director.init();
+    this.director.step();
+    this.memory.save2LocalStorage();
   }
 
   reset(){
     this.controllerService.reset();
+    this.disableRunButton = false;
 
 
     // ---   test MainMemory functionality  ---
-    this.memory.setCode([0,16,1,16,2,16,3,16,4,16,5,16,6,54,1,54,2,94,2,100]);  // some example Code
-    this.memory.setConstants([8,16,32,64]);             // some example constants  
-    this.memory.createVariables(2);
-
-    this.memory.printMemory();
-    console.log("first word on stack is at address: " + this.memory.stackStartAddress);
+    //this.memory.setCode([0,16,1,16,2,16,3,16,4,16,5,16,6,54,1,54,2,94,2,100]);  // some example Code
+    //this.memory.setConstants([8,16,32,64]);             // some example constants  
+    //this.memory.createVariables(2);
+    //
+    //this.memory.printMemory();
+    //console.log("first word on stack is at address: " + this.memory.stackStartAddress);
     
     //this.memory.save2LocalStorage();
     //this.memory.getFromLocalStorage();
@@ -50,8 +51,19 @@ export class ToolBarMicViewComponent implements OnInit {
   }
 
   run(){
-    this.director.init();
-    this.director.step();
-    this.memory.save2LocalStorage();
+    this.disableRunButton = true;
+    this.director.run();
   }
+
+
+  changeAnimSpeed(event:any){
+    this.animationSpeed = event.value;
+    this.director.animationSpeed = this.animationSpeed;
+
+  }
+
+  toggleAnimVisibility(){
+    this.director.animationEnabled = this.animate;
+  }
+
 }
