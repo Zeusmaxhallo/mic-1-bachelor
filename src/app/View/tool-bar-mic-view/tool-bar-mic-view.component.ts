@@ -32,6 +32,12 @@ export class ToolBarMicViewComponent implements OnInit {
     this.memory.save2LocalStorage();
   }
 
+  stepMacro(){
+    this.director.init();
+    this.director.runMacroInstruction();
+    this.memory.save2LocalStorage();
+  }
+
   reset(){
     this.director.reset();
     this.disableRunButton = false;

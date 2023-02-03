@@ -8,7 +8,7 @@ import { Instruction, ParserService } from './Emulator/parser.service';
 import { ShifterService } from './Emulator/shifter.service';
 import { RegProviderService } from './reg-provider.service';
 import { StackProviderService } from './stack-provider.service';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subscription } from 'rxjs';
 import { MacroParserService } from './macro-parser.service';
 import { MacroTokenizerService } from './macro-tokenizer.service';
 
@@ -42,6 +42,7 @@ export class DirectorService {
   private _animationComplete = true;
   private _isReady = new BehaviorSubject<boolean>(true);
   private isReady = this._isReady.asObservable();
+  private sub: Subscription = new Subscription();
 
   public isRunning = false;
 
@@ -75,13 +76,21 @@ export class DirectorService {
     this.isRunning = true;
     this.init();
 
-    let sub = this.isReady.subscribe(
+    this.sub = this.isReady.subscribe(
       val => {
+
+        // check if run was stopped from extern
+        if (!this.isRunning) {
+          this.sub.unsubscribe()
+          this._finishedRun.next(true);
+          return;
+        }
+
         if (!this.mainMemory.finished) {
           this.step();
         } else {
           if (this.currentAddress === 1) {
-            sub.unsubscribe()
+            this.sub.unsubscribe()
             this.mainMemory.finished = false;
             this.isRunning = false;
             this._finishedRun.next(true);
@@ -89,8 +98,42 @@ export class DirectorService {
             this.step();
           }
         }
-      }
-    )
+      })
+  }
+
+  /** director has to be initialized first -> .init() */
+  public runMacroInstruction() {
+
+    // remember if animation was enabled
+    const animationEnableStatus = this.animationEnabled;
+    this.animationEnabled = false
+
+    this.isRunning = true;
+    this.step();
+
+    this.sub = this.isReady.subscribe(
+      val => {
+        // check if run was stopped from extern
+        if (!this.isRunning) {
+          this.sub.unsubscribe()
+          this._finishedRun.next(true);
+          this.animationEnabled = animationEnableStatus;
+          return;
+        }
+
+        // main-instruction (address: 1) gets executed after every instruction
+        // if we reached main the macro-instruction is finished
+        if (this.currentAddress === 1){
+          this.sub.unsubscribe()
+          this.isRunning = false;
+          this.animationEnabled = animationEnableStatus;
+          this._finishedRun.next(true);
+        }else{
+          this.step();
+        }
+      })
+
+
   }
 
   public step() {
@@ -129,10 +172,6 @@ export class DirectorService {
     let shifterResult = this.shifter.shift(microInstruction.alu.slice(0, 2), aluResult)
     let cBusResult = this.cBus.activate(microInstruction.c, shifterResult);
 
-    // start animation
-    this.animate(bBusResult, aluResult, shifterResult, cBusResult, aBusResult);
-
-
     // memory instructions:
     // fetch
     if (microInstruction.mem[2]) {
@@ -156,9 +195,13 @@ export class DirectorService {
 
     // set next address
     this.currentAddress = parseInt(microInstruction.addr.join(""), 2)
+
+    // start animation
+    this.animate(bBusResult, aluResult, shifterResult, cBusResult, aBusResult);
+
   }
 
-  private animate(bBusResult: BBusResult, aluResult: number, shifterResult: number, cBusResult: CBusResult, aBusResult: number) {
+  private async animate(bBusResult: BBusResult, aluResult: number, shifterResult: number, cBusResult: CBusResult, aBusResult: number) {
 
     if (this.animationEnabled) {
       this._animationComplete = false;
@@ -166,6 +209,13 @@ export class DirectorService {
       // Tell Mic-Visualization to start a animation via this Observable
       this.startAnimationSource.next([bBusResult, aluResult, shifterResult, cBusResult, aBusResult]);
     } else {
+
+
+      let delay = function (ms: number) {
+        return new Promise(resolve => setTimeout(resolve, ms))
+      }
+      await delay(10);
+
       this._isReady.next(true);
     }
   }
@@ -183,6 +233,7 @@ export class DirectorService {
 
 
   public reset() {
+    this.isRunning = false;
     this.currentAddress = 1;
 
     // reset all registers
