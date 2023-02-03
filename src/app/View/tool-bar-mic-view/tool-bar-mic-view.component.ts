@@ -33,7 +33,7 @@ export class ToolBarMicViewComponent implements OnInit {
   }
 
   reset(){
-    this.controllerService.reset();
+    this.director.reset();
     this.disableRunButton = false;
 
 

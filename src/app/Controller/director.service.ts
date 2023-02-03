@@ -9,6 +9,8 @@ import { ShifterService } from './Emulator/shifter.service';
 import { RegProviderService } from './reg-provider.service';
 import { StackProviderService } from './stack-provider.service';
 import { BehaviorSubject } from 'rxjs';
+import { MacroParserService } from './macro-parser.service';
+import { MacroTokenizerService } from './macro-tokenizer.service';
 
 
 @Injectable({
@@ -25,8 +27,11 @@ export class DirectorService {
     private shifter: ShifterService,
     private mainMemory: MainMemoryService,
     private regProvider: RegProviderService,
+    private macroParser: MacroParserService,
     private controlStore: ControlStoreService,
     private stackProvider: StackProviderService,
+    private macroTokenizer: MacroTokenizerService,
+
   ) { }
 
   private currentAddress = 1;
@@ -65,6 +70,7 @@ export class DirectorService {
 
   }
 
+  /** Run until macro-program is finished */
   public run() {
     this.isRunning = true;
     this.init();
@@ -74,12 +80,12 @@ export class DirectorService {
         if (!this.mainMemory.finished) {
           this.step();
         } else {
-          if(this.currentAddress === 1){
+          if (this.currentAddress === 1) {
             sub.unsubscribe()
             this.mainMemory.finished = false;
             this.isRunning = false;
             this._finishedRun.next(true);
-          }else{
+          } else {
             this.step();
           }
         }
@@ -176,4 +182,31 @@ export class DirectorService {
   }
 
 
+  public reset() {
+    this.currentAddress = 1;
+
+    // reset all registers
+    let registers = this.regProvider.getRegisters();
+    for (let register of registers) {
+      register.setValue(0);
+    }
+
+    // reset Queues
+    this.MBRMemoryQueue = [];
+    this.MDRMemoryQueue = [];
+
+    // reset memory
+    this.controlStore.loadMicro();
+    this.macroTokenizer.init();
+    this.macroParser.parse();
+
+    // animate new register Values
+    for (let register of registers) {
+      this.showRegisterValue(register.getName(), register.getValue());
+    }
+
+    // reset stack View
+    this.stackProvider.update()
+
+  }
 }

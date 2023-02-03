@@ -84,10 +84,6 @@ export class MainMemoryService {
   }
 
   public printMemory() {
-    //console.log(`Address     Value  `)
-    //for (const [key, value] of Object.entries(this.memory)) {
-    //  console.log(`${this.dec2hex(parseInt(key))}        0b${value.toString(2)} = ${value}`)
-    //}
     this.printCodeArea();
     this.printConstantArea();
     this.printStack();
