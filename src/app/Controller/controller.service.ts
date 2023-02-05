@@ -21,11 +21,6 @@ export class ControllerService {
     PC.setValue(PC.getValue() + 1);
   }
 
-  reset(){
-    let PC = this.regProvider.getRegister("PC");
-    PC.setValue(0);
-  }
-
   //reads the imported file and sets it in the macroassembler editor
   importMacro(file: any){
     if(file.type === "text/plain"){
