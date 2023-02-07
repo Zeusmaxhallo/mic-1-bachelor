@@ -35,7 +35,11 @@ export class AluService {
 
   /** get the A-Bus value which in Mic-1 is the H Register */
   private getA(): void{
-    this.a = this.regProvider.getRegister("H").getValue();
+    const buffer = new ArrayBuffer(4);
+    const view = new DataView(buffer, 0);
+
+    view.setUint32(0, this.regProvider.getRegister("H").getValue())
+    this.a  = view.getInt16(2);
   }
 
   // dictionary of all available alu codes and corresponding functions

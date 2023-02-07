@@ -8,55 +8,55 @@ export class Microprogramms{
     PC=PC+1; fetch
     MDR=TOS=MBR; wr; goto Main1;
 
-(0x64)ISUB: MAR=SP=SP-1; rd
+(0x13)ISUB: MAR=SP=SP-1; rd
     H=TOS
     MDR=TOS=MDR-H; wr; goto Main1
 
-(0x7E)IAND: MAR=SP=SP-1; rd
+(0x16)IAND: MAR=SP=SP-1; rd
     H=TOS
     MDR=TOS=MDR AND H; wr; goto Main1
 
-(0x80)IOR:MAR=SP=SP-1; rd
+(0x02)IOR:MAR=SP=SP-1; rd
     H=TOS
     MDR=TOS=MDR OR H; wr; goto Main1
 
-(0x59)DUP: MAR = SP = SP+1
+(0x05)DUP: MAR = SP = SP+1
     MDR=TOS;wr;goto Main1
     (0x57)POP: MAR=SP=SP-1; rd;
     TOS=MDR;goto Main1
 
-(0x5E)SWAP: MAR=SP-1; rd;
+(0x19)SWAP: MAR=SP-1; rd;
     MAR=SP
     H=MDR;wr
     MDR=TOS
     MAR=SP-1; wr
     TOS=H; goto Main1
 
-(0x02)IADD: MAR=SP=SP-1; rd
+(0x0D)IADD: MAR=SP=SP-1; rd
     H=TOS
     MDR=TOS=MDR+H; wr; goto Main1
 
-(0x15)ILOAD:H=LV;
+(0x1F)ILOAD:H=LV;
     MAR=MBRU+H;rd;
     iload3: MAR=SP=SP+1;
     PC=PC+1; fetch; wr;
     TOS=MDR; goto Main1
 
-(0x36)ISTORE: H=LV
+(0x24)ISTORE: H=LV
     MAR=MBRU+H
     istore3: MDR=TOS;wr;
     SP=MAR=SP-1;rd
     PC=PC+1;fetch
     TOS=MDR; goto Main1
 
-(0xB5)WIDE: PC=PC+1; fetch; goto(MBR or 0x100)
+(0x2A)WIDE: PC=PC+1; fetch; goto(MBR or 0x100)
 
-(0x32)LDC_W: PC=PC+1; fetch;
+(0x2B)LDC_W: PC=PC+1; fetch;
     H=MBRU <<8
     H=MBRU OR H
     MAR=H+CPP; rd; goto iload3
 
-(0x84)IINC: H=LV
+(0x2F)IINC: H=LV
     MAR=MBRU+H; rd
     PC=PC+1; fetch
     H=MDR
@@ -70,17 +70,17 @@ export class Microprogramms{
     PC=OPC+H; fetch
     goto Main1
 
-(0x9B)IFLT: MAR=SP=SP-1; rd;
+(0x09)IFLT: MAR=SP=SP-1; rd;
     OPC=TOS
     TOS=MDR
     N=OPC; if(N) goto T; else goto F
 
-(0x99)IFEQ:MAR=SP=SP-1; rd;
+(0x35)IFEQ:MAR=SP=SP-1; rd;
     OPC=TOS
     TOS=MDR
     Z=OPC; if(Z) goto T; else goto F
 
-(0x9F)IF_ICMPEQ: MAR=SP=SP-1; rd
+(0x39)IF_ICMPEQ: MAR=SP=SP-1; rd
     MAR=SP=SP-1
     H=MDR;rd
     OPC=TOS

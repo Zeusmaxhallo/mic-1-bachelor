@@ -139,6 +139,7 @@ export class DirectorService {
   public step() {
     console.log("Executing Instruction at Address: " + this.currentAddress);
     let tokens = this.controlStore.getMicro()[this.currentAddress];
+    console.log(tokens);
     if (!tokens) {
       throw new Error(`No Instruction at Address ${this.currentAddress}`);
     }

@@ -244,12 +244,17 @@ export class ParserService {
 
     // find DIVIDER or end of instruction
     let dividerPos = this.findNextDivider();
-    if (this.tokens[0].type === "DIVIDER" || this.tokens[0].type === "GOTO") {
+    if (this.tokens[0].type === "DIVIDER") {
       this.alu = [0, 0, 0, 1, 0, 0, 0, 0];
       // consume Divider Token
       this.tokens = this.tokens.slice(dividerPos + 1);
       return;
+    }else if(this.tokens[0].type === "GOTO"){
+      this.alu = [0, 0, 0, 1, 0, 0, 0, 0];
+      return;
     }
+
+
 
     // we can either have zero, one or two Registers in the Alu-Instruction
     let aluInstruction = this.tokens.slice(0, dividerPos + 1);

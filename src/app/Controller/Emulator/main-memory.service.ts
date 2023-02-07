@@ -136,7 +136,6 @@ export class MainMemoryService {
   }
 
   public setCode(code: number[]) {
-    console.log(code)
     this.methodAreaSize = Math.ceil(code.length / 4) * 4; // align next Memory Addresses
 
     this.regProvider.getRegister("MBR").setValue(code[0]); // Initialize MBR with first instruction
