@@ -628,7 +628,7 @@ export class ParserService {
 
       // if instruction has given Address, e.g (0xF7) -> take it 
       if (line[0].type == "ADDRESS") {
-        const match = /[a-fA-F0-9]{2}/.exec(line[0].value);
+        const match = /[a-fA-F0-9]{2,3}/.exec(line[0].value);
         if (match == null) {
           throw new Error(`Unexpected token: ${line[0].value}`);
         }

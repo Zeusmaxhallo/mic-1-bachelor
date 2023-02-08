@@ -62,6 +62,8 @@ const Spec: any= [
   // Comment
   [/^\/\/.*/, null],
 
+  [/^goto2/, "LABEL"],
+
   // Goto
   [/^goto/, "GOTO"],
 

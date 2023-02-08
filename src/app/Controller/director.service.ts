@@ -139,7 +139,6 @@ export class DirectorService {
   public step() {
     console.log("Executing Instruction at Address: " + this.currentAddress);
     let tokens = this.controlStore.getMicro()[this.currentAddress];
-    console.log(tokens);
     if (!tokens) {
       throw new Error(`No Instruction at Address ${this.currentAddress}`);
     }
@@ -196,6 +195,14 @@ export class DirectorService {
 
     // set next address
     this.currentAddress = parseInt(microInstruction.addr.join(""), 2)
+
+    // check if we have to jump
+    if ( microInstruction.jam[2] && aluResult === 0){
+      this.currentAddress += 256;
+    }
+    if (microInstruction.jam[1] && aluResult <= 0){
+      this.currentAddress += 256;
+    }
 
     // start animation
     this.animate(bBusResult, aluResult, shifterResult, cBusResult, aBusResult);

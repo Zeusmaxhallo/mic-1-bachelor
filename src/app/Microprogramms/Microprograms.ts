@@ -86,10 +86,11 @@ export class Microprogramms{
     OPC=TOS
     TOS=MDR
     Z=OPC-H; if(Z) goto T; else goto F
-    T:OPC=PC-1;fetch; goto goto2
     F:PC=PC+1
     PC=PC+1; fetch;
     goto Main1
+    (0x13F)T:OPC=PC-1;fetch; goto goto2
+
 
 (0xB6)INVOKEVIRTUAL:PC=PC+1; fetch
     H=MBRU <<8
