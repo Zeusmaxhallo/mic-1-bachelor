@@ -381,6 +381,9 @@ export class MacroParserService {
                       else if(instructionToken2[j] === undefined || instructionToken2[j].endsWith(":")){
                         continue;
                       }
+                      else if(this.methods[instructionToken2[j]] >= 0){
+                        labelTokenPosition += 2
+                      }
                       else{
                         labelTokenPosition += 1;
                       }
@@ -619,6 +622,9 @@ export class MacroParserService {
                       }
                       else if(instructionToken2[j] === undefined || instructionToken2[j].endsWith(":")){
                         continue;
+                      }
+                      else if(this.methods[instructionToken2[j]] >= 0){
+                        labelTokenPosition += 2
                       }
                       else{
                         labelTokenPosition += 1;
