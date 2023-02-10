@@ -8,18 +8,24 @@ export class MicroProviderService {
   microprogramms: Microprogramms = new Microprogramms();
   micro: string = this.microprogramms.getMicro();
 
-  constructor() { }
+  constructor() {
+    const code = localStorage.getItem("microCode");
+    if (code){
+      this.micro = code;
+    }
+   }
 
   //Is called when the User presses the export button
-  setMicro(micro: string){
-    this.micro = micro;   
+  setMicro(micro: string) {
+    this.micro = micro;
+    localStorage.setItem("microCode", this.micro);
   }
 
-  getMicro(){
+  getMicro() {
     return this.micro;
   }
 
-  resetMicro(){
+  resetMicro() {
     this.micro = this.microprogramms.getMicro();
   }
 }

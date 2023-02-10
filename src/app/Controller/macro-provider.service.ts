@@ -7,12 +7,18 @@ import { MacroTokenizerService } from './macro-tokenizer.service';
 export class MacroProviderService {
   private macro: string = "";
 
-  constructor() { }
+  constructor() {
+    const code = localStorage.getItem("macroCode");
+    if (code){
+      this.macro = code;
+    }
+   }
 
   //Is called when the User presses the import button
   //and loads macro code to the interpreter
   setMacro(macro: string){
-    this.macro = macro; 
+    this.macro = macro;
+    localStorage.setItem("macroCode", macro);
   }
 
   getMacro(){
