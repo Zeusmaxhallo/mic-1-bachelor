@@ -9,6 +9,8 @@ if (environment.production) {
 
   if(window){
     window.console.log = function() {};
+    window.console.table = function() {};
+    window.console.group = function() {};
   }
 }
 
