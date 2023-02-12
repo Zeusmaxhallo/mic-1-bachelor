@@ -67,19 +67,6 @@ export class MacroTokenizerService {
     this.resetTokenizer();
   }
 
-  // Is just used by the integrationtest service
-  initTest(macro: string){
-    this.string = macro;
-    while(true){
-      let token = this.getNextToken();
-      if(token == null){
-        break;
-      }     
-      //console.log(token); //uncommend if you want to see where it fails
-    }
-    this.resetTokenizer();
-  }
-
   private hasMoreTokens(): Boolean {
     return this.curser < this.string.length;
   }
