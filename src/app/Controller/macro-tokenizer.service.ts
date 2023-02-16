@@ -1,5 +1,3 @@
-import { state } from '@angular/animations';
-import { ParseSourceFile, TokenType } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 import { MacroProviderService } from './macro-provider.service';
 import { Token } from './micro-tokenizer.service';
@@ -24,7 +22,7 @@ export class MacroTokenizerService {
     [/^\d+/, "NUMBER"],
 
     // Mnemonics
-    [/^([A-Z]+(_[A-Z]+)*(( \d+)|( [a-zA-Z0-9]+)|( [a-z]([a-zA-Z0-9]+))|( [a-zA-Z]([a-zA-Z0-9]+)))*)/, "MNEMONIC"],
+    [/^([A-Z]+(_[A-Z]+)*(( (-)+\d+)|( [a-zA-Z0-9]+)|( [a-z]([a-zA-Z0-9]+))|( [a-zA-Z]([a-zA-Z0-9]+)))*)/, "MNEMONIC"],
 
     //Fields
     [/^.constant/, "FIELD"],
@@ -39,7 +37,7 @@ export class MacroTokenizerService {
     [/^.end-method/, "FIELDEND"],
 
     //Constant & Variable
-    [/^[a-z]([a-zA-Z0-9]+)? \d+/, "NEW_CONSTANT"],
+    [/^[a-z]([a-zA-Z0-9]+)? (-)+\d+/, "NEW_CONSTANT"],
     [/^[a-z]([a-zA-Z0-9]+)?/, "NEW_VARIABLE"]
   ];
 
