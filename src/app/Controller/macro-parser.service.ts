@@ -304,7 +304,7 @@ export class MacroParserService {
           }
         }
 
-        // ----------------------------------- The following elements are parameters -----------------------------------
+
         else{
           // if parsedParameter is not undefined after this, the parameter is a constant
           let parsedParameter = this.constantOffsetToCPP[instructionToken[i]];
@@ -326,7 +326,7 @@ export class MacroParserService {
 
           // if parsedParameter is not NaN after this, the parameter is a byte
           if(parsedParameter === undefined){
-            if(+instructionToken[i] < 128 || +instructionToken[i] > 127){
+            if(+instructionToken[i] < -128 || +instructionToken[i] > 127){
               throw new Error("The number " + +instructionToken[i] + " does not fit in a signed byte");
             }
             parsedParameter = +instructionToken[i];
@@ -547,7 +547,6 @@ export class MacroParserService {
           }
         }
 
-        // ----------------------------------- The following elements are parameters -----------------------------------
 
         // The following elements are parameters
         else{
@@ -571,7 +570,7 @@ export class MacroParserService {
 
           // if parsedParameter is not NaN after this, the parameter is a byte
           if(parsedParameter === undefined){
-            if(+instructionToken < 128 || +instructionToken > 127){
+            if(+instructionToken < -128 || +instructionToken > 127){
               throw new Error("The number " + +instructionToken + " does not fit in a signed byte");
             }
             parsedParameter = +instructionToken[i];
