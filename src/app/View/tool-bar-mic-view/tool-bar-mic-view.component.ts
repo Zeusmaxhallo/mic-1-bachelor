@@ -15,16 +15,18 @@ export class ToolBarMicViewComponent implements OnInit {
   animate = true;
   animationSpeed = 2;
 
-  disableRunButton = false;
+  disableRunButton = true;
+  disableStepButton = true;
 
   constructor(
-    private controllerService: ControllerService,
     private memory: MainMemoryService,
-    private director: DirectorService,
-    private controlStore: ControlStoreService,
-    private regProvider: RegProviderService,) {}
+    private director: DirectorService,) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.director.finishedRun.subscribe( result => {
+      result ? this.enableRunButtons() : this.disableRunButtons();
+    })
+  }
 
   step(){
     this.director.init();
@@ -40,24 +42,22 @@ export class ToolBarMicViewComponent implements OnInit {
 
   reset(){
     this.director.reset();
-    this.disableRunButton = false;
-
-
-    // ---   test MainMemory functionality  ---
-    //this.memory.setCode([0,16,1,16,2,16,3,16,4,16,5,16,6,54,1,54,2,94,2,100]);  // some example Code
-    //this.memory.setConstants([8,16,32,64]);             // some example constants  
-    //this.memory.createVariables(2);
-    //
-    //this.memory.printMemory();
-    //console.log("first word on stack is at address: " + this.memory.stackStartAddress);
-    
-    //this.memory.save2LocalStorage();
-    //this.memory.getFromLocalStorage();
-    
   }
 
-  run(){
+  private enableRunButtons(){
+    this.disableRunButton = false;
+    this.disableStepButton = false;
+  }
+
+  private disableRunButtons(){
     this.disableRunButton = true;
+    this.disableStepButton = true;
+  }
+
+
+
+  run(){
+    this.disableRunButtons();
     this.director.run();
   }
 

@@ -5,6 +5,7 @@ import * as ace from "ace-builds";
 import { MacroTokenizerService } from "src/app/Controller/macro-tokenizer.service";
 import { MacroParserService } from "src/app/Controller/macro-parser.service";
 import { ControlStoreService } from "src/app/Controller/Emulator/control-store.service";
+import { DirectorService } from "src/app/Controller/director.service";
 
 
 const LANG  = "ace/mode/mic1";
@@ -29,7 +30,8 @@ export class EditorComponent implements AfterViewInit{
     private controllerService: ControllerService, 
     private macroTokenizer: MacroTokenizerService,
     private macroParser: MacroParserService,
-    private controlStore: ControlStoreService
+    private controlStore: ControlStoreService,
+    private director: DirectorService,
     ) { }
 
   import(event: any){
@@ -83,5 +85,6 @@ export class EditorComponent implements AfterViewInit{
     this.controlStore.loadMicro();
     this.macroTokenizer.init(); 
     this.macroParser.parse();
+    this.director.reset();
   }
 }
