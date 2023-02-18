@@ -8,6 +8,8 @@ export class MicroProviderService {
   microprogramms: Microprogramms = new Microprogramms();
   micro: string = this.microprogramms.getMicro();
 
+  microGotChanged: boolean = false;
+
   constructor() {
     const code = localStorage.getItem("microCode");
     if (code){
@@ -27,5 +29,13 @@ export class MicroProviderService {
 
   resetMicro() {
     this.micro = this.microprogramms.getMicro();
+  }
+
+  isLoaded(){
+    this.microGotChanged = false;
+  }
+
+  getMicroGotChanged(){
+    return this.microGotChanged;
   }
 }

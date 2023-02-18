@@ -1,9 +1,11 @@
-import { Component, DebugElement, OnInit } from '@angular/core';
-import { ControllerService } from 'src/app/Controller/controller.service';
+import { Component, OnInit } from '@angular/core';
 import { DirectorService } from 'src/app/Controller/director.service';
 import { ControlStoreService } from 'src/app/Controller/Emulator/control-store.service';
 import { MainMemoryService } from 'src/app/Controller/Emulator/main-memory.service';
-import { RegProviderService } from 'src/app/Controller/reg-provider.service';
+import { MacroParserService } from 'src/app/Controller/macro-parser.service';
+import { MacroProviderService } from 'src/app/Controller/macro-provider.service';
+import { MacroTokenizerService } from 'src/app/Controller/macro-tokenizer.service';
+import { MicroProviderService } from 'src/app/Controller/micro-provider.service';
 
 @Component({
   selector: 'app-tool-bar-mic-view',
@@ -20,7 +22,13 @@ export class ToolBarMicViewComponent implements OnInit {
 
   constructor(
     private memory: MainMemoryService,
-    private director: DirectorService,) {}
+    private controlStore: ControlStoreService,
+    private director: DirectorService,
+    private macroTokenizer: MacroTokenizerService,
+    private macroParser: MacroParserService,
+    private macroProvider: MacroProviderService,
+    private microProvider: MicroProviderService
+  ) {}
 
   ngOnInit(): void {
     this.director.finishedRun.subscribe( result => {
@@ -29,15 +37,35 @@ export class ToolBarMicViewComponent implements OnInit {
   }
 
   step(){
+    if(this.macroProvider.getMacroGotChanged() === true || this.microProvider.getMicroGotChanged() === true){
+      this.controlStore.loadMicro();
+      this.macroTokenizer.init(); 
+      this.macroParser.parse();
+      this.director.reset();
+    }
+
     this.director.init();
     this.director.step();
     this.memory.save2LocalStorage();
+
+    this.macroProvider.isLoaded();
+    this.microProvider.isLoaded();
   }
 
   stepMacro(){
+    if(this.macroProvider.getMacroGotChanged() === true || this.microProvider.getMicroGotChanged() === true){
+      this.controlStore.loadMicro();
+      this.macroTokenizer.init(); 
+      this.macroParser.parse();
+      this.director.reset();
+    }
+
     this.director.init();
     this.director.runMacroInstruction();
     this.memory.save2LocalStorage();
+
+    this.macroProvider.isLoaded();
+    this.microProvider.isLoaded();
   }
 
   reset(){
@@ -57,8 +85,18 @@ export class ToolBarMicViewComponent implements OnInit {
 
 
   run(){
+    if(this.macroProvider.getMacroGotChanged() === true || this.microProvider.getMicroGotChanged() === true){
+      this.controlStore.loadMicro();
+      this.macroTokenizer.init(); 
+      this.macroParser.parse();
+      this.director.reset();
+    }
+
     this.disableRunButtons();
     this.director.run();
+
+    this.macroProvider.isLoaded();
+    this.microProvider.isLoaded();
   }
 
 

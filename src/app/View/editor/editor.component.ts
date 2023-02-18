@@ -28,10 +28,6 @@ export class EditorComponent implements AfterViewInit{
   constructor(
     private macroProvider: MacroProviderService, 
     private controllerService: ControllerService, 
-    private macroTokenizer: MacroTokenizerService,
-    private macroParser: MacroParserService,
-    private controlStore: ControlStoreService,
-    private director: DirectorService,
     ) { }
 
   import(event: any){
@@ -78,13 +74,5 @@ export class EditorComponent implements AfterViewInit{
       this.content = this.macroProvider.getMacro();    
       this.aceEditor.session.setValue(this.content);  
     }
-  }
-
-  // starts interpretation with the content of the editor
-  load(){
-    this.controlStore.loadMicro();
-    this.macroTokenizer.init(); 
-    this.macroParser.parse();
-    this.director.reset();
   }
 }
