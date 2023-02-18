@@ -1,25 +1,24 @@
-<mat-grid-list cols="3" rowHeight="16:1">
-    <mat-grid-tile rowspan="32" colspan="1">
-        <div class="div">
+<mat-grid-list cols="3" rowHeight="fit" style="height: calc(100% - 64px);">
+    <mat-grid-tile rowspan="2" colspan="1">
+        <div>
             <app-tool-bar-mic-view></app-tool-bar-mic-view>
             <app-mic-visualization></app-mic-visualization>
-            
         </div>
     </mat-grid-tile>
-    <mat-grid-tile rowspan="16" colspan="1">
-        <div class="div">
+    <mat-grid-tile rowspan="1" colspan="1">
+        <div>
             <p>Microprograms</p>
             <app-micro-editor></app-micro-editor>
         </div>
     </mat-grid-tile>
-    <mat-grid-tile rowspan="32" colspan="1">
-        <div class="div">
+    <mat-grid-tile rowspan="2" colspan="1">
+        <div>
             <p>Input for Macroassembler</p>
             <app-editor></app-editor>
         </div>
     </mat-grid-tile>
-    <mat-grid-tile rowspan="16" colspan="1">
-        <div class="div">
+    <mat-grid-tile rowspan="1" colspan="1">
+        <div>
             <p>Stack View</p>
             <app-stack></app-stack>
         </div>
