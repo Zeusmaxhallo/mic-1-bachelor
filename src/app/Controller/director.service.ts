@@ -39,13 +39,12 @@ export class DirectorService {
   private MBRMemoryQueue: Array<number> = [];
   private MDRMemoryQueue: Array<number> = [];
 
-  private _animationComplete = true;
   private _isReady = new BehaviorSubject<boolean>(true);
   private isReady = this._isReady.asObservable();
   private sub: Subscription = new Subscription();
 
   public isRunning = false;
-
+  public endOfProgram = true;
 
   public animationSpeed = 2;
   public animationEnabled = true;
@@ -68,7 +67,7 @@ export class DirectorService {
     for (const register of this.regProvider.getRegisters()) {
       this.showRegisterValue(register.getName(), register.getValue())
     }
-
+    this.endOfProgram = false;
   }
 
   /** Run until macro-program is finished */
@@ -82,21 +81,14 @@ export class DirectorService {
         // check if run was stopped from extern
         if (!this.isRunning) {
           this.sub.unsubscribe()
-          this._finishedRun.next(true);
           return;
         }
 
-        if (!this.mainMemory.finished) {
+        if (!this.endOfProgram) {
           this.step();
         } else {
-          if (this.currentAddress === 1) {
-            this.sub.unsubscribe()
-            this.mainMemory.finished = false;
-            this.isRunning = false;
-            this._finishedRun.next(true);
-          } else {
-            this.step();
-          }
+          this.sub.unsubscribe()
+          this.isRunning = false;
         }
       })
   }
@@ -116,18 +108,16 @@ export class DirectorService {
         // check if run was stopped from extern
         if (!this.isRunning) {
           this.sub.unsubscribe()
-          this._finishedRun.next(true);
           this.animationEnabled = animationEnableStatus;
           return;
         }
 
         // main-instruction (address: 1) gets executed after every instruction
         // if we reached main the macro-instruction is finished
-        if (this.currentAddress === 1){
+        if (this.currentAddress === 1 || this.endOfProgram){
           this.sub.unsubscribe()
           this.isRunning = false;
           this.animationEnabled = animationEnableStatus;
-          this._finishedRun.next(true);
         }else{
           this.step();
         }
@@ -137,6 +127,16 @@ export class DirectorService {
   }
 
   public step() {
+    
+    // check if Program is finished
+    if (this.mainMemory.finished && (this.currentAddress === 1 || this.currentAddress === 0)){
+      this.endOfProgram = true;
+      this._finishedRun.next(false);
+      this.isRunning = false;
+      this._isReady.next(false);
+      return;
+    }
+
     console.log("Executing Instruction at Address: " + this.currentAddress);
     let tokens = this.controlStore.getMicro()[this.currentAddress];
     if (!tokens) {
@@ -212,7 +212,6 @@ export class DirectorService {
   private async animate(bBusResult: BBusResult, aluResult: number, shifterResult: number, cBusResult: CBusResult, aBusResult: number) {
 
     if (this.animationEnabled) {
-      this._animationComplete = false;
 
       // Tell Mic-Visualization to start a animation via this Observable
       this.startAnimationSource.next([bBusResult, aluResult, shifterResult, cBusResult, aBusResult]);
@@ -234,9 +233,8 @@ export class DirectorService {
 
 
   public set animationComplete(v: boolean) {
-    this._animationComplete = v;
     console.log("animations Complete");
-    if (this._animationComplete) { this._isReady.next(true) }
+    if (v) { this._isReady.next(true) }
   }
 
 
@@ -264,8 +262,15 @@ export class DirectorService {
       this.showRegisterValue(register.getName(), register.getValue());
     }
 
+    //reset program
+    this.endOfProgram = false;
+    this.mainMemory.finished = false;
+
     // reset stack View
     this.stackProvider.update()
+    
+    //enable buttons
+    this._finishedRun.next(true);
 
   }
 }

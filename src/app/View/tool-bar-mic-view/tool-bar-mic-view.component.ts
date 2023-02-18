@@ -1,9 +1,11 @@
-import { Component, DebugElement, OnInit } from '@angular/core';
-import { ControllerService } from 'src/app/Controller/controller.service';
+import { Component, OnInit } from '@angular/core';
 import { DirectorService } from 'src/app/Controller/director.service';
 import { ControlStoreService } from 'src/app/Controller/Emulator/control-store.service';
 import { MainMemoryService } from 'src/app/Controller/Emulator/main-memory.service';
-import { RegProviderService } from 'src/app/Controller/reg-provider.service';
+import { MacroParserService } from 'src/app/Controller/macro-parser.service';
+import { MacroProviderService } from 'src/app/Controller/macro-provider.service';
+import { MacroTokenizerService } from 'src/app/Controller/macro-tokenizer.service';
+import { MicroProviderService } from 'src/app/Controller/micro-provider.service';
 
 @Component({
   selector: 'app-tool-bar-mic-view',
@@ -15,50 +17,86 @@ export class ToolBarMicViewComponent implements OnInit {
   animate = true;
   animationSpeed = 2;
 
-  disableRunButton = false;
+  disableRunButton = true;
+  disableStepButton = true;
 
   constructor(
-    private controllerService: ControllerService,
     private memory: MainMemoryService,
-    private director: DirectorService,
     private controlStore: ControlStoreService,
-    private regProvider: RegProviderService,) {}
+    private director: DirectorService,
+    private macroTokenizer: MacroTokenizerService,
+    private macroParser: MacroParserService,
+    private macroProvider: MacroProviderService,
+    private microProvider: MicroProviderService
+  ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.director.finishedRun.subscribe( result => {
+      result ? this.enableRunButtons() : this.disableRunButtons();
+    })
+  }
 
   step(){
+    if(this.macroProvider.getMacroGotChanged() === true || this.microProvider.getMicroGotChanged() === true){
+      this.controlStore.loadMicro();
+      this.macroTokenizer.init(); 
+      this.macroParser.parse();
+      this.director.reset();
+    }
+
     this.director.init();
     this.director.step();
     this.memory.save2LocalStorage();
+
+    this.macroProvider.isLoaded();
+    this.microProvider.isLoaded();
   }
 
   stepMacro(){
+    if(this.macroProvider.getMacroGotChanged() === true || this.microProvider.getMicroGotChanged() === true){
+      this.controlStore.loadMicro();
+      this.macroTokenizer.init(); 
+      this.macroParser.parse();
+      this.director.reset();
+    }
+
     this.director.init();
     this.director.runMacroInstruction();
     this.memory.save2LocalStorage();
+
+    this.macroProvider.isLoaded();
+    this.microProvider.isLoaded();
   }
 
   reset(){
     this.director.reset();
-    this.disableRunButton = false;
-
-
-    // ---   test MainMemory functionality  ---
-    //this.memory.setCode([0,16,1,16,2,16,3,16,4,16,5,16,6,54,1,54,2,94,2,100]);  // some example Code
-    //this.memory.setConstants([8,16,32,64]);             // some example constants  
-    //this.memory.createVariables(2);
-    //
-    //this.memory.printMemory();
-    //console.log("first word on stack is at address: " + this.memory.stackStartAddress);
-    
-    //this.memory.save2LocalStorage();
-    //this.memory.getFromLocalStorage();
-    
   }
 
-  run(){
+  private enableRunButtons(){
+    this.disableRunButton = false;
+    this.disableStepButton = false;
+  }
+
+  private disableRunButtons(){
     this.disableRunButton = true;
+    this.disableStepButton = true;
+  }
+
+
+
+  run(){
+    if(this.macroProvider.getMacroGotChanged() === true || this.microProvider.getMicroGotChanged() === true){
+      this.controlStore.loadMicro();
+      this.macroTokenizer.init(); 
+      this.macroParser.parse();
+      this.director.reset();
+    }
+
+    this.disableRunButtons();
     this.director.run();
+
+    this.macroProvider.isLoaded();
+    this.microProvider.isLoaded();
   }
 
 

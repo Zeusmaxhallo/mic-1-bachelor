@@ -5,6 +5,7 @@ import * as ace from "ace-builds";
 import { MacroTokenizerService } from "src/app/Controller/macro-tokenizer.service";
 import { MacroParserService } from "src/app/Controller/macro-parser.service";
 import { ControlStoreService } from "src/app/Controller/Emulator/control-store.service";
+import { DirectorService } from "src/app/Controller/director.service";
 
 
 const LANG  = "ace/mode/mic1";
@@ -27,9 +28,6 @@ export class EditorComponent implements AfterViewInit{
   constructor(
     private macroProvider: MacroProviderService, 
     private controllerService: ControllerService, 
-    private macroTokenizer: MacroTokenizerService,
-    private macroParser: MacroParserService,
-    private controlStore: ControlStoreService
     ) { }
 
   import(event: any){
@@ -76,12 +74,5 @@ export class EditorComponent implements AfterViewInit{
       this.content = this.macroProvider.getMacro();    
       this.aceEditor.session.setValue(this.content);  
     }
-  }
-
-  // starts interpretation with the content of the editor
-  load(){
-    this.controlStore.loadMicro();
-    this.macroTokenizer.init(); 
-    this.macroParser.parse();
   }
 }
