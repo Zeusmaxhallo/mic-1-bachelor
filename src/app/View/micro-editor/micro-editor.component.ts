@@ -33,7 +33,7 @@ export class MicroEditorComponent implements AfterViewInit{
 
   ngAfterViewInit(): void {
 
-    ace.config.set("basePath", "/assets/editor")
+    ace.config.set("basePath", "assets/editor")
 
     const editorOptions: Partial<ace.Ace.EditorOptions> = {
       highlightActiveLine: true,
