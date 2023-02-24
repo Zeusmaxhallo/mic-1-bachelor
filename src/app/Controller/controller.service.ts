@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import * as FileSaver from 'file-saver';
-import { ParserService } from './Emulator/parser.service';
 import { MacroProviderService } from './macro-provider.service';
 import { MicroProviderService } from './micro-provider.service';
 import { RegProviderService } from './reg-provider.service';
@@ -13,8 +12,8 @@ export class ControllerService {
   constructor(
     private regProvider: RegProviderService, 
     private macroProvider: MacroProviderService, 
-    private microProvider: MicroProviderService, 
-    private parser: ParserService) { }
+    private microProvider: MicroProviderService
+  ) { }
 
   step(){
     let PC = this.regProvider.getRegister("PC");

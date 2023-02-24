@@ -1,29 +1,33 @@
-
-
-<section style="margin-top: 3%;">
-    <button mat-raised-button (click)="step()" [disabled]="disableStepButton">Step</button>
-    <button mat-raised-button (click)="run()" [disabled]="disableRunButton">Run</button>
-    <button mat-raised-button (click)="reset()">Reset</button>
-    <button mat-raised-button (click)="stepMacro()" [disabled]="disableStepButton">Macro-Step</button>
+<section class="center" style="margin-top: 3%;">
+    <button mat-raised-button (click)="step()" [disabled]="disableStepButton">
+        <mat-icon>navigate_next</mat-icon>
+    </button>
+    <button mat-raised-button (click)="run()" [disabled]="disableRunButton">
+        <mat-icon>play_arrow</mat-icon>
+    </button>
+    <button mat-raised-button (click)="stepMacro()" [disabled]="disableStepButton">
+        <mat-icon>skip_next</mat-icon>
+    </button>
+    <button mat-raised-button (click)="reset()">
+        <mat-icon>settings_backup_restore</mat-icon>
+    </button>
 </section>
-
 
 <div class="center">
     <mat-checkbox [(ngModel)]="animate" (change)="toggleAnimVisibility()">animate</mat-checkbox>
     <div style="margin-left: 20%;">
-        <div class="label-container">
-            <label class="name-label">Speed</label>
-            <label class="speed-label">{{animationSpeed}}</label>
-        </div>
         <mat-slider 
             (input)="changeAnimSpeed($event)"
             value="2"
             [max]="15"
             [min]="1"
-            [step]="0.01">
-        <input matSliderThumb [(ngModel)]="animationSpeed">
+            [step]="0.01"
+            >
+            <input matSliderThumb [(ngModel)]="animationSpeed">
         </mat-slider>
+        <div class="label-container">
+            <label class="name-label">Speed </label>
+            <label class="speed-label">{{animationSpeed}}</label>
+        </div>
     </div>
 </div>
-
-

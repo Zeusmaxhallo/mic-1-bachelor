@@ -1,10 +1,8 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
 import { AppComponent } from './app.component';
 import { GridViewComponent } from './View/grid-view/grid-view.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
 import {MatSliderModule} from '@angular/material/slider';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatGridListModule} from '@angular/material/grid-list';
@@ -26,6 +24,9 @@ import { CBusComponent } from './View/SVG/c-bus/c-bus.component';
 import { ABusComponent } from './View/SVG/a-bus/a-bus.component';
 import { ShifterComponent } from './View/SVG/shifter/shifter.component';
 import { RegistersComponent } from './View/SVG/registers/registers.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { GettingStartedDialogComponent } from './View/tool-bar/getting-started-dialog/getting-started-dialog.component';
+import {MatIconModule} from '@angular/material/icon';
 
 
 @NgModule({
@@ -43,6 +44,7 @@ import { RegistersComponent } from './View/SVG/registers/registers.component';
     ABusComponent,
     ShifterComponent,
     RegistersComponent,
+    GettingStartedDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -56,8 +58,11 @@ import { RegistersComponent } from './View/SVG/registers/registers.component';
     HttpClientModule,
     MatCheckboxModule,
     MatCardModule,
-    MatSliderModule,
+    MatSliderModule, 
+    MatDialogModule,
+    MatIconModule
   ],
+
   providers: [],
   bootstrap: [AppComponent]
 })

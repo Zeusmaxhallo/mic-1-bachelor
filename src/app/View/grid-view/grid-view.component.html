@@ -1,23 +1,28 @@
-<mat-grid-list cols="3" rowHeight="fit" style="height: calc(100% - 64px);">
-    <mat-grid-tile rowspan="2" colspan="1">
+<mat-grid-list cols="3" rowHeight="fit" gutterSize="3px" style="height: calc(100% - 65px);">
+    <mat-grid-tile rowspan="20" colspan="1">
         <div>
             <app-tool-bar-mic-view></app-tool-bar-mic-view>
+            <hr color="black">
+            <p>Register View</p>
             <app-mic-visualization></app-mic-visualization>
         </div>
     </mat-grid-tile>
-    <mat-grid-tile rowspan="1" colspan="1">
+
+    <mat-grid-tile rowspan="10" colspan="1">
         <div>
             <p>Microprograms</p>
             <app-micro-editor></app-micro-editor>
         </div>
     </mat-grid-tile>
-    <mat-grid-tile rowspan="2" colspan="1">
+
+    <mat-grid-tile rowspan="20" colspan="1">
         <div>
             <p>Input for Macroassembler</p>
             <app-editor></app-editor>
         </div>
     </mat-grid-tile>
-    <mat-grid-tile rowspan="1" colspan="1">
+
+    <mat-grid-tile rowspan="10" colspan="1">
         <div>
             <p>Stack View</p>
             <app-stack></app-stack>

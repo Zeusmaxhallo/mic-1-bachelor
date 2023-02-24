@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ControllerService } from 'src/app/Controller/controller.service';
-import { DirectorService } from 'src/app/Controller/director.service';
-import { ControlStoreService } from 'src/app/Controller/Emulator/control-store.service';
-import { MacroParserService } from 'src/app/Controller/macro-parser.service';
-import { MicroProviderService } from 'src/app/Controller/micro-provider.service';
+import { MatDialog, MatDialogContent } from '@angular/material/dialog';
+import { GettingStartedDialogComponent } from './getting-started-dialog/getting-started-dialog.component';
 
 @Component({
   selector: 'app-tool-bar',
@@ -15,6 +13,7 @@ export class ToolBarComponent implements OnInit {
 
   constructor(
     private controllerService: ControllerService,
+    private dialog: MatDialog,
   ) { }
 
   ngOnInit(): void {
@@ -36,6 +35,14 @@ export class ToolBarComponent implements OnInit {
 
   exportMicro(){
     this.controllerService.exportMicro();
+  }
+
+  openGettingStartedDialog(){
+    const dialogRef = this.dialog.open(GettingStartedDialogComponent);
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(`Dialog result: $(result)`);
+    });
   }
 
 }
