@@ -5,10 +5,13 @@
     align-items: center;
 }
 
-
 .label-container {
     display: flex;
     justify-content: space-between;
-    margin: 20px 10px 0;
     max-width: 284px;
-  }
+}
+
+button{
+    margin-left: 2px;
+    margin-right: 2px;
+}
