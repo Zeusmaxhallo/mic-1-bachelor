@@ -26,6 +26,8 @@ import { CBusComponent } from './View/SVG/c-bus/c-bus.component';
 import { ABusComponent } from './View/SVG/a-bus/a-bus.component';
 import { ShifterComponent } from './View/SVG/shifter/shifter.component';
 import { RegistersComponent } from './View/SVG/registers/registers.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { GettingStartedDialogComponent } from './View/tool-bar/getting-started-dialog/getting-started-dialog.component';
 
 
 @NgModule({
@@ -43,6 +45,7 @@ import { RegistersComponent } from './View/SVG/registers/registers.component';
     ABusComponent,
     ShifterComponent,
     RegistersComponent,
+    GettingStartedDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -56,8 +59,10 @@ import { RegistersComponent } from './View/SVG/registers/registers.component';
     HttpClientModule,
     MatCheckboxModule,
     MatCardModule,
-    MatSliderModule,
+    MatSliderModule, 
+    MatDialogModule,
   ],
+
   providers: [],
   bootstrap: [AppComponent]
 })
