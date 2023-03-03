@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ControllerService } from 'src/app/Controller/controller.service';
 import { MatDialog, MatDialogContent } from '@angular/material/dialog';
 import { GettingStartedDialogComponent } from './getting-started-dialog/getting-started-dialog.component';
+import { AboutDialogComponent } from './about-dialog/about-dialog.component';
 
 @Component({
   selector: 'app-tool-bar',
@@ -39,6 +40,14 @@ export class ToolBarComponent implements OnInit {
 
   openGettingStartedDialog(){
     const dialogRef = this.dialog.open(GettingStartedDialogComponent);
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(`Dialog result: $(result)`);
+    });
+  }
+
+  openAboutDialog(){
+    const dialogRef = this.dialog.open(AboutDialogComponent);
 
     dialogRef.afterClosed().subscribe(result => {
       console.log(`Dialog result: $(result)`);

@@ -27,6 +27,7 @@ import { RegistersComponent } from './View/SVG/registers/registers.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { GettingStartedDialogComponent } from './View/tool-bar/getting-started-dialog/getting-started-dialog.component';
 import {MatIconModule} from '@angular/material/icon';
+import { AboutDialogComponent } from './View/tool-bar/about-dialog/about-dialog.component';
 
 
 @NgModule({
@@ -45,6 +46,7 @@ import {MatIconModule} from '@angular/material/icon';
     ShifterComponent,
     RegistersComponent,
     GettingStartedDialogComponent,
+    AboutDialogComponent,
   ],
   imports: [
     BrowserModule,
