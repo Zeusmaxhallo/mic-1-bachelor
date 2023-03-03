@@ -26,7 +26,7 @@ describe('complete workflow test without animation', () => {
     cy.emptyEditors();
     cy.getStandardMicroPrograms();
     cy.getDemoCode1(); // writes demo code to editor. There are also more demo code that can be used. For example getDemoCode3().
-    cy.pushLoadButton();
+    cy.pushResetButton();
     cy.get('#mat-checkbox-1-input').uncheck({force: true});
     cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(1) > div > div > app-tool-bar-mic-view > section > button:nth-child(2) > span.mat-button-wrapper')
       .click();
@@ -38,7 +38,7 @@ describe('complete workflow test without animation', () => {
     cy.emptyEditors();
     cy.getDemoMicroPrograms();
     cy.getDemoCode2(); // writes demo code to editor. There are also more demo code that can be used. For example getDemoCode3().
-    cy.pushLoadButton();
+    cy.pushResetButton();
     cy.get('#mat-checkbox-1-input').uncheck({force: true});
     cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(1) > div > div > app-tool-bar-mic-view > section > button:nth-child(2) > span.mat-button-wrapper')
       .click();
@@ -50,7 +50,7 @@ describe('complete workflow test without animation', () => {
     cy.emptyEditors();
     cy.getStandardMicroPrograms();
     cy.getDemoCode3(); // writes demo code to editor. There are also more demo code that can be used. For example getDemoCode3().
-    cy.pushLoadButton();
+    cy.pushResetButton();
     cy.get('#mat-checkbox-1-input').uncheck({force: true});
     cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(1) > div > div > app-tool-bar-mic-view > section > button:nth-child(2) > span.mat-button-wrapper')
       .click();
