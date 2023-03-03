@@ -6,10 +6,10 @@ import { MicroProviderService } from 'src/app/Controller/micro-provider.service'
 const code1: string = `.main
 BIPUSH 7
 BIPUSH 8
-INVOKEVIRTUAL met
+INVOKEVIRTUAL add
 .end-main
 
-.method met(p1, p2)
+.method add(p1, p2)
 ILOAD p1
 ILOAD p2
 IADD

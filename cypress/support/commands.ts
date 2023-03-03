@@ -7,10 +7,10 @@
 const code1: string = `.main
 BIPUSH 7
 BIPUSH 8
-INVOKEVIRTUAL met
+INVOKEVIRTUAL add
 .end-main
 
-.method met(p1, p2)
+.method add(p1, p2)
 ILOAD p1
 ILOAD p2
 IADD
@@ -296,6 +296,7 @@ MDR=TOS; wr; goto Main1`;
 declare namespace Cypress {
   interface Chainable<Subject = any> {
     pushResetButton(): typeof pushResetButton;
+    pushPlayButton(): typeof pushPlayButton;
     getDemoCode1(): typeof getDemoCode1;
     getDemoCode2(): typeof getDemoCode2;
     getDemoCode3(): typeof getDemoCode3;
@@ -308,6 +309,11 @@ declare namespace Cypress {
 
 function pushResetButton(): void{
   cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(1) > div > div > app-tool-bar-mic-view > section > button:nth-child(4)')
+    .click();
+}
+
+function pushPlayButton(): void{
+  cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(1) > div > div > app-tool-bar-mic-view > section > button:nth-child(2) > span.mat-button-wrapper')
     .click();
 }
 
@@ -352,6 +358,7 @@ Cypress.Commands.add('pushResetButton', pushResetButton);
 Cypress.Commands.add('getDemoMicroPrograms', getDemoMicroPrograms);
 Cypress.Commands.add('getStandardMicroPrograms', getStandardMicroPrograms);
 Cypress.Commands.add('emptyEditors', emptyEditors);
+Cypress.Commands.add('pushPlayButton', pushPlayButton);
 //
 // ***********************************************
 // This example commands.js shows you how to
