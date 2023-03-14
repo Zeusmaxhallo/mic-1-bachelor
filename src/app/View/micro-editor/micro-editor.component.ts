@@ -61,7 +61,7 @@ export class MicroEditorComponent implements AfterViewInit{
       this.removeErrorHighlighting();
     })
 
-    // emits Error-Event when an error occurs
+    // flash an error message when an error occurs
     this.directorService.errorFlasher$.subscribe( error =>{
       if(error.error){
         this.flashErrorMessage(error.error, error.line);

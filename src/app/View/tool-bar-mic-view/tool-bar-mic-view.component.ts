@@ -34,10 +34,14 @@ export class ToolBarMicViewComponent implements OnInit {
     this.director.finishedRun.subscribe( result => {
       result ? this.enableRunButtons() : this.disableRunButtons();
     })
+
+    this.director.errorFlasher$.subscribe( error=> {
+      error.error ? this.disableRunButtons() : "";
+    })
   }
 
   step(){
-    if(this.macroProvider.getMacroGotChanged() === true || this.microProvider.getMicroGotChanged() === true){
+    if(this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()){
       this.controlStore.loadMicro();
       this.macroTokenizer.init(); 
       this.macroParser.parse();
@@ -53,7 +57,7 @@ export class ToolBarMicViewComponent implements OnInit {
   }
 
   stepMacro(){
-    if(this.macroProvider.getMacroGotChanged() === true || this.microProvider.getMicroGotChanged() === true){
+    if(this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()){
       this.controlStore.loadMicro();
       this.macroTokenizer.init(); 
       this.macroParser.parse();
@@ -85,7 +89,7 @@ export class ToolBarMicViewComponent implements OnInit {
 
 
   run(){
-    if(this.macroProvider.getMacroGotChanged() === true || this.microProvider.getMicroGotChanged() === true){
+    if(this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()){
       this.controlStore.loadMicro();
       this.macroTokenizer.init(); 
       this.macroParser.parse();
