@@ -142,11 +142,19 @@ export class DirectorService {
       return;
     }
 
-    console.log("Executing Instruction at Address: " + this.currentAddress);
     let line = this.controlStore.getMicro()[this.currentAddress]
-    let tokens = line.tokens;
+    let tokens;
     this.lineNumber = line.lineNumber;
-    console.log("Line: " + this.lineNumber);
+    console.log("Executing Instruction at Address: " + this.currentAddress + " line: " + this.lineNumber);
+
+    // throw Error when there are no Tokens in current line
+    try {
+      tokens = line.tokens;
+    } catch (error) {
+      console.error("Error in line " + this.lineNumber+ " - " + error);
+      this._errorFlasher.next({line: this.lineNumber, error: "Invalid Instruction"});
+      return;
+    }
     if (!tokens) {
       throw new Error(`No Instruction at Address ${this.currentAddress}`);
     }

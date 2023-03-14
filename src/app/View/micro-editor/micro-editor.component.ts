@@ -61,19 +61,26 @@ export class MicroEditorComponent implements AfterViewInit{
       this.removeErrorHighlighting();
     })
 
+    // emits Error-Event when an error occurs
     this.directorService.errorFlasher$.subscribe( error =>{
       if(error.error){
-        this.aceEditor.getSession().setAnnotations(
-          [{
-            row: error.line - 1,
-            column:0, 
-            text: error.error, // Or the Json reply from the parser 
-            type: "error" // also "warning" and "information"
-          }]
-        );
-        this.aceEditor.getSession().addMarker(new ace.Range(error.line-1,0,error.line,0), "ace_error-line", "text");
+        this.flashErrorMessage(error.error, error.line);
       }
     })
+  }
+
+  flashErrorMessage(errorMessage: string, line: number){
+    this.aceEditor.getSession().setAnnotations(
+      [{
+        row: line - 1,
+        column: 0, 
+        text: errorMessage, 
+        type: "error" // also "warning" and "information"
+      }]
+    );
+    this.aceEditor.getSession().addMarker(new ace.Range(line-1, 0, line , 0), "ace_error-line", "text");
+    this.aceEditor.scrollToRow(line - 4);
+
   }
 
   ngDoCheck(){
