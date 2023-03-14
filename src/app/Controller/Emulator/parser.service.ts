@@ -12,6 +12,11 @@ export interface Instruction {
   b: Array<number>;
 }
 
+export interface Line{
+  tokens: Token[];
+  lineNumber: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -302,7 +307,7 @@ export class ParserService {
         if (shifterInstruction[1].value == "1") {
           this.alu[1] = 1;
         } else {
-          throw new Error("InvalidAluInstruction - the only valid arithmetic right shift is one by bit");
+          throw new Error("InvalidAluInstruction - the only valid arithmetic right shift is one bit only");
         }
       }
     }
@@ -603,15 +608,16 @@ export class ParserService {
   }
 
 
+
   /**  
    * Find the Address for each micro-instruction and create Labels (if given)
    * @param input - Array of Instruction Strings
    * @return dictionary with addresses and Array with Tokens  
    * */
-  public index(input: string[]): { [address: number]: Token[] } {
+  public index(input: string[]): { [address: number]: Line } {
     let tokens: Token[][] = [];
     let lastAddress = 0;
-    let microprogram: { [address: number]: Token[] } = {};
+    let microprogram: { [address: number]: Line } = {};  // { [address: number]: Token[] }
 
     // tokenize all lines
     for (let i = 0; i < input.length; i++) {
@@ -634,14 +640,14 @@ export class ParserService {
         }
         let address = parseInt(match[0], 16);
         line.shift(); //consume token
-        microprogram[address] = line;
+        microprogram[address] = {tokens: line, lineNumber: i+1};
         this.newLabel(line, address);
         lastAddress = address;
         continue;
       }
 
       // if there is no given Address take last Address + 1
-      microprogram[lastAddress + 1] = line;
+      microprogram[lastAddress + 1] = {tokens: line, lineNumber: i+1};
       lastAddress++;
       this.newLabel(line, lastAddress);
     }

@@ -1,6 +1,6 @@
 import { Token } from '../micro-tokenizer.service';
 import { Injectable } from '@angular/core';
-import { ParserService, Instruction } from 'src/app/Controller/Emulator/parser.service';
+import { ParserService, Instruction, Line } from 'src/app/Controller/Emulator/parser.service';
 import { MicroProviderService } from '../micro-provider.service';
 
 @Injectable({
@@ -8,7 +8,7 @@ import { MicroProviderService } from '../micro-provider.service';
 })
 export class ControlStoreService {
   private microAddr:{ [instruction: string] : number } = {};
-  private micro:{ [address: number] : Token[] };
+  private micro:{ [address: number] : Line };
 
   constructor(
     private microParser: ParserService,

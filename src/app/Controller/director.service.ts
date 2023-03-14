@@ -35,6 +35,7 @@ export class DirectorService {
   ) { }
 
   private currentAddress = 1;
+  private lineNumber = 0;
 
   private MBRMemoryQueue: Array<number> = [];
   private MDRMemoryQueue: Array<number> = [];
@@ -58,6 +59,10 @@ export class DirectorService {
 
   private _finishedRun = new BehaviorSubject<boolean>(false);
   public finishedRun = this._finishedRun.asObservable();
+
+  private _errorFlasher = new BehaviorSubject({line:0, error: ""});
+  public errorFlasher$ = this._errorFlasher.asObservable();
+
 
 
 
@@ -138,7 +143,10 @@ export class DirectorService {
     }
 
     console.log("Executing Instruction at Address: " + this.currentAddress);
-    let tokens = this.controlStore.getMicro()[this.currentAddress];
+    let line = this.controlStore.getMicro()[this.currentAddress]
+    let tokens = line.tokens;
+    this.lineNumber = line.lineNumber;
+    console.log("Line: " + this.lineNumber);
     if (!tokens) {
       throw new Error(`No Instruction at Address ${this.currentAddress}`);
     }
@@ -164,12 +172,22 @@ export class DirectorService {
 
     // parse instruction
     this.parser.init(tokens, this.currentAddress);
-    let microInstruction = this.parser.parse();
+    let microInstruction: Instruction
+    try {
+       microInstruction = this.parser.parse();
+    } catch (error) {
+      if (error instanceof Error){
+        console.error("Error in line " + this.lineNumber+ " - " + error);
+        this._errorFlasher.next({line: this.lineNumber, error: error.message});
+      }
+      return;
+    }
+    
 
     // calculate
     let bBusResult = this.bBus.activate(microInstruction.b);
     let [aluResult, aBusResult] = this.alu.calc(microInstruction.alu.slice(2));
-    let shifterResult = this.shifter.shift(microInstruction.alu.slice(0, 2), aluResult)
+    let shifterResult = this.shifter.shift(microInstruction.alu.slice(0, 2), aluResult);
     let cBusResult = this.cBus.activate(microInstruction.c, shifterResult);
 
     // memory instructions:
@@ -187,8 +205,17 @@ export class DirectorService {
     //write
     if (microInstruction.mem[0]) {
       let addr = this.regProvider.getRegister("MAR").getValue() * 4;
-      this.mainMemory.store_32(addr, this.regProvider.getRegister("MDR").getValue());
-      this.mainMemory.save2LocalStorage();
+      try {
+        this.mainMemory.store_32(addr, this.regProvider.getRegister("MDR").getValue());
+        this.mainMemory.save2LocalStorage();
+      } catch (error) {
+        if (error instanceof Error){
+          console.error("Error in line " + this.lineNumber+ " - " + error);
+          this._errorFlasher.next({line: this.lineNumber, error: error.message});
+        }
+        return;
+      }
+      
     }
 
     this.stackProvider.update(); // update Stack after each step

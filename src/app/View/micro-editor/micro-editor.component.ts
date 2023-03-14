@@ -3,6 +3,7 @@ import { MicroProviderService } from "src/app/Controller/micro-provider.service"
 import { ControllerService } from "src/app/Controller/controller.service";
 
 import * as ace from "ace-builds";
+import { DirectorService } from "src/app/Controller/director.service";
 
 
 const LANG  = "ace/mode/micro";
@@ -24,7 +25,8 @@ export class MicroEditorComponent implements AfterViewInit{
   
   constructor(
     private microProvider: MicroProviderService, 
-    private controllerService: ControllerService) { }
+    private controllerService: ControllerService,
+    private directorService: DirectorService) { }
 
 
   ngOnInit(): void {
@@ -56,12 +58,28 @@ export class MicroEditorComponent implements AfterViewInit{
       
       // Updates the microcode on the micro provider
       this.microProvider.setMicro(this.content);
+      this.removeErrorHighlighting();
+    })
+
+    this.directorService.errorFlasher$.subscribe( error =>{
+      if(error.error){
+        this.aceEditor.getSession().setAnnotations(
+          [{
+            row: error.line - 1,
+            column:0, 
+            text: error.error, // Or the Json reply from the parser 
+            type: "error" // also "warning" and "information"
+          }]
+        );
+        this.aceEditor.getSession().addMarker(new ace.Range(error.line-1,0,error.line,0), "ace_error-line", "text");
+      }
     })
   }
 
   ngDoCheck(){
     if(this.microProvider.getMicro() !== this.content){
-      this.content = this.microProvider.getMicro();    
+      this.content = this.microProvider.getMicro();
+      this.removeErrorHighlighting();    
       this.aceEditor.session.setValue(this.content);  
     }
   }
@@ -69,5 +87,22 @@ export class MicroEditorComponent implements AfterViewInit{
   import(event: any){
     this.file = event.target.files[0];
     this.controllerService.importMicro(this.file);
+  }
+
+  private removeErrorHighlighting(){
+    // clear Markers / syntax Highlighting
+    const prevMarkers = this.aceEditor.session.getMarkers();
+    console.log(prevMarkers[3])
+    if (prevMarkers){
+      const prevMarkersArr:any = Object.keys(prevMarkers);
+      for (let item of prevMarkersArr) {
+        if(prevMarkers[item].clazz == "ace_error-line"){
+          this.aceEditor.session.removeMarker(prevMarkers[item].id);
+        }
+      }
+    }
+
+    // clear annotation
+    this.aceEditor.session.clearAnnotations();
   }
 }
