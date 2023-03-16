@@ -50,7 +50,10 @@ export class DirectorService {
   public animationSpeed = 2;
   public animationEnabled = true;
 
-  // Observables to notify the animation components 
+  private microBreakpoints: Array<number> = [];
+  private hitBreakpoint = false;
+
+  // Observables to notify other components 
   private startAnimationSource = new BehaviorSubject([]);
   public startAnimation = this.startAnimationSource.asObservable();
 
@@ -60,8 +63,11 @@ export class DirectorService {
   private _finishedRun = new BehaviorSubject<boolean>(false);
   public finishedRun = this._finishedRun.asObservable();
 
-  private _errorFlasher = new BehaviorSubject({line:0, error: ""});
+  private _errorFlasher = new BehaviorSubject({ line: 0, error: "" });
   public errorFlasher$ = this._errorFlasher.asObservable();
+
+  private _breakpointFlasher = new BehaviorSubject({ line: 0 });
+  public breakpointFlasher$ = this._breakpointFlasher.asObservable();
 
 
 
@@ -91,6 +97,12 @@ export class DirectorService {
 
         if (!this.endOfProgram) {
           this.step();
+          if (this.hitBreakpoint) {
+            this.sub.unsubscribe();
+            this.isRunning = false;
+            this.hitBreakpoint = false;
+            this._finishedRun.next(true);
+          }
         } else {
           this.sub.unsubscribe()
           this.isRunning = false;
@@ -107,6 +119,11 @@ export class DirectorService {
 
     this.isRunning = true;
     this.step();
+    if (this.hitBreakpoint) {
+      this.isRunning = false;
+      this.hitBreakpoint = false;
+      return;
+    }
 
     this.sub = this.isReady.subscribe(
       val => {
@@ -119,27 +136,31 @@ export class DirectorService {
 
         // main-instruction (address: 1) gets executed after every instruction
         // if we reached main the macro-instruction is finished
-        if (this.currentAddress === 1 || this.endOfProgram){
+        if (this.currentAddress === 1 || this.endOfProgram) {
           this.sub.unsubscribe()
           this.isRunning = false;
           this.animationEnabled = animationEnableStatus;
-        }else{
+        } else {
           this.step();
+          if (this.hitBreakpoint) {
+            this.sub.unsubscribe();
+            this.isRunning = false;
+            this.animationEnabled = animationEnableStatus
+            this.hitBreakpoint = false;
+          }
         }
       })
-
-
   }
 
   public step() {
-    
+
     // check if Program is finished
-    if (this.mainMemory.finished && (this.currentAddress === 1 || this.currentAddress === 0)){
+    if (this.mainMemory.finished && (this.currentAddress === 1 || this.currentAddress === 0)) {
       this.endOfProgram = true;
       this._finishedRun.next(false);
       this.isRunning = false;
       this._isReady.next(false);
-      return;
+      return
     }
 
     let line = this.controlStore.getMicro()[this.currentAddress]
@@ -151,12 +172,19 @@ export class DirectorService {
     try {
       tokens = line.tokens;
     } catch (error) {
-      console.error("Error in line " + this.lineNumber+ " - " + error);
-      this._errorFlasher.next({line: this.lineNumber, error: "Invalid Instruction"});
-      return;
+      console.error("Error in line " + this.lineNumber + " - " + error);
+      this._errorFlasher.next({ line: this.lineNumber, error: "Invalid Instruction" });
+      return
     }
     if (!tokens) {
       throw new Error(`No Instruction at Address ${this.currentAddress}`);
+    }
+
+    // check if we hit a Breakpoint
+    if (this.microBreakpoints.includes(this.lineNumber)) {
+      console.log("%cHit Breakpoint in line " + this.lineNumber, "color: #248c46");
+      this.hitBreakpoint = true;
+      this._breakpointFlasher.next({ line: this.lineNumber });
     }
 
     // set MBR
@@ -182,15 +210,15 @@ export class DirectorService {
     this.parser.init(tokens, this.currentAddress);
     let microInstruction: Instruction
     try {
-       microInstruction = this.parser.parse();
+      microInstruction = this.parser.parse();
     } catch (error) {
-      if (error instanceof Error){
-        console.error("Error in line " + this.lineNumber+ " - " + error);
-        this._errorFlasher.next({line: this.lineNumber, error: error.message});
+      if (error instanceof Error) {
+        console.error("Error in line " + this.lineNumber + " - " + error);
+        this._errorFlasher.next({ line: this.lineNumber, error: error.message });
       }
-      return;
+      return
     }
-    
+
 
     // calculate
     let bBusResult = this.bBus.activate(microInstruction.b);
@@ -217,13 +245,13 @@ export class DirectorService {
         this.mainMemory.store_32(addr, this.regProvider.getRegister("MDR").getValue());
         this.mainMemory.save2LocalStorage();
       } catch (error) {
-        if (error instanceof Error){
-          console.error("Error in line " + this.lineNumber+ " - " + error);
-          this._errorFlasher.next({line: this.lineNumber, error: error.message});
+        if (error instanceof Error) {
+          console.error("Error in line " + this.lineNumber + " - " + error);
+          this._errorFlasher.next({ line: this.lineNumber, error: error.message });
         }
-        return;
+        return
       }
-      
+
     }
 
     this.stackProvider.update(); // update Stack after each step
@@ -232,15 +260,17 @@ export class DirectorService {
     this.currentAddress = parseInt(microInstruction.addr.join(""), 2)
 
     // check if we have to jump
-    if ( microInstruction.jam[2] && aluResult === 0){
+    if (microInstruction.jam[2] && aluResult === 0) {
       this.currentAddress += 256;
     }
-    if (microInstruction.jam[1] && aluResult <= 0){
+    if (microInstruction.jam[1] && aluResult <= 0) {
       this.currentAddress += 256;
     }
 
     // start animation
     this.animate(bBusResult, aluResult, shifterResult, cBusResult, aBusResult);
+
+    return
 
   }
 
@@ -303,9 +333,26 @@ export class DirectorService {
 
     // reset stack View
     this.stackProvider.update()
-    
+
     //enable buttons
     this._finishedRun.next(true);
 
+  }
+
+
+  public setMicroBreakpoint(breakpoint: number) {
+    if (this.microBreakpoints.includes(breakpoint)) { return; }
+    this.microBreakpoints.push(breakpoint);
+  }
+
+  public clearMicroBreakpoint(breakpoint: number) {
+    const index = this.microBreakpoints.indexOf(breakpoint)
+    if (index > -1) {
+      this.microBreakpoints.splice(index, 1);
+    }
+  }
+
+  public clearMicroBreakpoints() {
+    this.microBreakpoints = [];
   }
 }
