@@ -12,6 +12,11 @@ export interface Instruction {
   b: Array<number>;
 }
 
+export interface Line {
+  tokens: Token[];
+  lineNumber: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -111,7 +116,7 @@ export class ParserService {
     }
 
     // consume if(x) Token
-    this.tokens.splice(0,1);
+    this.tokens.splice(0, 1);
 
     // consume goto Token
     if (this.tokens[0].type != "GOTO") {
@@ -126,23 +131,23 @@ export class ParserService {
     // consume label Token
     this.tokens = this.tokens.slice(1);
 
-    if(this.tokens[0].type != "DIVIDER"){
+    if (this.tokens[0].type != "DIVIDER") {
       throw new Error(`Unexpected Token: ${this.tokens[0].value}, expected ";"`);
     }
     //consume Divider
     this.tokens = this.tokens.slice(1);
 
-    if(this.tokens[0].type != "ELSE" || this.tokens[1].type != "GOTO"){
+    if (this.tokens[0].type != "ELSE" || this.tokens[1].type != "GOTO") {
       throw new Error(`Unexpected Tokens: ${this.tokens[0].value} ${this.tokens[0].value}, expected "else goto"`);
     }
     //consume "else goto" Tokens
     this.tokens = this.tokens.slice(2);
 
-    if(this.tokens[0].type != "LABEL"){
+    if (this.tokens[0].type != "LABEL") {
       throw new Error(`Unexpected Token: ${this.tokens[0].value}, expected a Label`);
     }
-    
-    if(!(this.tokens[0].value in this.labels)){
+
+    if (!(this.tokens[0].value in this.labels)) {
       throw new Error(`UnknownLabelError -  ${this.tokens[0].value} was never declared`);
     }
     this.addr.fill(0);
@@ -150,9 +155,9 @@ export class ParserService {
     // consume Label Token
     this.tokens = this.tokens.slice(1);
 
-    if(this.tokens.length == 0){return;}
-    if(this.tokens[0].type != "DIVIDER"){throw new Error(`Unexpected Token: ${this.tokens[0].value}, expected ";" or end of line`);}
-    
+    if (this.tokens.length == 0) { return; }
+    if (this.tokens[0].type != "DIVIDER") { throw new Error(`Unexpected Token: ${this.tokens[0].value}, expected ";" or end of line`); }
+
     //consume Divider
     this.tokens.shift
   }
@@ -198,7 +203,7 @@ export class ParserService {
         this.setAddr(nextAddress);
       } else {
 
-        throw new Error(`UnknownLabelError: Label "${nextToken.value}" has not yet been created`);
+        throw new Error(`UnknownLabelError: Label "${nextToken.value}" is not defined`);
       }
     } else if (nextToken.type == "BRANCH_TO_MBR") {
       // Overwrite nextAddress with the Address in MBR
@@ -249,7 +254,7 @@ export class ParserService {
       // consume Divider Token
       this.tokens = this.tokens.slice(dividerPos + 1);
       return;
-    }else if(this.tokens[0].type === "GOTO"){
+    } else if (this.tokens[0].type === "GOTO") {
       this.alu = [0, 0, 0, 1, 0, 0, 0, 0];
       return;
     }
@@ -302,7 +307,7 @@ export class ParserService {
         if (shifterInstruction[1].value == "1") {
           this.alu[1] = 1;
         } else {
-          throw new Error("InvalidAluInstruction - the only valid arithmetic right shift is one by bit");
+          throw new Error("InvalidAluInstruction - the only valid arithmetic right shift is one bit only");
         }
       }
     }
@@ -568,7 +573,7 @@ export class ParserService {
       if (i % 2 == 0) {
         if (nextToken.type == "REGISTER") {
           // ignore Z and N
-          if(nextToken.value == "Z" || nextToken.value == "N"){continue;}
+          if (nextToken.value == "Z" || nextToken.value == "N") { continue; }
           this.c[registers[nextToken.value]] = 1;
         } else {
           throw new Error(`Unexpected Token: ${nextToken.value}`);
@@ -603,15 +608,16 @@ export class ParserService {
   }
 
 
+
   /**  
    * Find the Address for each micro-instruction and create Labels (if given)
    * @param input - Array of Instruction Strings
    * @return dictionary with addresses and Array with Tokens  
    * */
-  public index(input: string[]): { [address: number]: Token[] } {
+  public index(input: string[]): { [address: number]: Line } {
     let tokens: Token[][] = [];
     let lastAddress = 0;
-    let microprogram: { [address: number]: Token[] } = {};
+    let microprogram: { [address: number]: Line } = {};  // { [address: number]: Token[] }
 
     // tokenize all lines
     for (let i = 0; i < input.length; i++) {
@@ -634,14 +640,14 @@ export class ParserService {
         }
         let address = parseInt(match[0], 16);
         line.shift(); //consume token
-        microprogram[address] = line;
+        microprogram[address] = { tokens: line, lineNumber: i + 1 };
         this.newLabel(line, address);
         lastAddress = address;
         continue;
       }
 
       // if there is no given Address take last Address + 1
-      microprogram[lastAddress + 1] = line;
+      microprogram[lastAddress + 1] = { tokens: line, lineNumber: i + 1 };
       lastAddress++;
       this.newLabel(line, lastAddress);
     }
