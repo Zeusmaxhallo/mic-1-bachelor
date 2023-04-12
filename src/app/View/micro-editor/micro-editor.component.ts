@@ -122,7 +122,7 @@ export class MicroEditorComponent implements AfterViewInit {
     }
   }
 
-  flashErrorMessage(errorMessage: string, line: number) {
+  private flashErrorMessage(errorMessage: string, line: number) {
     this.aceEditor.getSession().setAnnotations(
       [{
         row: line - 1,
@@ -141,6 +141,7 @@ export class MicroEditorComponent implements AfterViewInit {
       this.content = this.microProvider.getMicro();
       this.removeErrorHighlighting();
       this.aceEditor.session.clearBreakpoints();
+      this.directorService.clearMicroBreakpoints();
       this.aceEditor.session.setValue(this.content);
     }
 
