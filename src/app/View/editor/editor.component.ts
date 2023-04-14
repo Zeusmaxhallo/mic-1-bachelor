@@ -108,9 +108,8 @@ export class EditorComponent implements AfterViewInit{
     // highlight line if we hit a breakpoint
     this.directorService.breakpointFlasherMacro$.subscribe(breakpoint => {
       if (breakpoint.line) {
-        console.log("SUBSCRIBE AND HIT THE BELL")
         this.highlightBreakpoint(breakpoint.line)
-        const source = timer(2500);
+        const source = timer(10000);
         source.subscribe(() => this.removeBreakpointHighlighting())
       }
     });

@@ -201,7 +201,6 @@ export class DirectorService {
     if(this.macroBreakpointsAddr.includes(this.currentMacroAddr)){
       console.log("%cHit Breakpoint in the memory address: " + (this.currentMacroAddr), "color: #248c46");
       this.hitBreakpoint = true;
-      console.log("flash " + this.macroParser.getLineOfAddress(this.currentMacroAddr))
       this._breakpointFlasherMacro.next({ line: this.macroParser.getLineOfAddress(this.currentMacroAddr)});
     }
 

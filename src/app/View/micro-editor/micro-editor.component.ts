@@ -106,7 +106,7 @@ export class MicroEditorComponent implements AfterViewInit {
     this.directorService.breakpointFlasher$.subscribe(breakpoint => {
       if (breakpoint.line) {
         this.highlightBreakpoint(breakpoint.line)
-        const source = timer(2500);
+        const source = timer(10000);
         source.subscribe(() => this.removeBreakpointHighlighting())
       }
     });
