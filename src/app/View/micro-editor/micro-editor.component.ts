@@ -1,7 +1,6 @@
 import { AfterViewInit, Component, ElementRef, ViewChild, ɵɵqueryRefresh } from "@angular/core";
 import { MicroProviderService } from "src/app/Controller/micro-provider.service";
 import { ControllerService } from "src/app/Controller/controller.service";
-
 import * as ace from "ace-builds";
 import { DirectorService } from "src/app/Controller/director.service";
 import { timer } from "rxjs";
@@ -27,7 +26,8 @@ export class MicroEditorComponent implements AfterViewInit {
   constructor(
     private microProvider: MicroProviderService,
     private controllerService: ControllerService,
-    private directorService: DirectorService) { }
+    private directorService: DirectorService
+  ) { }
 
 
   ngOnInit(): void {
@@ -54,7 +54,6 @@ export class MicroEditorComponent implements AfterViewInit {
     this.aceEditor.setTheme(THEME);
     this.aceEditor.session.setMode(LANG);
 
-
     // update when Microcode changes
     this.aceEditor.on("input", () => {
       this.content = this.aceEditor.getValue();
@@ -63,7 +62,6 @@ export class MicroEditorComponent implements AfterViewInit {
       this.microProvider.setMicro(this.content);
       this.removeErrorHighlighting();
     })
-
 
     // toggle Breakpoints
     let editor = this.aceEditor
@@ -96,7 +94,6 @@ export class MicroEditorComponent implements AfterViewInit {
       }
       e.stop();
     })
-
 
     // flash an error message when an error occurs
     this.directorService.errorFlasher$.subscribe(error => {
@@ -144,7 +141,6 @@ export class MicroEditorComponent implements AfterViewInit {
       this.directorService.clearMicroBreakpoints();
       this.aceEditor.session.setValue(this.content);
     }
-
   }
 
   import(event: any) {

@@ -19,7 +19,6 @@ import { MacroTokenizerService } from './macro-tokenizer.service';
 export class DirectorService {
 
   constructor(
-
     private alu: AluService,
     private cBus: CBusService,
     private bBus: BBusService,
@@ -31,11 +30,11 @@ export class DirectorService {
     private controlStore: ControlStoreService,
     private stackProvider: StackProviderService,
     private macroTokenizer: MacroTokenizerService,
-
   ) { }
 
   private currentAddress = 1;
   private lineNumber = 0;
+  private currentMacroAddr = 0;
 
   private MBRMemoryQueue: Array<number> = [];
   private MDRMemoryQueue: Array<number> = [];
@@ -51,6 +50,8 @@ export class DirectorService {
   public animationEnabled = true;
 
   private microBreakpoints: Array<number> = [];
+  private macroBreakpoints: Array<number> = [];
+  private macroBreakpointsAddr: Array<number> = [];
   private hitBreakpoint = false;
 
   // Observables to notify other components 
@@ -66,8 +67,14 @@ export class DirectorService {
   private _errorFlasher = new BehaviorSubject({ line: 0, error: "" });
   public errorFlasher$ = this._errorFlasher.asObservable();
 
+  private _errorFlasherMacro = new BehaviorSubject({ line: 0, error: "" });
+  public errorFlasherMacro$ = this._errorFlasherMacro.asObservable();
+
   private _breakpointFlasher = new BehaviorSubject({ line: 0 });
   public breakpointFlasher$ = this._breakpointFlasher.asObservable();
+
+  private _breakpointFlasherMacro = new BehaviorSubject({ line: 0 });
+  public breakpointFlasherMacro$ = this._breakpointFlasherMacro.asObservable();
 
 
 
@@ -97,12 +104,12 @@ export class DirectorService {
 
         if (!this.endOfProgram) {
           this.step();
-          if (this.hitBreakpoint) {
-            this.sub.unsubscribe();
-            this.isRunning = false;
-            this.hitBreakpoint = false;
-            this._finishedRun.next(true);
-          }
+          // if (this.hitBreakpoint) {
+          //   this.sub.unsubscribe();
+          //   this.isRunning = false;
+          //   this.hitBreakpoint = false;
+          //   this._finishedRun.next(true);
+          // }
         } else {
           this.sub.unsubscribe()
           this.isRunning = false;
@@ -149,12 +156,14 @@ export class DirectorService {
             this.hitBreakpoint = false;
           }
         }
-      })
+      }
+    )
+
   }
 
   public step() {
 
-    // check if Program is finished
+    // check if program is finished
     if (this.mainMemory.finished && (this.currentAddress === 1 || this.currentAddress === 0)) {
       this.endOfProgram = true;
       this._finishedRun.next(false);
@@ -180,20 +189,48 @@ export class DirectorService {
       throw new Error(`No Instruction at Address ${this.currentAddress}`);
     }
 
-    // check if we hit a Breakpoint
+    // check if we hit a Breakpoint in the micro-code
     if (this.microBreakpoints.includes(this.lineNumber)) {
-      console.log("%cHit Breakpoint in line " + this.lineNumber, "color: #248c46");
+      console.log("%cHit Breakpoint in the micro-code in line " + this.lineNumber, "color: #248c46");
       this.hitBreakpoint = true;
       this._breakpointFlasher.next({ line: this.lineNumber });
     }
+
+    // check if we hit a Breakpoint in the macro-code
+    console.log("Currenty read macro Address in main-memory: " + this.currentMacroAddr)
+    if(this.macroBreakpointsAddr.includes(this.currentMacroAddr)){
+      console.log("%cHit Breakpoint in the memory address: " + (this.currentMacroAddr), "color: #248c46");
+      this.hitBreakpoint = true;
+      console.log("flash " + this.macroParser.getLineOfAddress(this.currentMacroAddr))
+      this._breakpointFlasherMacro.next({ line: this.macroParser.getLineOfAddress(this.currentMacroAddr)});
+    }
+
+    console.table(this.macroBreakpoints)
 
     // set MBR
     if (this.MBRMemoryQueue[0]) {
       let addr = this.MBRMemoryQueue.shift();
       let MBR = this.regProvider.getRegister("MBR");
+      
+      if(this.macroParser.getOffsetOnAddress(this.currentMacroAddr) !== undefined){
+        let offset = this.macroParser.getOffsetOnAddress(this.currentMacroAddr)-1;
+        this.currentMacroAddr = offset;
+        console.log("%cHit Jump-Instruction offset. Jump to memory address: " + (this.currentMacroAddr+1), "color: #248c46");
+      }
+      this.currentMacroAddr += 1;
+
+      if (this.hitBreakpoint) {
+        this.sub.unsubscribe();
+        this.isRunning = false;
+        this.hitBreakpoint = false;
+        this._finishedRun.next(true);
+      }
+
       MBR.setValue(this.mainMemory.get_8(addr));
       this.showRegisterValue(MBR.getName(), MBR.getValue(), this.animationEnabled);
-    } else { this.MBRMemoryQueue.shift(); }
+    } else { 
+      this.MBRMemoryQueue.shift(); 
+    }
 
 
     //set MDR
@@ -306,6 +343,7 @@ export class DirectorService {
   public reset() {
     this.isRunning = false;
     this.currentAddress = 1;
+    this.currentMacroAddr = 0;
 
     // reset all registers
     let registers = this.regProvider.getRegisters();
@@ -337,6 +375,11 @@ export class DirectorService {
     //enable buttons
     this._finishedRun.next(true);
 
+    // set Breakpoints Addresses for Macrocode
+    for(let i = 0; i < this.macroBreakpoints.length; i++){
+      this.macroBreakpointsAddr[i] = this.macroParser.getAddressOfLine(this.macroBreakpoints[i]);
+    }
+
   }
 
 
@@ -354,5 +397,21 @@ export class DirectorService {
 
   public clearMicroBreakpoints() {
     this.microBreakpoints = [];
+  }
+
+  public setMacroBreakpoint(breakpoint: number){
+    if(this.macroBreakpoints.includes(breakpoint)){return;}
+    this.macroBreakpoints.push(breakpoint);
+  }
+
+  public clearMacroBreakpoint(breakpoint: number){
+    const index = this.macroBreakpoints.indexOf(breakpoint)
+    if(index > -1) {
+      this.macroBreakpoints.splice(index, 1);
+    }
+  }
+
+  public clearMacroBreakpoints(){
+    this.macroBreakpoints = [];
   }
 }
