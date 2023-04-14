@@ -388,7 +388,7 @@ export class MacroParserService {
               if(label !== undefined && label > 0){
                 offset = label - this.parsedTokenNumber;
                 console.log("OFFSET: " + offset);
-                this.addrToOffset[this.parsedTokenNumber+5] = offset;
+                this.addrToOffset[this.parsedTokenNumber+5] = this.parsedTokenNumber+3 + offset;
                 const buffer = new ArrayBuffer(2);
                 const view = new DataView(buffer, 0);
                 view.setInt16(0, offset); 
@@ -651,7 +651,7 @@ export class MacroParserService {
               if(label !== undefined && label > 0){
                 offset = label - this.parsedTokenNumber;
                 console.log("OFFSET: " + offset);
-                this.addrToOffset[this.parsedTokenNumber+5] = offset;
+                this.addrToOffset[this.parsedTokenNumber+5] = this.parsedTokenNumber+3 + offset;
                 const buffer = new ArrayBuffer(2);
                 const view = new DataView(buffer, 0);
                 view.setInt16(0, offset); 
@@ -693,7 +693,7 @@ export class MacroParserService {
                   
                 if(labelTokenPosition > 0 && offset !== 0){
                   console.log("OFFSET: " + offset);
-                  this.addrToOffset[this.parsedTokenNumber+5] = offset;
+                  this.addrToOffset[this.parsedTokenNumber+5] = this.parsedTokenNumber+3 + offset;
                   const buffer = new ArrayBuffer(2);
                   const view = new DataView(buffer, 0);
                   view.setInt16(0, offset); 
