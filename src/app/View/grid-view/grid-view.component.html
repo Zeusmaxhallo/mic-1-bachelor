@@ -22,9 +22,22 @@
     </mat-grid-tile>
 
     <mat-grid-tile rowspan="10" colspan="1">
-        <div>
-            <p>Stack View</p>
-            <app-stack></app-stack>
+        <div >
+            <mat-tab-group dynamicHeight animationDuration="0ms" style="height: 100%;">
+                <mat-tab>
+                    <ng-template mat-tab-label>
+                        <span class="tab">Stack View</span>
+                    </ng-template>
+                    <app-stack></app-stack>
+                </mat-tab>
+                <mat-tab>
+                    <ng-template mat-tab-label>
+                        <span class="tab">Console</span>
+                    </ng-template>
+                    <app-debug-console></app-debug-console>
+                </mat-tab>
+            </mat-tab-group>
+            
         </div>
     </mat-grid-tile>
 </mat-grid-list>

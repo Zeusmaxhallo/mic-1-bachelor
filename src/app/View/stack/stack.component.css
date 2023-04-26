@@ -2,7 +2,7 @@
 
 .stack-container{
     margin-top: 5%;
-    height: 75%;
+    height: 100%;
     width: 50%;
     overflow-y: auto;
     overflow-x: hidden;

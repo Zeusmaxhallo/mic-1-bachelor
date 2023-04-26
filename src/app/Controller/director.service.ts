@@ -67,14 +67,14 @@ export class DirectorService {
   private _errorFlasher = new BehaviorSubject({ line: 0, error: "" });
   public errorFlasher$ = this._errorFlasher.asObservable();
 
-  private _errorFlasherMacro = new BehaviorSubject({ line: 0, error: "" });
-  public errorFlasherMacro$ = this._errorFlasherMacro.asObservable();
-
   private _breakpointFlasher = new BehaviorSubject({ line: 0 });
   public breakpointFlasher$ = this._breakpointFlasher.asObservable();
 
   private _breakpointFlasherMacro = new BehaviorSubject({ line: 0 });
   public breakpointFlasherMacro$ = this._breakpointFlasherMacro.asObservable();
+
+  private _consoleNotifier = new BehaviorSubject("");
+  public consoleNotifier = this._consoleNotifier.asObservable();
 
 
 
@@ -169,6 +169,7 @@ export class DirectorService {
       this._finishedRun.next(false);
       this.isRunning = false;
       this._isReady.next(false);
+      this._consoleNotifier.next("Program terminated successfully!")
       return
     }
 
@@ -183,6 +184,7 @@ export class DirectorService {
     } catch (error) {
       console.error("Error in line " + this.lineNumber + " - " + error);
       this._errorFlasher.next({ line: this.lineNumber, error: "Invalid Instruction" });
+      this.isRunning=false;
       return
     }
     if (!tokens) {
@@ -251,6 +253,7 @@ export class DirectorService {
       if (error instanceof Error) {
         console.error("Error in line " + this.lineNumber + " - " + error);
         this._errorFlasher.next({ line: this.lineNumber, error: error.message });
+        this.isRunning = false;
       }
       return
     }
@@ -284,6 +287,7 @@ export class DirectorService {
         if (error instanceof Error) {
           console.error("Error in line " + this.lineNumber + " - " + error);
           this._errorFlasher.next({ line: this.lineNumber, error: error.message });
+          this.isRunning = false;
         }
         return
       }
@@ -378,6 +382,9 @@ export class DirectorService {
     for(let i = 0; i < this.macroBreakpoints.length; i++){
       this.macroBreakpointsAddr[i] = this.macroParser.getAddressOfLine(this.macroBreakpoints[i]);
     }
+
+    // notify console that reset was successful
+    this._consoleNotifier.next("Macrocode loaded successfully!");
 
   }
 
