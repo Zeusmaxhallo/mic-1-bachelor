@@ -122,9 +122,12 @@ ace.define("ace/theme/gruvbox.css",["require","exports","module"], function(requ
 .ace_indent-guide-active {
   background: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1MAAA6mAAADqYAAAXb5JfxUYAAAAZSURBVHjaYvj///9/hivKyv8BAAAA//8DACLqBhbvk+/eAAAAAElFTkSuQmCC\") right repeat-y;}
 
-  .ace_gutter-cell.ace_breakpoint{ 
-    border-radius: 20px 0px 0px 20px;
-    box-shadow: 0px 0px 1px 1px #248c46 inset; 
+
+
+.ace_gutter-cell.ace_breakpoint::before{
+  content: "🔴";
+  position: absolute;
+  left: 5%;
 }
 `;
 
