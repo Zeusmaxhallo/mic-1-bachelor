@@ -8,16 +8,24 @@
     </mat-grid-tile>
 
     <mat-grid-tile rowspan="10" colspan="1">
-        <div>
+        <div *ngIf="areEditorsSwapped === false">
             <p>Microprograms</p>
             <app-micro-editor></app-micro-editor>
+        </div>
+        <div *ngIf="areEditorsSwapped === true">
+            <p>Macroassembler</p>
+            <app-editor></app-editor>
         </div>
     </mat-grid-tile>
 
     <mat-grid-tile rowspan="20" colspan="1">
-        <div>
-            <p>Input for Macroassembler</p>
+        <div *ngIf="areEditorsSwapped === false">
+            <p>Macroassembler</p>
             <app-editor></app-editor>
+        </div>
+        <div *ngIf="areEditorsSwapped === true">
+            <p>Microprograms</p>
+            <app-micro-editor></app-micro-editor>
         </div>
     </mat-grid-tile>
 

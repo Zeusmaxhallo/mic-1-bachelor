@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ControllerService } from 'src/app/Controller/controller.service';
-import { MatDialog, MatDialogContent } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import { GettingStartedDialogComponent } from './getting-started-dialog/getting-started-dialog.component';
 import { AboutDialogComponent } from './about-dialog/about-dialog.component';
+import { GridViewControllerService } from 'src/app/Controller/grid-view-controller.service';
 
 @Component({
   selector: 'app-tool-bar',
@@ -11,13 +12,20 @@ import { AboutDialogComponent } from './about-dialog/about-dialog.component';
 })
 export class ToolBarComponent implements OnInit {
   file: String;
+  isCheckedSwitchEditors: boolean = false;
 
   constructor(
     private controllerService: ControllerService,
     private dialog: MatDialog,
+    private gridViewController: GridViewControllerService,
   ) { }
 
-  ngOnInit(): void {
+  ngOnInit(): void {}
+
+  ngDoCheck(){
+    if (this.gridViewController.getAreEditorsSwapped() !== this.isCheckedSwitchEditors) {
+      this.gridViewController.setAreEditorsSwapped(this.isCheckedSwitchEditors);
+    }
   }
 
   importMacro(event: any){
