@@ -32,7 +32,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MdbDropdownModule } from 'mdb-angular-ui-kit/dropdown';
 import {MatTabsModule} from '@angular/material/tabs';
 import { DebugConsoleComponent } from './View/debug-console/debug-console.component';
-
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 
 @NgModule({
@@ -72,6 +72,7 @@ import { DebugConsoleComponent } from './View/debug-console/debug-console.compon
     MatSelectModule,
     MdbDropdownModule,
     MatTabsModule,
+    MatSlideToggleModule,
   ],
 
   providers: [],

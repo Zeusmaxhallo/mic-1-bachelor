@@ -8,3 +8,33 @@
 .spacer{
     flex: 1 1 auto;
 }
+
+.verticalLine{
+    border-left: 2px solid grey;
+    height: 67%;
+    padding-right: 5px;
+}
+
+.colorModeSwitcher{
+    height: 90%;
+    padding-right: 20px;
+    padding-top: 10px;
+}
+
+.mat-slide-toggle{
+    display: block;
+}
+
+::ng-deep .mat-slide-toggle-bar{
+    height: 10px !important;
+    width: 35px !important;
+}
+
+::ng-deep .mat-slide-toggle-thumb{
+    top: -2px;
+    position: relative;
+}
+
+::ng-deep .mat-slide-toggle-content{
+    font-size: small;
+}
