@@ -69,7 +69,8 @@ export class EditorComponent implements AfterViewInit{
     let editor = this.aceEditor;
 
     let setBreakpoint = (line: number) => {
-      this.directorService.setMacroBreakpoint(line + 1);
+      let editorLineWithoutEmptyRows = this.macroProvider.getEditorLineWithoutEmptyRows(line);
+      this.directorService.setMacroBreakpoint(editorLineWithoutEmptyRows+1);
     }
 
     let clearBreakpoint = (line: number) => {
@@ -100,15 +101,16 @@ export class EditorComponent implements AfterViewInit{
     // flash an error message when an error occurs
     this.macroParser.errorFlasher$.subscribe(error => {
       if (error.error) {
-        console.log("test")
-        this.flashErrorMessage(error.error, error.line);
+        let editorErrorLine = this.macroProvider.getEditorLineWithParserLine(error.line);
+        this.flashErrorMessage(error.error, editorErrorLine);
       }
     })
 
     // highlight line if we hit a breakpoint
     this.directorService.breakpointFlasherMacro$.subscribe(breakpoint => {
       if (breakpoint.line) {
-        this.highlightBreakpoint(breakpoint.line)
+        let editorBreakpointLine = this.macroProvider.getEditorLineWithParserLine(breakpoint.line);
+        this.highlightBreakpoint(editorBreakpointLine)
         const source = timer(10000);
         source.subscribe(() => this.removeBreakpointHighlighting())
       }
@@ -123,7 +125,6 @@ export class EditorComponent implements AfterViewInit{
   }
 
   private flashErrorMessage(errorMessage: string, line: number) {
-    console.log("test2")
     this.aceEditor.getSession().setAnnotations(
       [{
         row: line - 1,

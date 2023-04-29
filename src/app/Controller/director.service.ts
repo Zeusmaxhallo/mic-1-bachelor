@@ -11,6 +11,7 @@ import { StackProviderService } from './stack-provider.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { MacroParserService } from './macro-parser.service';
 import { MacroTokenizerService } from './macro-tokenizer.service';
+import { MacroProviderService } from './macro-provider.service';
 
 
 @Injectable({
@@ -104,12 +105,6 @@ export class DirectorService {
 
         if (!this.endOfProgram) {
           this.step();
-          // if (this.hitBreakpoint) {
-          //   this.sub.unsubscribe();
-          //   this.isRunning = false;
-          //   this.hitBreakpoint = false;
-          //   this._finishedRun.next(true);
-          // }
         } else {
           this.sub.unsubscribe()
           this.isRunning = false;
@@ -200,6 +195,8 @@ export class DirectorService {
 
     // check if we hit a Breakpoint in the macro-code
     console.log("Currenty read macro Address in main-memory: " + this.currentMacroAddr)
+    console.log(this.currentMacroAddr)
+    console.table(this.macroBreakpointsAddr)
     if(this.macroBreakpointsAddr.includes(this.currentMacroAddr)){
       console.log("%cHit Breakpoint in the memory address: " + (this.currentMacroAddr), "color: #248c46");
       this.hitBreakpoint = true;

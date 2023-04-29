@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MacroProviderService } from './macro-provider.service';
 import { Token } from './micro-tokenizer.service';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -38,7 +39,7 @@ export class MacroTokenizerService {
 
     //Constant & Variable
     [/^[a-z]([a-zA-Z0-9]+)? (-)?\d+/, "NEW_CONSTANT"],
-    [/^[a-z]([a-zA-Z0-9]+)?/, "NEW_VARIABLE"]
+    [/^[a-z]([a-zA-Z0-9]+)?/, "NEW_VARIABLE"],
   ];
 
   
@@ -48,8 +49,13 @@ export class MacroTokenizerService {
   private token: Token = null;
   private tokens: Token[] = [];
 
+  private _errorFlasher = new BehaviorSubject({ line: 0, error: "" });
+  public errorFlasher$ = this._errorFlasher.asObservable();
 
-  constructor(private macroProvider: MacroProviderService) { }
+
+  constructor(
+    private macroProvider: MacroProviderService,
+  ) { }
 
 
   init(){
@@ -78,7 +84,7 @@ export class MacroTokenizerService {
     return matched[0];
   }
 
-  getNextToken():Token{
+  getNextToken(): Token{
     if (!this.hasMoreTokens()){
       return null;
     }
@@ -92,7 +98,7 @@ export class MacroTokenizerService {
       if (tokenValue == null) {
         continue;
       }
-        
+      
       // Skip null Token, e.g whitespace and comment
       if (tokenType == null) {
         return this.getNextToken();
@@ -104,7 +110,7 @@ export class MacroTokenizerService {
       }
     }
 
-    throw new SyntaxError(`Unexpected token: "${string[0]}"`); 
+    throw new SyntaxError(`Unexpected token: "${string[0]}"`);
   }
 
   resetTokenizer(){
