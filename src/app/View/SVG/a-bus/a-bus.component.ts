@@ -19,7 +19,7 @@ export class ABusComponent implements OnInit {
 
 
   public duration: number = 1;
-  public path = "M 248.5 677 248.5 722"
+  public path = "M 248.5 542 248.5 587"
 
   constructor(private svgUtilities: SvgUtilitiesService) { }
 

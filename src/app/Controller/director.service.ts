@@ -356,9 +356,19 @@ export class DirectorService {
     this.MDRMemoryQueue = [];
 
     // reset memory
-    this.controlStore.loadMicro();
-    this.macroTokenizer.init();
-    this.macroParser.parse();
+    try {
+      this.controlStore.loadMicro();
+      this.macroTokenizer.init();
+      this.macroParser.parse();
+    } catch (error) {
+      if (error instanceof Error) {
+        this._errorFlasher.next({line: 1, error:error.message});
+      }
+      
+    }
+
+
+ 
 
     // animate new register Values
     for (let register of registers) {
