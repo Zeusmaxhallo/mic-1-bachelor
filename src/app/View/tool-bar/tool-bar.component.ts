@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, HostBinding, OnInit } from '@angular/core';
 import { ControllerService } from 'src/app/Controller/controller.service';
 import { MatDialog } from '@angular/material/dialog';
 import { GettingStartedDialogComponent } from './getting-started-dialog/getting-started-dialog.component';
 import { AboutDialogComponent } from './about-dialog/about-dialog.component';
 import { GridViewControllerService } from 'src/app/Controller/grid-view-controller.service';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-tool-bar',
@@ -14,39 +16,41 @@ export class ToolBarComponent implements OnInit {
   file: String;
   isCheckedSwitchEditors: boolean = false;
 
+  @HostBinding('class') className = '';
+
   constructor(
     private controllerService: ControllerService,
     private dialog: MatDialog,
     private gridViewController: GridViewControllerService,
   ) { }
 
-  ngOnInit(): void {}
+  ngOnInit(): void { }
 
-  ngDoCheck(){
+  ngDoCheck() {
     if (this.gridViewController.getAreEditorsSwapped() !== this.isCheckedSwitchEditors) {
       this.gridViewController.setAreEditorsSwapped(this.isCheckedSwitchEditors);
     }
   }
 
-  importMacro(event: any){
+  importMacro(event: any) {
     this.file = event.target.files[0];
     this.controllerService.importMacro(this.file);
   }
 
-  importMicro(event: any){
+  importMicro(event: any) {
     this.file = event.target.files[0];
     this.controllerService.importMicro(this.file);
   }
 
-  exportMacro(){
+  exportMacro() {
     this.controllerService.exportMacro();
   }
 
-  exportMicro(){
+  exportMicro() {
     this.controllerService.exportMicro();
   }
 
-  openGettingStartedDialog(){
+  openGettingStartedDialog() {
     const dialogRef = this.dialog.open(GettingStartedDialogComponent);
 
     dialogRef.afterClosed().subscribe(result => {
@@ -54,12 +58,26 @@ export class ToolBarComponent implements OnInit {
     });
   }
 
-  openAboutDialog(){
+  openAboutDialog() {
     const dialogRef = this.dialog.open(AboutDialogComponent);
 
     dialogRef.afterClosed().subscribe(result => {
       console.log(`Dialog result: $(result)`);
     });
+  }
+
+  public toggleTheme(event: MatSlideToggleChange) {
+    console.log("toggle Theme")
+    if (event.checked) {
+      this.className = "darkMode"
+    } else {
+      this.className = ""
+    }
+    document.body.classList.toggle("light-theme");
+    document.body.classList.toggle("darkMode");
+
+
+
   }
 
 }

@@ -22,7 +22,7 @@
     <span class="spacer"></span>
 
     <div class="colorModeSwitcher">
-      <mat-slide-toggle>Light Mode</mat-slide-toggle>
+      <mat-slide-toggle (change)="toggleTheme($event)">Light Mode</mat-slide-toggle>
       <mat-slide-toggle [(ngModel)]="isCheckedSwitchEditors">Switch Editors</mat-slide-toggle>
     </div>
 
