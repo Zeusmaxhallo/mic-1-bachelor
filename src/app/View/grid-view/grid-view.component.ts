@@ -4,7 +4,7 @@ import { GridViewControllerService } from 'src/app/Controller/grid-view-controll
 @Component({
   selector: 'app-grid-view',
   templateUrl: './grid-view.component.html',
-  styleUrls: ['./grid-view.component.css']
+  styleUrls: ['./grid-view.component.scss']
 })
 export class GridViewComponent implements OnInit {
   areEditorsSwapped: boolean = false;

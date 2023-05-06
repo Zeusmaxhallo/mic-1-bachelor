@@ -7,7 +7,7 @@ declare let anime: any;
 @Component({
   selector: '[app-b-bus]',
   templateUrl: './b-bus.component.html',
-  styleUrls: ['./b-bus.component.css']
+  styleUrls: ['./b-bus.component.scss']
 })
 export class BBusComponent implements AfterViewInit {
   @Input() speed: number = 2;

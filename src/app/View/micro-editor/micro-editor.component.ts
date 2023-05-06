@@ -13,7 +13,7 @@ const THEME = "ace/theme/gruvbox";
 @Component({
   selector: "app-micro-editor",
   templateUrl: "./micro-editor.component.html",
-  styleUrls: ["./micro-editor.component.css"]
+  styleUrls: ["./micro-editor.component.scss"]
 })
 export class MicroEditorComponent implements AfterViewInit {
 

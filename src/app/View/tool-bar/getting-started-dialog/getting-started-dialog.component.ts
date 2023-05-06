@@ -294,7 +294,7 @@ MDR=TOS; wr; goto Main1`;
 @Component({
   selector: 'app-getting-started-dialog',
   templateUrl: './getting-started-dialog.component.html',
-  styleUrls: ['./getting-started-dialog.component.css']
+  styleUrls: ['./getting-started-dialog.component.scss']
 })
 
 export class GettingStartedDialogComponent implements OnInit {

@@ -5,7 +5,7 @@ declare let anime: any;
 @Component({
   selector: '[app-shifter]',
   templateUrl: './shifter.component.html',
-  styleUrls: ['./shifter.component.css']
+  styleUrls: ['./shifter.component.scss']
 })
 export class ShifterComponent implements AfterViewInit {
   @ViewChild("anim") anim: ElementRef;

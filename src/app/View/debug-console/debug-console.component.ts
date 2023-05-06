@@ -11,7 +11,7 @@ interface Line {
 @Component({
   selector: 'app-debug-console',
   templateUrl: './debug-console.component.html',
-  styleUrls: ['./debug-console.component.css']
+  styleUrls: ['./debug-console.component.scss']
 })
 export class DebugConsoleComponent implements OnInit, AfterViewChecked {
   @ViewChild("log") private log: ElementRef;

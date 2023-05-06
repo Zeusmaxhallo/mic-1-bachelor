@@ -14,7 +14,7 @@ interface animation {
 @Component({
   selector: '[app-c-bus]',
   templateUrl: './c-bus.component.html',
-  styleUrls: ['./c-bus.component.css']
+  styleUrls: ['./c-bus.component.scss']
 })
 export class CBusComponent implements AfterViewInit {
   @Input() speed: number = 2;

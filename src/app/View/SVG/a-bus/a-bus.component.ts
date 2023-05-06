@@ -6,7 +6,7 @@ declare let anime: any;
 @Component({
   selector: '[app-a-bus]',
   templateUrl: './a-bus.component.html',
-  styleUrls: ['./a-bus.component.css']
+  styleUrls: ['./a-bus.component.scss']
 })
 export class ABusComponent implements OnInit {
   @ViewChild("anim") anim: ElementRef;
