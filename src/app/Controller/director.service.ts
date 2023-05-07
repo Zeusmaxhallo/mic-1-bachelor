@@ -75,7 +75,7 @@ export class DirectorService {
   public breakpointFlasherMacro$ = this._breakpointFlasherMacro.asObservable();
 
   private _consoleNotifier = new BehaviorSubject("");
-  public consoleNotifier = this._consoleNotifier.asObservable();
+  public consoleNotifier$ = this._consoleNotifier.asObservable();
 
 
 

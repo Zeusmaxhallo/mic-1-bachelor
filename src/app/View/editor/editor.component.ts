@@ -1,14 +1,16 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, OnChanges, SimpleChanges, ViewChild } from "@angular/core";
 import { MacroProviderService } from "src/app/Controller/macro-provider.service";
 import { ControllerService } from "src/app/Controller/controller.service";
 import * as ace from "ace-builds";
 import { DirectorService } from "src/app/Controller/director.service";
 import { timer } from "rxjs";
 import { MacroParserService } from "src/app/Controller/macro-parser.service";
+import { ThemeControlService } from "src/app/Controller/theme-control.service";
 
 
-const LANG  = "ace/mode/mic1";
-const THEME = "ace/theme/gruvbox";
+const LANG = "ace/mode/mic1";
+const THEME_DARK = "ace/theme/gruvbox";
+const THEME_LIGHT= "ace/theme/eclipse";
 
 
 @Component({
@@ -16,21 +18,21 @@ const THEME = "ace/theme/gruvbox";
   templateUrl: "./editor.component.html",
   styleUrls: ["./editor.component.scss"]
 })
-export class EditorComponent implements AfterViewInit{
+export class EditorComponent implements AfterViewInit {
 
   @ViewChild("editor") private editor: ElementRef<HTMLElement>;
   content: string = "";
-  private aceEditor:ace.Ace.Editor;
-  file: String; 
-  
+  private aceEditor: ace.Ace.Editor;
+  file: String;
+
 
   constructor(
-    private macroProvider: MacroProviderService, 
-    private controllerService: ControllerService, 
+    private macroProvider: MacroProviderService,
+    private controllerService: ControllerService,
     private directorService: DirectorService,
     private macroParser: MacroParserService,
+    private themeController: ThemeControlService,
   ) { }
-
 
   ngOnInit(): void {
     this.content = this.macroProvider.getMacro();
@@ -46,18 +48,18 @@ export class EditorComponent implements AfterViewInit{
       fontSize: 14,
       autoScrollEditorIntoView: true,
       useWorker: false,
-      
+
     }
 
     // create Ace.Editor Object
     this.aceEditor = ace.edit(this.editor.nativeElement, editorOptions);
 
     this.aceEditor.session.setValue(this.content);
-    this.aceEditor.setTheme(THEME);
+    this.aceEditor.setTheme(THEME_DARK);
     this.aceEditor.session.setMode(LANG);
 
     // update when Macrocode changes
-    this.aceEditor.on("input", () =>{
+    this.aceEditor.on("input", () => {
       this.content = this.aceEditor.getValue();
 
       // Updates the macrocode on the macro provider
@@ -65,12 +67,24 @@ export class EditorComponent implements AfterViewInit{
       this.removeErrorHighlighting();
     })
 
+
+    // toggle Theme
+    this.themeController.toggleThemeNotifier$.subscribe(
+      lightMode => {
+        if (lightMode) {
+          this.aceEditor.setTheme(THEME_LIGHT)
+        }else{
+          this.aceEditor.setTheme(THEME_DARK)
+        }
+      }
+    )
+
     // toggle Breakpoints
     let editor = this.aceEditor;
 
     let setBreakpoint = (line: number) => {
       let editorLineWithoutEmptyRows = this.macroProvider.getEditorLineWithoutEmptyRows(line);
-      this.directorService.setMacroBreakpoint(editorLineWithoutEmptyRows+1);
+      this.directorService.setMacroBreakpoint(editorLineWithoutEmptyRows + 1);
     }
 
     let clearBreakpoint = (line: number) => {
@@ -138,22 +152,22 @@ export class EditorComponent implements AfterViewInit{
 
   }
 
-  ngDoCheck(){
-    if(this.macroProvider.getMacro() !== this.content){
-      this.content = this.macroProvider.getMacro(); 
+  ngDoCheck() {
+    if (this.macroProvider.getMacro() !== this.content) {
+      this.content = this.macroProvider.getMacro();
       this.removeErrorHighlighting();
-      this.aceEditor.session.setValue(this.content); 
+      this.aceEditor.session.setValue(this.content);
       this.directorService.clearMacroBreakpoints();
       this.aceEditor.session.setValue(this.content);
     }
   }
 
-  import(event: any){
+  import(event: any) {
     this.file = event.target.files[0];
     this.controllerService.importMacro(this.file);
   }
 
-  private removeErrorHighlighting(){
+  private removeErrorHighlighting() {
     // clear Markers / syntax Highlighting
     const prevMarkers = this.aceEditor.session.getMarkers();
     if (prevMarkers) {
@@ -181,7 +195,7 @@ export class EditorComponent implements AfterViewInit{
     }
   }
 
-  exportMacro(){
+  exportMacro() {
     this.controllerService.exportMacro();
   }
 

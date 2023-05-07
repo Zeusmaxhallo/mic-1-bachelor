@@ -59,7 +59,7 @@ export class DebugConsoleComponent implements OnInit, AfterViewChecked {
     */
 
     // log reset Event
-    this.director.consoleNotifier.subscribe(
+    this.director.consoleNotifier$.subscribe(
       content => {
         if (!content) { return };
         this.content.push({type: "success", content: content })

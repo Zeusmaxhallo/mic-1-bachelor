@@ -6,6 +6,7 @@ import { AboutDialogComponent } from './about-dialog/about-dialog.component';
 import { GridViewControllerService } from 'src/app/Controller/grid-view-controller.service';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { FormControl } from '@angular/forms';
+import { ThemeControlService } from 'src/app/Controller/theme-control.service';
 
 @Component({
   selector: 'app-tool-bar',
@@ -22,6 +23,7 @@ export class ToolBarComponent implements OnInit {
     private controllerService: ControllerService,
     private dialog: MatDialog,
     private gridViewController: GridViewControllerService,
+    private themeControl: ThemeControlService,
   ) { }
 
   ngOnInit(): void { }
@@ -67,17 +69,7 @@ export class ToolBarComponent implements OnInit {
   }
 
   public toggleTheme(event: MatSlideToggleChange) {
-    console.log("toggle Theme")
-    if (event.checked) {
-      this.className = "darkMode"
-    } else {
-      this.className = ""
-    }
-    document.body.classList.toggle("light-theme");
-    document.body.classList.toggle("darkMode");
-
-
-
+    this.themeControl.toggleTheme();
   }
 
 }
