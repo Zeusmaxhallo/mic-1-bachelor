@@ -6,7 +6,7 @@ declare let anime: any;
 @Component({
   selector: '[app-a-bus]',
   templateUrl: './a-bus.component.html',
-  styleUrls: ['./a-bus.component.css']
+  styleUrls: ['./a-bus.component.scss']
 })
 export class ABusComponent implements OnInit {
   @ViewChild("anim") anim: ElementRef;
@@ -19,7 +19,7 @@ export class ABusComponent implements OnInit {
 
 
   public duration: number = 1;
-  public path = "M 248.5 677 248.5 722"
+  public path = "M 248.5 542 248.5 587"
 
   constructor(private svgUtilities: SvgUtilitiesService) { }
 

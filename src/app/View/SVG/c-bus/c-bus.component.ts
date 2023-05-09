@@ -14,7 +14,7 @@ interface animation {
 @Component({
   selector: '[app-c-bus]',
   templateUrl: './c-bus.component.html',
-  styleUrls: ['./c-bus.component.css']
+  styleUrls: ['./c-bus.component.scss']
 })
 export class CBusComponent implements AfterViewInit {
   @Input() speed: number = 2;
@@ -28,15 +28,15 @@ export class CBusComponent implements AfterViewInit {
   private currentlyAnimating: string[] = [];
 
   private paths: { [reg: string]: string } = {
-    "H":   "M 273 806  123 806  123 659  171 659",
-    "OPC": "M 273 806  123 806  123 583  171 583",
-    "TOS": "M 273 806  123 806  123 515  171 515",
-    "CPP": "M 273 806  123 806  123 443  171 443",
-    "LV":  "M 273 806  123 806  123 378  171 378",
-    "SP":  "M 273 806  123 806  123 303  171 303",
-    "PC":  "M 273 806  123 806  123 157  171 157",
-    "MDR": "M 273 806  123 806  123 82   171 82",
-    "MAR": "M 273 806  123 806  123 17   171 17",
+    "H":   "M 273 671  123 671  123 524  171 524",
+    "OPC": "M 273 671  123 671  123 463  171 463",
+    "TOS": "M 273 671  123 671  123 410  171 410",
+    "CPP": "M 273 671  123 671  123 353  171 353",
+    "LV":  "M 273 671  123 671  123 303  171 303",
+    "SP":  "M 273 671  123 671  123 243  171 243",
+    "PC":  "M 273 671  123 671  123 127  171 127",
+    "MDR": "M 273 671  123 671  123 67   171 67",
+    "MAR": "M 273 671  123 671  123 17   171 17",
   }
 
   constructor(private svgUtilities: SvgUtilitiesService) { }

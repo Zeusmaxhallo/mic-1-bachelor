@@ -5,7 +5,7 @@ declare let anime: any;
 @Component({
   selector: '[app-shifter]',
   templateUrl: './shifter.component.html',
-  styleUrls: ['./shifter.component.css']
+  styleUrls: ['./shifter.component.scss']
 })
 export class ShifterComponent implements AfterViewInit {
   @ViewChild("anim") anim: ElementRef;
@@ -17,7 +17,7 @@ export class ShifterComponent implements AfterViewInit {
   ngAfterViewInit(): void {}
 
   public visible = false;
-  public path:string = "M 308 780  313 810"
+  public path:string = "M 308 645  313 675"
   public value:number; // display the value inside the circle
 
   startAnimation(value: number){

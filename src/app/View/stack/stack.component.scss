@@ -2,7 +2,7 @@
 
 .stack-container{
     margin-top: 5%;
-    height: 75%;
+    height: 100%;
     width: 50%;
     overflow-y: auto;
     overflow-x: hidden;
@@ -20,23 +20,23 @@
 .stack-address{
     text-align: left;
     width:  40%;
-    color: chartreuse;
+    color: var(--stack-address-color);
 }
 
 .stack-value{
     text-align: left;
     width: 40%;
-    color: gold;
+    color: var(--stack-value-color);
 }
 
 .LV{
     width: 20%;
-    color: white;
+    color: var(--text-color);
 }
 
 .SP{
     width: 20%;
-    color: white;
+    color: var(--text-color);
 }
 
 .hidden{

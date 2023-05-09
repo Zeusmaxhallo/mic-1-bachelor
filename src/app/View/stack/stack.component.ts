@@ -9,7 +9,7 @@ import { StackProviderService } from 'src/app/Controller/stack-provider.service'
 @Component({
   selector: 'app-stack',
   templateUrl: './stack.component.html',
-  styleUrls: ['./stack.component.css'],
+  styleUrls: ['./stack.component.scss'],
   animations: [
     trigger('flyInOut', [
       transition(':enter', [

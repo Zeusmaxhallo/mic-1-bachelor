@@ -4,16 +4,18 @@ import { ControllerService } from "src/app/Controller/controller.service";
 import * as ace from "ace-builds";
 import { DirectorService } from "src/app/Controller/director.service";
 import { timer } from "rxjs";
+import { ThemeControlService } from "src/app/Controller/theme-control.service";
 
 
 const LANG = "ace/mode/micro";
-const THEME = "ace/theme/gruvbox";
+const THEME_LIGHT = "ace/theme/eclipse";
+const THEME_DARK = "ace/theme/gruvbox";
 
 
 @Component({
   selector: "app-micro-editor",
   templateUrl: "./micro-editor.component.html",
-  styleUrls: ["./micro-editor.component.css"]
+  styleUrls: ["./micro-editor.component.scss"]
 })
 export class MicroEditorComponent implements AfterViewInit {
 
@@ -26,7 +28,8 @@ export class MicroEditorComponent implements AfterViewInit {
   constructor(
     private microProvider: MicroProviderService,
     private controllerService: ControllerService,
-    private directorService: DirectorService
+    private directorService: DirectorService,
+    private themeControl: ThemeControlService,
   ) { }
 
 
@@ -51,7 +54,7 @@ export class MicroEditorComponent implements AfterViewInit {
     this.aceEditor = ace.edit(this.editor.nativeElement, editorOptions);
 
     this.aceEditor.session.setValue(this.content);
-    this.aceEditor.setTheme(THEME);
+    this.aceEditor.setTheme(THEME_LIGHT);
     this.aceEditor.session.setMode(LANG);
 
     // update when Microcode changes
@@ -62,6 +65,18 @@ export class MicroEditorComponent implements AfterViewInit {
       this.microProvider.setMicro(this.content);
       this.removeErrorHighlighting();
     })
+
+
+    // toggle Theme
+    this.themeControl.toggleThemeNotifier$.subscribe(
+      lightMode => {
+        if (lightMode) {
+          this.aceEditor.setTheme(THEME_LIGHT)
+        }else{
+          this.aceEditor.setTheme(THEME_DARK)
+        }
+      }
+    )
 
     // toggle Breakpoints
     let editor = this.aceEditor

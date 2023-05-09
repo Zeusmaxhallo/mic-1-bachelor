@@ -1,0 +1,17 @@
+.log-container{
+    margin-top: 5%;
+    max-height: 250px;
+    min-height: 50px;
+    width: calc(100% - 10px);
+    overflow-y: scroll;
+    overflow-x: hidden;
+    background-color: var(--bkg-color-debug);
+    padding-top: 2%;
+    padding-left: 2%;
+    border: 1px solid gray;
+    font-family: monospace;
+}
+
+
+
+

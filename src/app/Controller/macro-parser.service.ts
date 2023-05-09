@@ -273,7 +273,6 @@ export class MacroParserService {
     }
     this.lineToLastUsedAddress[this.currentLine] = this.parsedTokenNumber+3;
     this.currentLine += 1;
-    console.log("|||||||||||||||||||||||||||||||||||<<<<<<<<<<<<<<<<<<<")
     console.log("currentLine: " + this.currentLine); 
 
     // create constant that has the startingpoint of this main-method in memory as the value. Than replace the 
@@ -314,7 +313,6 @@ export class MacroParserService {
 
             if(instructionToken.length === 1){
               this.lineToLastUsedAddress[this.currentLine] = this.parsedTokenNumber+3;
-              console.log("|||||||||||||||||||||||||||||||||||<<<<<<<<<<<<<<<<<<<")
               console.log("currentLine: " + this.currentLine);  
             }
           }
@@ -322,7 +320,7 @@ export class MacroParserService {
           else{
             // If it ends with ':' than it is a label
             if(instructionToken[0].endsWith(':')){
-              // save label and the address it points to, to the labels dictionary
+              // save label and the address it points to the labels dictionary
               this.labels[instructionToken[0]] = this.parsedTokenNumber + 1;
               console.log("Create Label " + instructionToken[0] + " that is pointing to parsed token " + this.labels[instructionToken[0]]);
             }
@@ -331,7 +329,7 @@ export class MacroParserService {
               // Comment in when microcode is fully available. And comment out the log
               // throw new Error("Unexpected Token: " + instructionToken[0]);
               console.error("Address of " + instructionToken[0] + " is: " + instructionAddress); 
-              this._errorFlasher.next({ line: this.currentLine, error: "Invalid Instruction" });            
+              this._errorFlasher.next({ line: this.currentLine, error: "Invalid Instruction" });
             }
           }
         }
@@ -451,7 +449,6 @@ export class MacroParserService {
 
           this.lineToLastUsedAddress[this.currentLine] = this.parsedTokenNumber+3;
           this.currentLine += 1;
-          console.log("|||||||||||||||||||||||||||||||||||<<<<<<<<<<<<<<<<<<<")
           console.log("currentLine: " + this.currentLine);  
         }
       }
@@ -533,7 +530,6 @@ export class MacroParserService {
     }    
     this.lineToLastUsedAddress[this.currentLine] = this.parsedTokenNumber+3;
     this.currentLine += 1;
-    console.log("|||||||||||||||||||||||||||||||||||<<<<<<<<<<<<<<<<<<<")
     console.log("currentLine: " + this.currentLine);  
 
     // create constant that has the startingpoint of this method in memory as the value. Than replace the 
@@ -577,19 +573,18 @@ export class MacroParserService {
 
             if(instructionToken.length === 1){            
               this.lineToLastUsedAddress[this.currentLine] = this.parsedTokenNumber+3;
-              console.log("|||||||||||||||||||||||||||||||||||<<<<<<<<<<<<<<<<<<<")
               console.log("currentLine: " + this.currentLine);  
             }
           }
           // Instruction that is not in the control store or label
           else{
             // If it ends with ':' than it is a label
-             if(instructionToken[0].endsWith(':')){
-              // save label and the address it points to to the label dictionary in memory
+            if(instructionToken[0].endsWith(':')){
+              // save label and the address it points to the labels dictionary
               this.labels[instructionToken[0]] = this.parsedTokenNumber + 1;
-              console.log("Create Label " + instructionToken[0] + " that is pointing to " + this.labels[instructionToken[0]]);
-             }
-             // Throws Error because unknown token
+              console.log("Create Label " + instructionToken[0] + " that is pointing to parsed token " + this.labels[instructionToken[0]]);
+            }
+            // Throws Error because unknown token
             else{
               // Comment in when microcode is fully available. And comment out the log
               // throw new Error("Unexpected Token: " + instructionToken[0]);
@@ -723,11 +718,11 @@ export class MacroParserService {
      
           this.lineToLastUsedAddress[this.currentLine] = this.parsedTokenNumber+3;
           this.currentLine += 1;
-          console.log("|||||||||||||||||||||||||||||||||||<<<<<<<<<<<<<<<<<<<")
           console.log("currentLine: " + this.currentLine);  
         }
       }
     }
+    this.currentLine += 1;
 
     // methodblock is sliced out of the tokens when the block is parsed
     this.tokens.splice(startMethodIndex, endMethodIndex + 1); 

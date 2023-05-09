@@ -11,6 +11,7 @@ import { StackProviderService } from './stack-provider.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { MacroParserService } from './macro-parser.service';
 import { MacroTokenizerService } from './macro-tokenizer.service';
+import { MacroProviderService } from './macro-provider.service';
 
 
 @Injectable({
@@ -67,14 +68,14 @@ export class DirectorService {
   private _errorFlasher = new BehaviorSubject({ line: 0, error: "" });
   public errorFlasher$ = this._errorFlasher.asObservable();
 
-  private _errorFlasherMacro = new BehaviorSubject({ line: 0, error: "" });
-  public errorFlasherMacro$ = this._errorFlasherMacro.asObservable();
-
   private _breakpointFlasher = new BehaviorSubject({ line: 0 });
   public breakpointFlasher$ = this._breakpointFlasher.asObservable();
 
   private _breakpointFlasherMacro = new BehaviorSubject({ line: 0 });
   public breakpointFlasherMacro$ = this._breakpointFlasherMacro.asObservable();
+
+  private _consoleNotifier = new BehaviorSubject("");
+  public consoleNotifier$ = this._consoleNotifier.asObservable();
 
 
 
@@ -104,12 +105,6 @@ export class DirectorService {
 
         if (!this.endOfProgram) {
           this.step();
-          // if (this.hitBreakpoint) {
-          //   this.sub.unsubscribe();
-          //   this.isRunning = false;
-          //   this.hitBreakpoint = false;
-          //   this._finishedRun.next(true);
-          // }
         } else {
           this.sub.unsubscribe()
           this.isRunning = false;
@@ -169,6 +164,7 @@ export class DirectorService {
       this._finishedRun.next(false);
       this.isRunning = false;
       this._isReady.next(false);
+      this._consoleNotifier.next("Program terminated successfully!")
       return
     }
 
@@ -183,6 +179,7 @@ export class DirectorService {
     } catch (error) {
       console.error("Error in line " + this.lineNumber + " - " + error);
       this._errorFlasher.next({ line: this.lineNumber, error: "Invalid Instruction" });
+      this.isRunning=false;
       return
     }
     if (!tokens) {
@@ -198,6 +195,8 @@ export class DirectorService {
 
     // check if we hit a Breakpoint in the macro-code
     console.log("Currenty read macro Address in main-memory: " + this.currentMacroAddr)
+    console.log(this.currentMacroAddr)
+    console.table(this.macroBreakpointsAddr)
     if(this.macroBreakpointsAddr.includes(this.currentMacroAddr)){
       console.log("%cHit Breakpoint in the memory address: " + (this.currentMacroAddr), "color: #248c46");
       this.hitBreakpoint = true;
@@ -251,6 +250,7 @@ export class DirectorService {
       if (error instanceof Error) {
         console.error("Error in line " + this.lineNumber + " - " + error);
         this._errorFlasher.next({ line: this.lineNumber, error: error.message });
+        this.isRunning = false;
       }
       return
     }
@@ -284,6 +284,7 @@ export class DirectorService {
         if (error instanceof Error) {
           console.error("Error in line " + this.lineNumber + " - " + error);
           this._errorFlasher.next({ line: this.lineNumber, error: error.message });
+          this.isRunning = false;
         }
         return
       }
@@ -355,9 +356,19 @@ export class DirectorService {
     this.MDRMemoryQueue = [];
 
     // reset memory
-    this.controlStore.loadMicro();
-    this.macroTokenizer.init();
-    this.macroParser.parse();
+    try {
+      this.controlStore.loadMicro();
+      this.macroTokenizer.init();
+      this.macroParser.parse();
+    } catch (error) {
+      if (error instanceof Error) {
+        this._errorFlasher.next({line: 1, error:error.message});
+      }
+      
+    }
+
+
+ 
 
     // animate new register Values
     for (let register of registers) {
@@ -378,6 +389,9 @@ export class DirectorService {
     for(let i = 0; i < this.macroBreakpoints.length; i++){
       this.macroBreakpointsAddr[i] = this.macroParser.getAddressOfLine(this.macroBreakpoints[i]);
     }
+
+    // notify console that reset was successful
+    this._consoleNotifier.next("Macrocode loaded successfully!");
 
   }
 

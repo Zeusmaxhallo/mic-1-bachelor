@@ -4,7 +4,7 @@ declare let anime: any;
 @Component({
   selector: '[app-registers]',
   templateUrl: './registers.component.html',
-  styleUrls: ['./registers.component.css']
+  styleUrls: ['./registers.component.scss']
 })
 export class RegistersComponent implements OnInit {
 

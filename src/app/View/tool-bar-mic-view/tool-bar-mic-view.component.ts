@@ -10,7 +10,7 @@ import { MicroProviderService } from 'src/app/Controller/micro-provider.service'
 @Component({
   selector: 'app-tool-bar-mic-view',
   templateUrl: './tool-bar-mic-view.component.html',
-  styleUrls: ['./tool-bar-mic-view.component.css']
+  styleUrls: ['./tool-bar-mic-view.component.scss']
 })
 export class ToolBarMicViewComponent implements OnInit {
 

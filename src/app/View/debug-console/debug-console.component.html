@@ -1,0 +1,6 @@
+
+
+
+<div class="log-container" #log>
+    <p *ngFor="let line of content" [style.color]="line.type == 'error' ? '#eb4034' : line.type == 'success' ? '#009124' : 'var(--text-color)'">{{ line.content }}</p>
+</div>

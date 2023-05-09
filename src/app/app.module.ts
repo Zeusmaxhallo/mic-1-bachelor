@@ -30,6 +30,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { AboutDialogComponent } from './View/tool-bar/about-dialog/about-dialog.component';
 import { MatSelectModule } from '@angular/material/select';
 import { MdbDropdownModule } from 'mdb-angular-ui-kit/dropdown';
+import {MatTabsModule} from '@angular/material/tabs';
+import { DebugConsoleComponent } from './View/debug-console/debug-console.component';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 
 @NgModule({
@@ -49,6 +52,7 @@ import { MdbDropdownModule } from 'mdb-angular-ui-kit/dropdown';
     RegistersComponent,
     GettingStartedDialogComponent,
     AboutDialogComponent,
+    DebugConsoleComponent,
   ],
   imports: [
     BrowserModule,
@@ -66,7 +70,9 @@ import { MdbDropdownModule } from 'mdb-angular-ui-kit/dropdown';
     MatDialogModule,
     MatIconModule,
     MatSelectModule,
-    MdbDropdownModule
+    MdbDropdownModule,
+    MatTabsModule,
+    MatSlideToggleModule,
   ],
 
   providers: [],

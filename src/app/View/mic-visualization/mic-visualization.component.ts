@@ -11,7 +11,7 @@ import { ShifterComponent } from '../SVG/shifter/shifter.component';
 @Component({
   selector: 'app-mic-visualization',
   templateUrl: './mic-visualization.component.svg',
-  styleUrls: ['./mic-visualization.component.css']
+  styleUrls: ['./mic-visualization.component.scss']
 })
 export class MicVisualizationComponent implements AfterViewInit {
   @ViewChild("bBus") bBus: BBusComponent;

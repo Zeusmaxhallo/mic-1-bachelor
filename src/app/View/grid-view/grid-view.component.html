@@ -8,23 +8,44 @@
     </mat-grid-tile>
 
     <mat-grid-tile rowspan="10" colspan="1">
-        <div>
+        <div *ngIf="areEditorsSwapped === false">
+            <p>Microprograms</p>
+            <app-micro-editor></app-micro-editor>
+        </div>
+        <div *ngIf="areEditorsSwapped === true">
+            <p>Macroassembler</p>
+            <app-editor></app-editor>
+        </div>
+    </mat-grid-tile>
+
+    <mat-grid-tile rowspan="20" colspan="1">
+        <div *ngIf="areEditorsSwapped === false">
+            <p>Macroassembler</p>
+            <app-editor></app-editor>
+        </div>
+        <div *ngIf="areEditorsSwapped === true">
             <p>Microprograms</p>
             <app-micro-editor></app-micro-editor>
         </div>
     </mat-grid-tile>
 
-    <mat-grid-tile rowspan="20" colspan="1">
-        <div>
-            <p>Input for Macroassembler</p>
-            <app-editor></app-editor>
-        </div>
-    </mat-grid-tile>
-
     <mat-grid-tile rowspan="10" colspan="1">
-        <div>
-            <p>Stack View</p>
-            <app-stack></app-stack>
+        <div >
+            <mat-tab-group dynamicHeight animationDuration="0ms" style="height: 100%;">
+                <mat-tab>
+                    <ng-template mat-tab-label>
+                        <span class="tab">Stack View</span>
+                    </ng-template>
+                    <app-stack></app-stack>
+                </mat-tab>
+                <mat-tab>
+                    <ng-template mat-tab-label>
+                        <span class="tab">Console</span>
+                    </ng-template>
+                    <app-debug-console></app-debug-console>
+                </mat-tab>
+            </mat-tab-group>
+            
         </div>
     </mat-grid-tile>
 </mat-grid-list>
