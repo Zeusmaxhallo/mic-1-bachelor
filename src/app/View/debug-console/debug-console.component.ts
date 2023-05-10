@@ -28,6 +28,7 @@ export class DebugConsoleComponent implements OnInit, AfterViewChecked {
       error => {
         if (!error.error) { return };
         let content = "microcode:" + error.line + "\t->\t" + error.error;
+        if (error.line == 1000){ content = "macrocode" + "\t -> \t" + error.error; }
         this.content.push({ type: "error", content: content });
       }
     )

@@ -366,13 +366,22 @@ export class DirectorService {
     try {
       this.controlStore.loadMicro();
       this.macroTokenizer.init();
-      this.macroParser.parse();
     } catch (error) {
       if (error instanceof Error) {
         this._errorFlasher.next({line: 1, error:error.message});
       }
       return;
     }
+
+    try {
+      if ( this.macroParser.parse() ){ return; }
+    } catch (error) {
+      if (error instanceof Error){
+        this._errorFlasher.next({line:1000, error: error.message});
+        return;
+      }
+    }
+    
 
     // animate new register Values
     for (let register of registers) {

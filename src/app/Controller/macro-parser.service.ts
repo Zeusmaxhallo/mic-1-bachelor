@@ -46,6 +46,8 @@ export class MacroParserService {
 
 
   parse(){
+    let ErrorFlag = false;
+
     this.resetParser();
 
     this.tokens = this.macroTokenizer.getTokens();
@@ -67,7 +69,8 @@ export class MacroParserService {
         this.parsedCode.push(view.getUint8(1));
         this.parsedTokenNumber += 1; 
         
-        this.mainBlock();
+        // if there was an Error in MainBlock set ErrorFlag
+        this.mainBlock() ? ErrorFlag = true : {};
       }
       else if(this.tokens[0].value.slice(0, 7) === '.method'){
         let methodStr = this.tokens[0].value.slice(8);
@@ -81,7 +84,8 @@ export class MacroParserService {
         this.parsedCode.push(view.getUint8(1))
         this.parsedTokenNumber += 2;
 
-        this.methodBlock();
+        // if there was an Error in MethodBlock set ErrorFlag
+        this.methodBlock() ? ErrorFlag = true : {};
       }
       else{
         throw new Error("Unexpected Token: " + this.tokens[0].value);
@@ -109,6 +113,8 @@ export class MacroParserService {
     console.table(this.lineToLastUsedAddress);
     console.log("Address in memory and the value of the offset that is stored in this address: ")
     console.table(this.addrToOffset);
+
+    return ErrorFlag;
   }
 
   resetParser(){
@@ -226,6 +232,8 @@ export class MacroParserService {
     let startMainIndex: number;
     let endMainIndex: number;
 
+    let hasError = false;
+
     // finds start and end of main field
     for(let i = 0; i < this.tokens.length; i++){
       if(this.tokens[i].value === '.main'){
@@ -330,6 +338,7 @@ export class MacroParserService {
               // throw new Error("Unexpected Token: " + instructionToken[0]);
               console.error("Address of " + instructionToken[0] + " is: " + instructionAddress); 
               this._errorFlasher.next({ line: this.currentLine, error: "Invalid Instruction" });
+              hasError = true;
             }
           }
         }
@@ -457,6 +466,8 @@ export class MacroParserService {
   
     // mainblock is sliced out of the tokens when the block is parsed
     this.tokens.splice(startMainIndex, endMainIndex + 1); 
+
+    return hasError;
   }
 
   private methodBlock(){
@@ -466,6 +477,8 @@ export class MacroParserService {
     let methodName: string = "";
     let parameters: string = "";
     let parameterNames: string[] = [];
+
+    let hasError = false;
 
     // finds start and end of method field. Also sets methodName and parameters
     for(let i = 0; i < this.tokens.length; i++){
@@ -590,6 +603,7 @@ export class MacroParserService {
               // throw new Error("Unexpected Token: " + instructionToken[0]);
               console.error("Address of " + instructionToken[0] + " is: " + instructionAddress); 
               this._errorFlasher.next({ line: this.currentLine, error: "Invalid Instruction" });
+              hasError = true;
             }
           }
         }
@@ -726,6 +740,8 @@ export class MacroParserService {
 
     // methodblock is sliced out of the tokens when the block is parsed
     this.tokens.splice(startMethodIndex, endMethodIndex + 1); 
+
+    return hasError
   }
 
   searchMethods(){
