@@ -326,6 +326,9 @@ export class DirectorService {
       await delay(10);
 
       this._isReady.next(true);
+      if( !this.isRunning){
+        this._finishedRun.next(true);
+      }
     }
   }
 
@@ -336,6 +339,10 @@ export class DirectorService {
 
   public set animationComplete(v: boolean) {
     console.log("animations Complete");
+    //enable buttons
+    if( !this.isRunning){
+      this._finishedRun.next(true);
+    }
     if (v) { this._isReady.next(true) }
   }
 
@@ -364,11 +371,8 @@ export class DirectorService {
       if (error instanceof Error) {
         this._errorFlasher.next({line: 1, error:error.message});
       }
-      
+      return;
     }
-
-
- 
 
     // animate new register Values
     for (let register of registers) {

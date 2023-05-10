@@ -23,6 +23,8 @@ export class BBusComponent implements AfterViewInit {
   public path: string = "M 289  87 365  87 365 723"
   public value: number; // display the value inside the circle
 
+  public timeline: any;
+
   public duration = 1;
 
   public paths: { [key: string]: string } = {
@@ -43,20 +45,24 @@ export class BBusComponent implements AfterViewInit {
     let duration = this.svgUtilities.calcDuration(this.path, this.speed);
 
 
+    // wait until path is updated in DOM
     let delay = function (ms: number) {
       return new Promise(resolve => setTimeout(resolve, ms))
     }
     await delay(1);
 
-    let timeline = anime.timeline({
+    const path = anime.path(".bAnimationPath")
+
+    // if there is an other timeline -> stop it
+    this.timeline ? this.timeline.pause() : {};
+
+    this.timeline = anime.timeline({
       easing: 'easeOutExpo',
       duration: 750,
       loop: 1,
     });
 
-    const path = anime.path(".bAnimationPath")
-
-    timeline.add({
+    this.timeline.add({
       targets: ".bBusContent",
       translateX: path("x"),
       translateY: path('y'),
@@ -66,42 +72,7 @@ export class BBusComponent implements AfterViewInit {
       complete: () => { this.visible = false },
     })
 
-    return timeline.finished;
-
-
+    return this.timeline.finished;
 
   }
-
-
-
-  /*
-    // set animation path to path of current Register
-    this.path = this.paths[reg];
-    this.value = value;
-    this.duration = this.svgUtilities.calcDuration(this.path, this.speed);
-
-
-    let delay = function (ms:number){
-      return new Promise( resolve => setTimeout(resolve, ms))
-    }
-    await delay(1);
-
-    // start animation
-    this.anim.nativeElement.beginElement();
-    this.init = false;
-  }
-
-  begin() {
-    // make Animation visible
-    this.visible = true;
-  }
-
-  end() {
-    this.visible = false;
-    if(!this.init){
-      this.endEvent.emit("bBus");
-    }
-    
-  }
-  */
 }

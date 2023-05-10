@@ -54,6 +54,8 @@ export class ToolBarMicViewComponent implements OnInit {
 
     this.macroProvider.isLoaded();
     this.microProvider.isLoaded();
+
+    this.disableRunButtons();
   }
 
   stepMacro(){
