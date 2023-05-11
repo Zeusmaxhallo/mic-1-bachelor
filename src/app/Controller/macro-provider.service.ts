@@ -1,3 +1,4 @@
+import { identifierName } from '@angular/compiler';
 import { Injectable } from '@angular/core';
 
 @Injectable({
@@ -40,6 +41,7 @@ export class MacroProviderService {
   getEditorLineWithParserLine(parserLine: number){
     let emptyRowCounter = 0;
     let line = 1;
+    console.log("--------------parserLine: " + parserLine)
     for(let i = 0; i < this.macro.length; i++){
       if(this.macro.charAt(i) === '\n' && (this.macro.charAt(i-1) === '\n' || i-1 < 1)){
         emptyRowCounter++;
@@ -55,11 +57,23 @@ export class MacroProviderService {
       }
       
       if(line === parserLine){
+        if(this.macro.charAt(i) === '\n'){
+          let j = i;
+          for(j; j < this.macro.length; j++){
+            if(this.macro.charAt(j) === '\n' && this.macro.charAt(j+1) === '\n'){
+              emptyRowCounter++;
+            }
+            if(this.macro.charAt(j) === '\n' && this.macro.charAt(j+1) !== '\n'){
+              break
+            }
+          }
+        }
         console.log("Editor line: " + (line + emptyRowCounter))
         break;
       }
     }
 
+    console.log("--------------line LOL: " + (line+emptyRowCounter))
     return line + emptyRowCounter;
   }
 
