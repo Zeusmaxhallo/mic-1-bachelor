@@ -203,7 +203,6 @@ export class DirectorService {
       this._breakpointFlasherMacro.next({ line: this.macroParser.getLineOfAddress(this.currentMacroAddr)});
     }
 
-    console.table(this.macroBreakpoints)
 
     // set MBR
     if (this.MBRMemoryQueue[0]) {
@@ -329,11 +328,21 @@ export class DirectorService {
       if( !this.isRunning){
         this._finishedRun.next(true);
       }
+      this.updateRegisterVis();
     }
   }
 
   private showRegisterValue(register: string, value: number, activateMemoryArrow?: boolean) {
     this.setRegisterValuesSource.next([register, value, activateMemoryArrow == undefined ? false : activateMemoryArrow]);
+  }
+
+  private updateRegisterVis(){
+    let registers = this.regProvider.getRegisters();
+
+    // animate all Registers
+    for (let register of registers) {
+      this.showRegisterValue(register.getName(), register.getValue());
+    }
   }
 
 
@@ -384,9 +393,7 @@ export class DirectorService {
     
 
     // animate new register Values
-    for (let register of registers) {
-      this.showRegisterValue(register.getName(), register.getValue());
-    }
+    this.updateRegisterVis();
 
     //reset program
     this.endOfProgram = false;
