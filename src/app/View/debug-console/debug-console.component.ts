@@ -1,6 +1,7 @@
 import { AfterViewChecked, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { DirectorService } from 'src/app/Controller/director.service';
 import { MacroParserService } from 'src/app/Controller/macro-parser.service';
+import { MacroProviderService } from 'src/app/Controller/macro-provider.service';
 
 
 interface Line {
@@ -19,6 +20,7 @@ export class DebugConsoleComponent implements OnInit, AfterViewChecked {
   constructor(
     private director: DirectorService,
     private macroParser: MacroParserService,
+    private macroProvider: MacroProviderService,
   ) { }
 
   ngOnInit(): void {
@@ -37,7 +39,7 @@ export class DebugConsoleComponent implements OnInit, AfterViewChecked {
     this.macroParser.errorFlasher$.subscribe(
       error => {
         if (!error.error) { return };
-        let content = "macrocode:" + error.line + "\t->\t" + error.error;
+        let content = "macrocode:" + this.macroProvider.getEditorLineWithParserLine(error.line) + "\t->\t" + error.error;
         this.content.push({ type: "error", content: content });
       }
     )
