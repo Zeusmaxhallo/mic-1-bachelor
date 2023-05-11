@@ -337,7 +337,7 @@ export class MacroParserService {
               // Comment in when microcode is fully available. And comment out the log
               // throw new Error("Unexpected Token: " + instructionToken[0]);
               console.error("Address of " + instructionToken[0] + " is: " + instructionAddress); 
-              this._errorFlasher.next({ line: this.currentLine, error: "Invalid Instruction" });
+              this._errorFlasher.next({ line: this.currentLine, error: "Address of " + instructionToken[0] + " is: " + instructionAddress });
               hasError = true;
             }
           }
@@ -602,7 +602,7 @@ export class MacroParserService {
               // Comment in when microcode is fully available. And comment out the log
               // throw new Error("Unexpected Token: " + instructionToken[0]);
               console.error("Address of " + instructionToken[0] + " is: " + instructionAddress); 
-              this._errorFlasher.next({ line: this.currentLine, error: "Invalid Instruction" });
+              this._errorFlasher.next({ line: this.currentLine, error: "Address of " + instructionToken[0] + " is: " + instructionAddress });
               hasError = true;
             }
           }
