@@ -5,11 +5,28 @@ import * as ace from "ace-builds";
 import { DirectorService } from "src/app/Controller/director.service";
 import { timer } from "rxjs";
 import { ThemeControlService } from "src/app/Controller/theme-control.service";
+import { PresentationModeControllerService } from "src/app/Controller/presentation-mode-controller.service";
 
 
 const LANG = "ace/mode/micro";
 const THEME_LIGHT = "ace/theme/eclipse";
 const THEME_DARK = "ace/theme/gruvbox";
+
+const editorOptions: Partial<ace.Ace.EditorOptions> = {
+  highlightActiveLine: true,
+  minLines: 20,
+  fontSize: 14,
+  autoScrollEditorIntoView: true,
+  useWorker: false,
+}
+
+const editorOptionsPresentation: Partial<ace.Ace.EditorOptions> = {
+  highlightActiveLine: true,
+  minLines: 20,
+  fontSize: 26,
+  autoScrollEditorIntoView: true,
+  useWorker: false,
+}
 
 
 @Component({
@@ -18,6 +35,7 @@ const THEME_DARK = "ace/theme/gruvbox";
   styleUrls: ["./micro-editor.component.scss"]
 })
 export class MicroEditorComponent implements AfterViewInit {
+  presentationMode: boolean = false;
 
   @ViewChild("editor") private editor: ElementRef<HTMLElement>;
   content: string = "";
@@ -30,6 +48,7 @@ export class MicroEditorComponent implements AfterViewInit {
     private controllerService: ControllerService,
     private directorService: DirectorService,
     private themeControl: ThemeControlService,
+    private presentationModeController: PresentationModeControllerService,
   ) { }
 
 
@@ -38,20 +57,10 @@ export class MicroEditorComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-
     ace.config.set("basePath", "assets/editor")
 
-    const editorOptions: Partial<ace.Ace.EditorOptions> = {
-      highlightActiveLine: true,
-      minLines: 20,
-      fontSize: 14,
-      autoScrollEditorIntoView: true,
-      useWorker: false,
-
-    }
-
     // create Ace.Editor Object
-    this.aceEditor = ace.edit(this.editor.nativeElement, editorOptions);
+    this.aceEditor = ace.edit(this.editor.nativeElement, this.getOptions());
 
     this.aceEditor.session.setValue(this.content);
     this.aceEditor.setTheme(THEME_LIGHT);
@@ -117,6 +126,16 @@ export class MicroEditorComponent implements AfterViewInit {
       }
     })
 
+    // change editor options when Presentationmode is toggled
+    this.presentationModeController.presentationMode$.subscribe(presentationMode => {
+      if(presentationMode.presentationMode == true){
+        this.aceEditor.setOptions(editorOptionsPresentation)
+      }
+      else{
+        this.aceEditor.setOptions(editorOptions)
+      }
+    });
+
     // highlight line if we hit a breakpoint
     this.directorService.breakpointFlasher$.subscribe(breakpoint => {
       if (breakpoint.line) {
@@ -126,6 +145,8 @@ export class MicroEditorComponent implements AfterViewInit {
       }
     });
   }
+
+  
 
   private highlightBreakpoint(line: number) {
     this.aceEditor.getSession().addMarker(new ace.Range(line - 1, 0, line, 0), "ace_breakpoint-line", "text");
@@ -188,6 +209,15 @@ export class MicroEditorComponent implements AfterViewInit {
           this.aceEditor.session.removeMarker(prevMarkers[item].id);
         }
       }
+    }
+  }
+
+  getOptions(){
+    if(this.presentationModeController.getPresentationMode() == false){
+      return editorOptions
+    }
+    else{
+      return editorOptionsPresentation
     }
   }
 

@@ -15,14 +15,16 @@
     padding-right: 5px;
 }
 
-.colorModeSwitcher{
+.modeSwitcher{
     height: 90%;
-    padding-right: 20px;
-    padding-top: 10px;
+    padding-right: 10px;
+    padding-top: 0px;
 }
 
 .mat-slide-toggle{
     display: block;
+    transform: scale(0.8);
+    margin: -3.5px 0;
 }
 
 ::ng-deep .mat-slide-toggle-bar{
@@ -36,5 +38,5 @@
 }
 
 ::ng-deep .mat-slide-toggle-content{
-    font-size: small;
+    font-size: medium;
 }
