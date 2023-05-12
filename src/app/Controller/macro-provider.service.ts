@@ -73,7 +73,6 @@ export class MacroProviderService {
       }
     }
 
-    console.log("--------------line LOL: " + (line+emptyRowCounter))
     return line + emptyRowCounter;
   }
 

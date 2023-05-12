@@ -20,10 +20,11 @@ export class MacroTokenizerService {
     [/^\/\/.*/, null],
 
     // Numbers:
+    [/^0x[a-fA-F0-9]+/, "Hex_Number"],
     [/^\d+/, "NUMBER"],
 
     // Mnemonics
-    [/^([A-Z]+(_[A-Z]+)*(( (-)?\d+)|( [a-zA-Z0-9]+)|( [a-z]([a-zA-Z0-9]+))|( [a-zA-Z]([a-zA-Z0-9]+)))*)/, "MNEMONIC"],
+    [/^([A-Z]+(_[A-Z]+)*(( 0x[a-fA-F0-9]+)|( (-)?\d+)|( [a-zA-Z0-9]+)|( [a-z]([a-zA-Z0-9]+))|( [a-zA-Z]([a-zA-Z0-9]+)))*)/, "MNEMONIC"],
 
     //Fields
     [/^.constant/, "FIELD"],
