@@ -11,6 +11,8 @@ import { StackProviderService } from './stack-provider.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { MacroParserService } from './macro-parser.service';
 import { MacroTokenizerService } from './macro-tokenizer.service';
+import { MacroProviderService } from './macro-provider.service';
+import { MicroProviderService } from './micro-provider.service';
 
 
 @Injectable({
@@ -30,6 +32,9 @@ export class DirectorService {
     private controlStore: ControlStoreService,
     private stackProvider: StackProviderService,
     private macroTokenizer: MacroTokenizerService,
+    private macroProvider: MacroProviderService,
+    private microProvider: MicroProviderService,
+    private memory: MainMemoryService,
   ) { }
 
   private currentAddress = 1;
@@ -409,9 +414,17 @@ export class DirectorService {
       this.macroBreakpointsAddr[i] = this.macroParser.getAddressOfLine(this.macroBreakpoints[i]);
     }
 
+    // steps one macroinstruction to build stack for .main (runs INVOKEVIRTUAL that is always the first instruction)
+    this.init();
+    this.runMacroInstruction();
+    this.memory.save2LocalStorage();
+
+    this.macroProvider.isLoaded();
+    this.microProvider.isLoaded();
+
+
     // notify console that reset was successful
     this._consoleNotifier.next("Macrocode loaded successfully!");
-
   }
 
 
