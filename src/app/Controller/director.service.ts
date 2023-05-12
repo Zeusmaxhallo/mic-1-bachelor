@@ -306,7 +306,7 @@ export class DirectorService {
     // start animation
     this.animate(bBusResult, aluResult, shifterResult, cBusResult, aBusResult);
 
-    return
+    return;
 
   }
 
