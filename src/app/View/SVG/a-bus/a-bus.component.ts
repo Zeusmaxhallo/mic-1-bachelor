@@ -28,7 +28,7 @@ export class ABusComponent implements OnInit {
 
   startAnimation(value: number) {
 
-    if (!value){return;}
+    if (value == undefined){return;}
 
     this.value = value;
     console.log("aBus value: ", value)

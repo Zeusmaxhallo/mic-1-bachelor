@@ -2,6 +2,7 @@ import { animate, keyframes, state, style, transition, trigger } from '@angular/
 import { Component, OnInit } from '@angular/core';
 import { AluService } from 'src/app/Controller/Emulator/alu.service';
 import { ShifterService } from 'src/app/Controller/Emulator/shifter.service';
+import { PresentationModeControllerService } from 'src/app/Controller/presentation-mode-controller.service';
 import { RegProviderService } from 'src/app/Controller/reg-provider.service';
 import { StackProviderService } from 'src/app/Controller/stack-provider.service';
 
@@ -32,10 +33,19 @@ import { StackProviderService } from 'src/app/Controller/stack-provider.service'
 
 })
 export class StackComponent implements OnInit {
+
+  public presentationMode = false;
   
-  constructor(public stackProvider:StackProviderService, private regProvider: RegProviderService) { }
+  constructor(
+    public stackProvider:StackProviderService,
+     private regProvider: RegProviderService,
+    private presentationModeController:PresentationModeControllerService,
+  ) { }
 
   ngOnInit(): void {
+    this.presentationModeController.presentationMode$.subscribe( mode => {
+      this.presentationMode = mode.presentationMode;
+    })
   }
 
    isLV(address: number):boolean{

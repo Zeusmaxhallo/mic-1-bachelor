@@ -6,13 +6,14 @@ import { Injectable } from '@angular/core';
 export class GridViewControllerService {
   areEditorsSwapped: boolean = false;
 
-  constructor() { }
+  constructor(
+  ) { }
 
   getAreEditorsSwapped(){
     return this.areEditorsSwapped;
   }
 
-  setAreEditorsSwapped(bool: boolean){
-    this.areEditorsSwapped = bool;
+  switchEditors(){
+    this.areEditorsSwapped = !this.areEditorsSwapped;
   }
 }

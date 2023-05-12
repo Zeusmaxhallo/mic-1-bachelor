@@ -6,11 +6,28 @@ import { DirectorService } from "src/app/Controller/director.service";
 import { timer } from "rxjs";
 import { MacroParserService } from "src/app/Controller/macro-parser.service";
 import { ThemeControlService } from "src/app/Controller/theme-control.service";
+import { PresentationModeControllerService } from "src/app/Controller/presentation-mode-controller.service";
 
 
 const LANG = "ace/mode/mic1";
 const THEME_DARK = "ace/theme/gruvbox";
 const THEME_LIGHT= "ace/theme/eclipse";
+
+const editorOptions: Partial<ace.Ace.EditorOptions> = {
+  highlightActiveLine: true,
+  minLines: 20,
+  fontSize: 14,
+  autoScrollEditorIntoView: true,
+  useWorker: false,
+}
+
+const editorOptionsPresentation: Partial<ace.Ace.EditorOptions> = {
+  highlightActiveLine: true,
+  minLines: 20,
+  fontSize: 26,
+  autoScrollEditorIntoView: true,
+  useWorker: false,
+}
 
 
 @Component({
@@ -18,13 +35,15 @@ const THEME_LIGHT= "ace/theme/eclipse";
   templateUrl: "./editor.component.html",
   styleUrls: ["./editor.component.scss"]
 })
+
+
 export class EditorComponent implements AfterViewInit {
+  presentationMode: boolean = false;
 
   @ViewChild("editor") private editor: ElementRef<HTMLElement>;
   content: string = "";
   private aceEditor: ace.Ace.Editor;
   file: String;
-
 
   constructor(
     private macroProvider: MacroProviderService,
@@ -32,6 +51,7 @@ export class EditorComponent implements AfterViewInit {
     private directorService: DirectorService,
     private macroParser: MacroParserService,
     private themeController: ThemeControlService,
+    private presentationModeController: PresentationModeControllerService,
   ) { }
 
   ngOnInit(): void {
@@ -39,20 +59,10 @@ export class EditorComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-
-    ace.config.set("basePath", "assets/editor")
-
-    const editorOptions: Partial<ace.Ace.EditorOptions> = {
-      highlightActiveLine: true,
-      minLines: 20,
-      fontSize: 14,
-      autoScrollEditorIntoView: true,
-      useWorker: false,
-
-    }
+    ace.config.set("basePath", "assets/editor");
 
     // create Ace.Editor Object
-    this.aceEditor = ace.edit(this.editor.nativeElement, editorOptions);
+    this.aceEditor = ace.edit(this.editor.nativeElement, this.getOptions());
 
     this.aceEditor.session.setValue(this.content);
     this.aceEditor.setTheme(THEME_DARK);
@@ -118,7 +128,17 @@ export class EditorComponent implements AfterViewInit {
         let editorErrorLine = this.macroProvider.getEditorLineWithParserLine(error.line);
         this.flashErrorMessage(error.error, editorErrorLine);
       }
-    })
+    });
+
+    // change editor options when Presentationmode is toggled
+    this.presentationModeController.presentationMode$.subscribe(presentationMode => {
+      if(presentationMode.presentationMode == true){
+        this.aceEditor.setOptions(editorOptionsPresentation)
+      }
+      else{
+        this.aceEditor.setOptions(editorOptions)
+      }
+    });
 
     // highlight line if we hit a breakpoint
     this.directorService.breakpointFlasherMacro$.subscribe(breakpoint => {
@@ -197,6 +217,15 @@ export class EditorComponent implements AfterViewInit {
 
   exportMacro() {
     this.controllerService.exportMacro();
+  }
+
+  getOptions(){
+    if(this.presentationModeController.getPresentationMode() == false){
+      return editorOptions
+    }
+    else{
+      return editorOptionsPresentation
+    }
   }
 
 }

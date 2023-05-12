@@ -12,6 +12,7 @@ import { BehaviorSubject, Subscription } from 'rxjs';
 import { MacroParserService } from './macro-parser.service';
 import { MacroTokenizerService } from './macro-tokenizer.service';
 import { MacroProviderService } from './macro-provider.service';
+import { MicroProviderService } from './micro-provider.service';
 
 
 @Injectable({
@@ -31,6 +32,9 @@ export class DirectorService {
     private controlStore: ControlStoreService,
     private stackProvider: StackProviderService,
     private macroTokenizer: MacroTokenizerService,
+    private macroProvider: MacroProviderService,
+    private microProvider: MicroProviderService,
+    private memory: MainMemoryService,
   ) { }
 
   private currentAddress = 1;
@@ -203,7 +207,6 @@ export class DirectorService {
       this._breakpointFlasherMacro.next({ line: this.macroParser.getLineOfAddress(this.currentMacroAddr)});
     }
 
-    console.table(this.macroBreakpoints)
 
     // set MBR
     if (this.MBRMemoryQueue[0]) {
@@ -307,7 +310,7 @@ export class DirectorService {
     // start animation
     this.animate(bBusResult, aluResult, shifterResult, cBusResult, aBusResult);
 
-    return
+    return;
 
   }
 
@@ -326,6 +329,10 @@ export class DirectorService {
       await delay(10);
 
       this._isReady.next(true);
+      if( !this.isRunning){
+        this._finishedRun.next(true);
+      }
+      this.updateRegisterVis();
     }
   }
 
@@ -333,9 +340,22 @@ export class DirectorService {
     this.setRegisterValuesSource.next([register, value, activateMemoryArrow == undefined ? false : activateMemoryArrow]);
   }
 
+  private updateRegisterVis(){
+    let registers = this.regProvider.getRegisters();
+
+    // animate all Registers
+    for (let register of registers) {
+      this.showRegisterValue(register.getName(), register.getValue());
+    }
+  }
+
 
   public set animationComplete(v: boolean) {
     console.log("animations Complete");
+    //enable buttons
+    if( !this.isRunning){
+      this._finishedRun.next(true);
+    }
     if (v) { this._isReady.next(true) }
   }
 
@@ -359,21 +379,25 @@ export class DirectorService {
     try {
       this.controlStore.loadMicro();
       this.macroTokenizer.init();
-      this.macroParser.parse();
     } catch (error) {
       if (error instanceof Error) {
         this._errorFlasher.next({line: 1, error:error.message});
       }
-      
+      return;
     }
 
-
- 
+    try {
+      if ( this.macroParser.parse() ){ return; }
+    } catch (error) {
+      if (error instanceof Error){
+        this._errorFlasher.next({line:1000, error: error.message});
+        return;
+      }
+    }
+    
 
     // animate new register Values
-    for (let register of registers) {
-      this.showRegisterValue(register.getName(), register.getValue());
-    }
+    this.updateRegisterVis();
 
     //reset program
     this.endOfProgram = false;
@@ -390,9 +414,17 @@ export class DirectorService {
       this.macroBreakpointsAddr[i] = this.macroParser.getAddressOfLine(this.macroBreakpoints[i]);
     }
 
+    // steps one macroinstruction to build stack for .main (runs INVOKEVIRTUAL that is always the first instruction)
+    this.init();
+    this.runMacroInstruction();
+    this.memory.save2LocalStorage();
+
+    this.macroProvider.isLoaded();
+    this.microProvider.isLoaded();
+
+
     // notify console that reset was successful
     this._consoleNotifier.next("Macrocode loaded successfully!");
-
   }
 
 

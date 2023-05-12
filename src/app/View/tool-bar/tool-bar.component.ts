@@ -4,9 +4,9 @@ import { MatDialog } from '@angular/material/dialog';
 import { GettingStartedDialogComponent } from './getting-started-dialog/getting-started-dialog.component';
 import { AboutDialogComponent } from './about-dialog/about-dialog.component';
 import { GridViewControllerService } from 'src/app/Controller/grid-view-controller.service';
-import { MatSlideToggleChange } from '@angular/material/slide-toggle';
-import { FormControl } from '@angular/forms';
+import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { ThemeControlService } from 'src/app/Controller/theme-control.service';
+import { PresentationModeControllerService } from 'src/app/Controller/presentation-mode-controller.service';
 
 @Component({
   selector: 'app-tool-bar',
@@ -15,7 +15,6 @@ import { ThemeControlService } from 'src/app/Controller/theme-control.service';
 })
 export class ToolBarComponent implements OnInit {
   file: String;
-  isCheckedSwitchEditors: boolean = false;
 
   @HostBinding('class') className = '';
 
@@ -24,14 +23,12 @@ export class ToolBarComponent implements OnInit {
     private dialog: MatDialog,
     private gridViewController: GridViewControllerService,
     private themeControl: ThemeControlService,
+    private presentationModeController: PresentationModeControllerService,
   ) { }
 
   ngOnInit(): void { }
 
   ngDoCheck() {
-    if (this.gridViewController.getAreEditorsSwapped() !== this.isCheckedSwitchEditors) {
-      this.gridViewController.setAreEditorsSwapped(this.isCheckedSwitchEditors);
-    }
   }
 
   importMacro(event: any) {
@@ -68,8 +65,16 @@ export class ToolBarComponent implements OnInit {
     });
   }
 
+  public switchEditors(event: MatSlideToggleChange){
+    this.gridViewController.switchEditors();
+  }
+
   public toggleTheme(event: MatSlideToggleChange) {
     this.themeControl.toggleTheme();
+  }
+
+  public togglePresentationMode(event: MatSlideToggleChange) {
+    this.presentationModeController.toggleMode();
   }
 
 }

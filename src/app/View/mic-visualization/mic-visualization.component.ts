@@ -60,6 +60,7 @@ export class MicVisualizationComponent implements AfterViewInit {
           }
           await delay(1);
           
+          // start first animation -> wait until finished -> start next -> ...
           const bBusAnimation = this.bBus.startAnimation(bBusResult.register, bBusResult.value);
           this.aBus.startAnimation(aBusResult);
           bBusAnimation.then(() => {

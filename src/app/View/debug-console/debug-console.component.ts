@@ -1,6 +1,8 @@
 import { AfterViewChecked, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { DirectorService } from 'src/app/Controller/director.service';
 import { MacroParserService } from 'src/app/Controller/macro-parser.service';
+import { MacroProviderService } from 'src/app/Controller/macro-provider.service';
+import { PresentationModeControllerService } from 'src/app/Controller/presentation-mode-controller.service';
 
 
 interface Line {
@@ -16,18 +18,28 @@ interface Line {
 export class DebugConsoleComponent implements OnInit, AfterViewChecked {
   @ViewChild("log") private log: ElementRef;
 
+  public presentationMode = false;
+
   constructor(
     private director: DirectorService,
     private macroParser: MacroParserService,
+    private macroProvider: MacroProviderService,
+    private presentationModeController: PresentationModeControllerService,
   ) { }
 
   ngOnInit(): void {
+
+    // toggle presentationMode 
+    this.presentationModeController.presentationMode$.subscribe( mode => {
+      this.presentationMode = mode.presentationMode;
+    })
 
     // log Micro Errors
     this.director.errorFlasher$.subscribe(
       error => {
         if (!error.error) { return };
         let content = "microcode:" + error.line + "\t->\t" + error.error;
+        if (error.line == 1000){ content = "macrocode" + "\t -> \t" + error.error; }
         this.content.push({ type: "error", content: content });
       }
     )
@@ -36,7 +48,7 @@ export class DebugConsoleComponent implements OnInit, AfterViewChecked {
     this.macroParser.errorFlasher$.subscribe(
       error => {
         if (!error.error) { return };
-        let content = "macrocode:" + error.line + "\t->\t" + error.error;
+        let content = "macrocode:" + this.macroProvider.getEditorLineWithParserLine(error.line) + "\t->\t" + error.error;
         this.content.push({ type: "error", content: content });
       }
     )
@@ -62,6 +74,7 @@ export class DebugConsoleComponent implements OnInit, AfterViewChecked {
     this.director.consoleNotifier$.subscribe(
       content => {
         if (!content) { return };
+        this.clearConsole();
         this.content.push({type: "success", content: content })
       }
     )
@@ -80,6 +93,10 @@ export class DebugConsoleComponent implements OnInit, AfterViewChecked {
     try {
       this.log.nativeElement.scrollTop = this.log.nativeElement.scrollHeight;
     } catch (err) { }
+  }
+
+  private clearConsole(){
+    this.content = [];
   }
 
 
