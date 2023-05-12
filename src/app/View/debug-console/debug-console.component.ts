@@ -2,6 +2,7 @@ import { AfterViewChecked, Component, ElementRef, OnInit, ViewChild } from '@ang
 import { DirectorService } from 'src/app/Controller/director.service';
 import { MacroParserService } from 'src/app/Controller/macro-parser.service';
 import { MacroProviderService } from 'src/app/Controller/macro-provider.service';
+import { PresentationModeControllerService } from 'src/app/Controller/presentation-mode-controller.service';
 
 
 interface Line {
@@ -17,13 +18,21 @@ interface Line {
 export class DebugConsoleComponent implements OnInit, AfterViewChecked {
   @ViewChild("log") private log: ElementRef;
 
+  public presentationMode = false;
+
   constructor(
     private director: DirectorService,
     private macroParser: MacroParserService,
     private macroProvider: MacroProviderService,
+    private presentationModeController: PresentationModeControllerService,
   ) { }
 
   ngOnInit(): void {
+
+    // toggle presentationMode 
+    this.presentationModeController.presentationMode$.subscribe( mode => {
+      this.presentationMode = mode.presentationMode;
+    })
 
     // log Micro Errors
     this.director.errorFlasher$.subscribe(
