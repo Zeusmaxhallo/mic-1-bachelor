@@ -74,6 +74,7 @@ export class DebugConsoleComponent implements OnInit, AfterViewChecked {
     this.director.consoleNotifier$.subscribe(
       content => {
         if (!content) { return };
+        this.clearConsole();
         this.content.push({type: "success", content: content })
       }
     )
@@ -92,6 +93,10 @@ export class DebugConsoleComponent implements OnInit, AfterViewChecked {
     try {
       this.log.nativeElement.scrollTop = this.log.nativeElement.scrollHeight;
     } catch (err) { }
+  }
+
+  private clearConsole(){
+    this.content = [];
   }
 
 
