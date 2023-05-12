@@ -11,7 +11,6 @@ import { StackProviderService } from './stack-provider.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
 import { MacroParserService } from './macro-parser.service';
 import { MacroTokenizerService } from './macro-tokenizer.service';
-import { MacroProviderService } from './macro-provider.service';
 
 
 @Injectable({
