@@ -4,7 +4,7 @@ import { BBusService, BBusResult } from './Emulator/b-bus.service';
 import { CBusService, CBusResult } from './Emulator/c-bus.service';
 import { ControlStoreService } from './Emulator/control-store.service';
 import { MainMemoryService } from './Emulator/main-memory.service';
-import { Instruction, ParserService } from './Emulator/parser.service';
+import { Instruction, Line, ParserService } from './Emulator/parser.service';
 import { ShifterService } from './Emulator/shifter.service';
 import { RegProviderService } from './reg-provider.service';
 import { StackProviderService } from './stack-provider.service';
@@ -172,8 +172,16 @@ export class DirectorService {
       return
     }
 
-    let line = this.controlStore.getMicro()[this.currentAddress]
+    let line = this.controlStore.getMicro()[this.currentAddress];
     let tokens;
+
+    // check if there is an Instruction at current address
+    if (line === undefined) {
+      this._errorFlasher.next({ line: 1000, error: "no Instruction at address " + this.currentAddress });
+      this.isRunning = false;
+      return;
+    }
+
     this.lineNumber = line.lineNumber;
     console.log("Executing Instruction at Address: " + this.currentAddress + " line: " + this.lineNumber);
 
@@ -183,8 +191,8 @@ export class DirectorService {
     } catch (error) {
       console.error("Error in line " + this.lineNumber + " - " + error);
       this._errorFlasher.next({ line: this.lineNumber, error: "Invalid Instruction" });
-      this.isRunning=false;
-      return
+      this.isRunning = false;
+      return;
     }
     if (!tokens) {
       throw new Error(`No Instruction at Address ${this.currentAddress}`);
@@ -198,13 +206,10 @@ export class DirectorService {
     }
 
     // check if we hit a Breakpoint in the macro-code
-    console.log("Currenty read macro Address in main-memory: " + this.currentMacroAddr)
-    console.log(this.currentMacroAddr)
-    console.table(this.macroBreakpointsAddr)
-    if(this.macroBreakpointsAddr.includes(this.currentMacroAddr)){
+    if (this.macroBreakpointsAddr.includes(this.currentMacroAddr)) {
       console.log("%cHit Breakpoint in the memory address: " + (this.currentMacroAddr), "color: #248c46");
       this.hitBreakpoint = true;
-      this._breakpointFlasherMacro.next({ line: this.macroParser.getLineOfAddress(this.currentMacroAddr)});
+      this._breakpointFlasherMacro.next({ line: this.macroParser.getLineOfAddress(this.currentMacroAddr) });
     }
 
 
@@ -212,11 +217,11 @@ export class DirectorService {
     if (this.MBRMemoryQueue[0]) {
       let addr = this.MBRMemoryQueue.shift();
       let MBR = this.regProvider.getRegister("MBR");
-      
-      if(this.macroParser.getOffsetOnAddress(this.currentMacroAddr) !== undefined){
-        let offset = this.macroParser.getOffsetOnAddress(this.currentMacroAddr)-1;
+
+      if (this.macroParser.getOffsetOnAddress(this.currentMacroAddr) !== undefined) {
+        let offset = this.macroParser.getOffsetOnAddress(this.currentMacroAddr) - 1;
         this.currentMacroAddr = offset;
-        console.log("%cHit Jump-Instruction offset. Jump to memory address: " + (this.currentMacroAddr+1), "color: #248c46");
+        console.log("%cHit Jump-Instruction offset. Jump to memory address: " + (this.currentMacroAddr + 1), "color: #248c46");
       }
       this.currentMacroAddr += 1;
 
@@ -229,8 +234,8 @@ export class DirectorService {
 
       MBR.setValue(this.mainMemory.get_8(addr));
       this.showRegisterValue(MBR.getName(), MBR.getValue(), this.animationEnabled);
-    } else { 
-      this.MBRMemoryQueue.shift(); 
+    } else {
+      this.MBRMemoryQueue.shift();
     }
 
 
@@ -299,6 +304,30 @@ export class DirectorService {
     // set next address
     this.currentAddress = parseInt(microInstruction.addr.join(""), 2)
 
+
+    // find address after a jump
+    let micro = this.controlStore.getMicro()
+    if (micro[this.currentAddress] === undefined) {
+      console.log(micro)
+      this.lineNumber
+
+      let closestLine = Infinity;
+      let address: string;
+
+      for (var instruction in micro) {
+        if (Object.prototype.hasOwnProperty.call(micro, instruction)) {
+          if (micro[instruction].lineNumber - this.lineNumber > 0 && micro[instruction].lineNumber - this.lineNumber < closestLine) {
+            closestLine = micro[instruction].lineNumber - this.lineNumber;
+            address = instruction;
+          }
+        }
+      }
+      console.log("next line is ", micro[parseInt(address)].lineNumber)
+      this.currentAddress = parseInt(address);
+    }
+
+
+
     // check if we have to jump
     if (microInstruction.jam[2] && aluResult === 0) {
       this.currentAddress += 256;
@@ -329,7 +358,7 @@ export class DirectorService {
       await delay(10);
 
       this._isReady.next(true);
-      if( !this.isRunning){
+      if (!this.isRunning) {
         this._finishedRun.next(true);
       }
       this.updateRegisterVis();
@@ -340,7 +369,7 @@ export class DirectorService {
     this.setRegisterValuesSource.next([register, value, activateMemoryArrow == undefined ? false : activateMemoryArrow]);
   }
 
-  private updateRegisterVis(){
+  private updateRegisterVis() {
     let registers = this.regProvider.getRegisters();
 
     // animate all Registers
@@ -353,7 +382,7 @@ export class DirectorService {
   public set animationComplete(v: boolean) {
     console.log("animations Complete");
     //enable buttons
-    if( !this.isRunning){
+    if (!this.isRunning) {
       this._finishedRun.next(true);
     }
     if (v) { this._isReady.next(true) }
@@ -381,20 +410,20 @@ export class DirectorService {
       this.macroTokenizer.init();
     } catch (error) {
       if (error instanceof Error) {
-        this._errorFlasher.next({line: 1, error:error.message});
+        this._errorFlasher.next({ line: 1, error: error.message });
       }
       return;
     }
 
     try {
-      if ( this.macroParser.parse() ){ return; }
+      if (this.macroParser.parse()) { return; }
     } catch (error) {
-      if (error instanceof Error){
-        this._errorFlasher.next({line:1000, error: error.message});
+      if (error instanceof Error) {
+        this._errorFlasher.next({ line: 1000, error: error.message });
         return;
       }
     }
-    
+
 
     // animate new register Values
     this.updateRegisterVis();
@@ -410,7 +439,7 @@ export class DirectorService {
     this._finishedRun.next(true);
 
     // set Breakpoints Addresses for Macrocode
-    for(let i = 0; i < this.macroBreakpoints.length; i++){
+    for (let i = 0; i < this.macroBreakpoints.length; i++) {
       this.macroBreakpointsAddr[i] = this.macroParser.getAddressOfLine(this.macroBreakpoints[i]);
     }
 
@@ -444,19 +473,19 @@ export class DirectorService {
     this.microBreakpoints = [];
   }
 
-  public setMacroBreakpoint(breakpoint: number){
-    if(this.macroBreakpoints.includes(breakpoint)){return;}
+  public setMacroBreakpoint(breakpoint: number) {
+    if (this.macroBreakpoints.includes(breakpoint)) { return; }
     this.macroBreakpoints.push(breakpoint);
   }
 
-  public clearMacroBreakpoint(breakpoint: number){
+  public clearMacroBreakpoint(breakpoint: number) {
     const index = this.macroBreakpoints.indexOf(breakpoint)
-    if(index > -1) {
+    if (index > -1) {
       this.macroBreakpoints.splice(index, 1);
     }
   }
 
-  public clearMacroBreakpoints(){
+  public clearMacroBreakpoints() {
     this.macroBreakpoints = [];
   }
 }
