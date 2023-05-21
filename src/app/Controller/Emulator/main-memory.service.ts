@@ -23,6 +23,10 @@ export class MainMemoryService {
     return this._stackStartAddress;
   }
 
+  public emptyMemory(){
+    this.memory = {}
+  }
+
   public store_32(address: number, value: number, setter?: boolean) {
 
     //check if we have permission to write in this area
