@@ -46,6 +46,7 @@ export class MacroParserService {
 
 
   parse(){
+    this.memory.emptyMemory();
     let ErrorFlag = false;
 
     this.resetParser();
