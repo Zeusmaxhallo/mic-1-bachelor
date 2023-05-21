@@ -443,11 +443,6 @@ export class DirectorService {
       this.macroBreakpointsAddr[i] = this.macroParser.getAddressOfLine(this.macroBreakpoints[i]);
     }
 
-    // steps one macroinstruction to build stack for .main (runs INVOKEVIRTUAL that is always the first instruction)
-    this.init();
-    this.runMacroInstruction();
-    this.memory.save2LocalStorage();
-
     this.macroProvider.isLoaded();
     this.microProvider.isLoaded();
 
