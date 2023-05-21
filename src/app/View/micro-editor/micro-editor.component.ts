@@ -156,6 +156,7 @@ export class MicroEditorComponent implements AfterViewInit {
   }
 
   private flashErrorMessage(errorMessage: string, line: number) {
+    if(line === 1000){return;}
     this.aceEditor.getSession().setAnnotations(
       [{
         row: line - 1,

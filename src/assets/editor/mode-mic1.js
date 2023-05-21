@@ -7,7 +7,7 @@ var Mic1HighlightRules = function () {
     this.$rules = { start: [
             // keywords:
             { token: 'keyword.control.mic1',
-                regex: '\\b(?:BIPUSH|DUP|GOTO|IADD|IAND|IINC|ILOAD|INVOKEVIRTUAL|IOR|IRETURN|ISTORE|ISUB|LDC_W|NOP|POP|SWAP|IF(?:e?q|l?t|(?:icmpeq)))\\b',
+                regex: '\\b(?:BIPUSH|DUP|GOTO|IADD|IAND|IINC|ILOAD|INVOKEVIRTUAL|IOR|IRETURN|ISTORE|ISUB|LDC_W|NOP|POP|SWAP|IF(?:e?q|l?t|(?:_icmpeq)))\\b',
                 caseInsensitive: true },
             // variables:
             { token: 'variable.parameter.register.mic1',

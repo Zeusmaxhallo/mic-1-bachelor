@@ -590,7 +590,7 @@ export class ParserService {
     this.tokens = this.tokens.slice(pos + 1);
   }
 
-  private newLabel(tokens: Token[], addr: number) {
+  private newLabel(tokens: Token[], addr: number): string {
 
     if (tokens[0].type == "NEW_LABEL") {
 
@@ -604,7 +604,9 @@ export class ParserService {
 
       // create new label
       this.labels[labelName] = addr;
+      return labelName;
     }
+    return "";
   }
 
 
@@ -618,6 +620,13 @@ export class ParserService {
     let tokens: Token[][] = [];
     let lastAddress = 0;
     let microprogram: { [address: number]: Line } = {};  // { [address: number]: Token[] }
+
+    interface Block { labelName: string, length: number };
+
+
+    let blocks: Block[] = [];
+    let block: Block = { labelName: "", length: 0 };
+
 
     // tokenize all lines
     for (let i = 0; i < input.length; i++) {
@@ -641,7 +650,15 @@ export class ParserService {
         let address = parseInt(match[0], 16);
         line.shift(); //consume token
         microprogram[address] = { tokens: line, lineNumber: i + 1 };
-        this.newLabel(line, address);
+
+        let labelName = this.newLabel(line, address);
+
+        if (labelName) {
+          blocks.push(block);
+          block = { labelName: labelName, length: 1 };
+        }
+
+
         lastAddress = address;
         continue;
       }
@@ -649,7 +666,50 @@ export class ParserService {
       // if there is no given Address take last Address + 1
       microprogram[lastAddress + 1] = { tokens: line, lineNumber: i + 1 };
       lastAddress++;
-      this.newLabel(line, lastAddress);
+
+      let labelName = this.newLabel(line, lastAddress);
+      if (labelName) {
+        blocks.push(block);
+        block = { labelName: labelName, length: 1 };
+        continue;
+      }
+
+      block.length = block.length + 1;
+    }
+
+
+    // assure that "if labels" are 256 bit apart
+    for (let line of tokens) {
+      for (let i = 0; i < line.length; i++) {
+        if (line[i].type === "JUMP") {
+          if (line[i + 2].type === "LABEL" && line[i + 6].type === "LABEL") {
+
+            const baseLabelName = line[i + 6].value;
+            const jumpLabelName = line[i + 2].value;
+
+
+            const baseAddress = this.labels[baseLabelName];
+            let jumpAddress = this.labels[jumpLabelName];
+
+
+            if (baseAddress + 256 !== jumpAddress) {
+              this.labels[jumpLabelName] = baseAddress + 256
+              console.log("Moved Label", jumpLabelName, "from", jumpAddress,  "to address", baseAddress + 256)
+
+
+              // move all instruction in the "label Block"
+              const BlockLength = blocks.find( x => x.labelName === jumpLabelName).length;
+              for (let j= 0; j < BlockLength; j++){
+                let micro = microprogram[jumpAddress + j]
+                delete microprogram[jumpAddress + j];
+                microprogram[baseAddress + j + 256] = micro;
+              }
+            }
+          }
+
+        }
+      }
+
     }
 
     console.table(this.labels);
