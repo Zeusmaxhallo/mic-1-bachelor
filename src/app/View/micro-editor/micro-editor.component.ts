@@ -144,6 +144,19 @@ export class MicroEditorComponent implements AfterViewInit {
         source.subscribe(() => this.removeBreakpointHighlighting())
       }
     });
+
+    // Current Line Highlighting
+    this.directorService.currentLineNotifier$.subscribe( line => {
+      this.highlightLine(line.line);
+    })
+
+
+
+  }
+
+  private highlightLine(line: number){
+    this.removeLineHighlighting();
+    this.aceEditor.getSession().addMarker(new ace.Range(line - 1, 0, line, 0), "ace_highlight-line", "text");
   }
 
   
@@ -212,6 +225,20 @@ export class MicroEditorComponent implements AfterViewInit {
       }
     }
   }
+
+
+  private removeLineHighlighting(){
+    const prevMarkers = this.aceEditor.session.getMarkers();
+    if (prevMarkers) {
+      const prevMarkersArr: any = Object.keys(prevMarkers);
+      for (let item of prevMarkersArr) {
+        if (prevMarkers[item].clazz == "ace_highlight-line") {
+          this.aceEditor.session.removeMarker(prevMarkers[item].id);
+        }
+      }
+    }
+  }
+
 
   getOptions(){
     if(this.presentationModeController.getPresentationMode() == false){
