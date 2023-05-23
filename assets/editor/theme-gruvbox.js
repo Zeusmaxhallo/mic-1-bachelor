@@ -98,6 +98,11 @@ ace.define("ace/theme/gruvbox.css",["require","exports","module"], function(requ
 }
 
 .ace-gruvbox .ace_marker-layer
+.ace_highlight-line{
+  background: #525924; position: absolute; z-index: 2;
+}
+
+.ace-gruvbox .ace_marker-layer
 .ace_breakpoint-line {
   background: #004f70; position: absolute; z-index: 2;
 }
