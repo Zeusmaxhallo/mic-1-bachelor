@@ -40,8 +40,8 @@ const Spec: any= [
   [/^fetch/, "MEMORY_INSTRUCTION"],
 
   // if else
-  [/^if\(N\)/ , "JUMP"],
-  [/^if\(Z\)/ , "JUMP"],
+  [/^if\s*\(N\)/ , "JUMP"],
+  [/^if\s*\(Z\)/ , "JUMP"],
   [/^else/ , "ELSE"],
 
   // Jump to Register Address, e.g: goto (MBR)
