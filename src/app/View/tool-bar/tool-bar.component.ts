@@ -18,6 +18,7 @@ export class ToolBarComponent implements OnInit {
   file: String;
 
   @ViewChild('fileMac') importMac: any;
+  @ViewChild('fileMic') importMic: any;
   @HostBinding('class') className = '';
 
   public currentApplicationVersion = environment.appVersion; 
@@ -43,6 +44,7 @@ export class ToolBarComponent implements OnInit {
 
   importMicro(event: any) {
     this.file = event.target.files[0];
+    this.importMic.nativeElement.value = '';
     this.controllerService.importMicro(this.file);
   }
 
