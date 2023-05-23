@@ -332,7 +332,7 @@ export class DirectorService {
     if (microInstruction.jam[2] && aluResult === 0) {
       this.currentAddress += 256;
     }
-    if (microInstruction.jam[1] && aluResult <= 0) {
+    if (microInstruction.jam[1] && aluResult < 0) {
       this.currentAddress += 256;
     }
 

@@ -107,10 +107,10 @@ export class ParserService {
 
   private setJam() {
 
-    if (this.tokens[0].value === "if(N)") {
+    if (/^if\s*\(N\)/.test(this.tokens[0].value)) {
       // set JAMN bit
       this.jam[1] = 1;
-    } else if (this.tokens[0].value === "if(Z)") {
+    } else if (/^if\s*\(Z\)/.test(this.tokens[0].value)) {
       //set JAMZ bit
       this.jam[2] = 1;
     }
@@ -694,12 +694,12 @@ export class ParserService {
 
             if (baseAddress + 256 !== jumpAddress) {
               this.labels[jumpLabelName] = baseAddress + 256
-              console.log("Moved Label", jumpLabelName, "from", jumpAddress,  "to address", baseAddress + 256)
+              console.log("Moved Label", jumpLabelName, "from", jumpAddress, "to address", baseAddress + 256)
 
 
               // move all instruction in the "label Block"
-              const BlockLength = blocks.find( x => x.labelName === jumpLabelName).length;
-              for (let j= 0; j < BlockLength; j++){
+              const BlockLength = blocks.find(x => x.labelName === jumpLabelName).length;
+              for (let j = 0; j < BlockLength; j++) {
                 let micro = microprogram[jumpAddress + j]
                 delete microprogram[jumpAddress + j];
                 microprogram[baseAddress + j + 256] = micro;
