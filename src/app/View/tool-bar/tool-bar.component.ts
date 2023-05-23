@@ -7,6 +7,7 @@ import { GridViewControllerService } from 'src/app/Controller/grid-view-controll
 import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { ThemeControlService } from 'src/app/Controller/theme-control.service';
 import { PresentationModeControllerService } from 'src/app/Controller/presentation-mode-controller.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-tool-bar',
@@ -17,6 +18,8 @@ export class ToolBarComponent implements OnInit {
   file: String;
 
   @HostBinding('class') className = '';
+
+  public currentApplicationVersion = environment.appVersion; 
 
   constructor(
     private controllerService: ControllerService,
