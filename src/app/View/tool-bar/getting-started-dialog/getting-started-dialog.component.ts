@@ -13,6 +13,7 @@ INVOKEVIRTUAL add
 ILOAD p1
 ILOAD p2
 IADD
+IRETURN
 .end-method`;
 
 const code2: string = `.main
@@ -25,6 +26,7 @@ CINVOKE met
 ILOAD p1
 ILOAD p2
 IADD
+IRETURN
 .end-method`;
 
 const code3: string = `.main
@@ -39,6 +41,8 @@ skip: GOTO test
 .method switch(p1, p2)
 ILOAD p2
 ILOAD p1
+// commenting the IRETURN in would create a loop
+// IRETURN
 .end-method`;
 
 const microCode: string = `Main1: PC=PC+1; fetch; goto(MBR)
