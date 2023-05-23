@@ -40,7 +40,6 @@ export class MacroProviderService {
   getEditorLineWithParserLine(parserLine: number){
     let emptyRowCounter = 0;
     let line = 1;
-    console.log("--------------parserLine: " + parserLine)
     for(let i = 0; i < this.macro.length; i++){
       if(this.macro.charAt(i) === '\n' && (this.macro.charAt(i-1) === '\n' || i-1 < 1)){
         emptyRowCounter++;
