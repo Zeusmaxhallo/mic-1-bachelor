@@ -77,6 +77,11 @@ ace.define("ace/theme/eclipse.css",["require","exports","module"], function(requ
   }
 
   .ace-eclipse .ace_marker-layer
+    .ace_highlight-line {
+    background: #c5f768; position: absolute; z-index: 2;
+    }
+
+  .ace-eclipse .ace_marker-layer
     .ace_breakpoint-line {
     background: #88fa4b; position: absolute; z-index: 2;
     }

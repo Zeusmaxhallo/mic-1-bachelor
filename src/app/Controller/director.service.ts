@@ -81,6 +81,9 @@ export class DirectorService {
   private _consoleNotifier = new BehaviorSubject("");
   public consoleNotifier$ = this._consoleNotifier.asObservable();
 
+  private _currentLineNotifier = new BehaviorSubject({ line: 0 });
+  public currentLineNotifier$ = this._currentLineNotifier.asObservable();
+
 
 
 
@@ -184,6 +187,7 @@ export class DirectorService {
 
     this.lineNumber = line.lineNumber;
     console.log("Executing Instruction at Address: " + this.currentAddress + " line: " + this.lineNumber);
+    this._currentLineNotifier.next({ line: line.lineNumber });
 
     // throw Error when there are no Tokens in current line
     try {
