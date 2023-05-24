@@ -126,13 +126,18 @@ export class MacroParserService {
     this.methods = {}
     this.methodsParameterNumber = {};
     this.lineToLastUsedAddress = {};
+    this.addrToOffset = {};
+    this.methodToAddr = {};
+
     this.parsedCode = [];
     this.constants = [];
     this.variables = [];
+
     this.varNumber = 0;
     this.constNumber = 0;
     this.parsedTokenNumber = 0; // 1 tokenized token can also lead to more than 1 parsed varlues in the memory
     this.methodNumber = 0;
+    this.currentLocalVarCount = 0;
     this.currentLine = 1;
   }
 
