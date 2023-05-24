@@ -158,7 +158,9 @@ MDR = OPC; wr
 MAR = SP = SP+1
 MDR = LV; wr
 PC=PC+1; fetch
-LV=TOS; goto Main1
+LV=TOS;
+TOS=TOS-1;
+TOS=TOS-1; goto Main1
 
 (0xAF)IRETURN:MAR=SP=LV; rd
 LV=MAR=MDR; rd
@@ -285,7 +287,9 @@ MDR = OPC; wr
 MAR = SP = SP+1
 MDR = LV; wr
 PC=PC+1; fetch
-LV=TOS; goto Main1
+LV=TOS;
+TOS=TOS-1;
+TOS=TOS-1; goto Main1
 
 (0xAF)IRETURN:MAR=SP=LV; rd
 LV=MAR=MDR; rd
