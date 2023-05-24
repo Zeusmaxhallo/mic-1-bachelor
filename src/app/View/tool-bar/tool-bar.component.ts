@@ -1,10 +1,10 @@
-import { Component, HostBinding, OnInit } from '@angular/core';
+import { Component, HostBinding, OnInit, ViewChild } from '@angular/core';
 import { ControllerService } from 'src/app/Controller/controller.service';
 import { MatDialog } from '@angular/material/dialog';
 import { GettingStartedDialogComponent } from './getting-started-dialog/getting-started-dialog.component';
 import { AboutDialogComponent } from './about-dialog/about-dialog.component';
 import { GridViewControllerService } from 'src/app/Controller/grid-view-controller.service';
-import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-toggle';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { ThemeControlService } from 'src/app/Controller/theme-control.service';
 import { PresentationModeControllerService } from 'src/app/Controller/presentation-mode-controller.service';
 import { environment } from 'src/environments/environment';
@@ -17,6 +17,8 @@ import { environment } from 'src/environments/environment';
 export class ToolBarComponent implements OnInit {
   file: String;
 
+  @ViewChild('fileMac') importMac: any;
+  @ViewChild('fileMic') importMic: any;
   @HostBinding('class') className = '';
 
   public currentApplicationVersion = environment.appVersion; 
@@ -36,11 +38,13 @@ export class ToolBarComponent implements OnInit {
 
   importMacro(event: any) {
     this.file = event.target.files[0];
+    this.importMac.nativeElement.value = '';
     this.controllerService.importMacro(this.file);
   }
 
   importMicro(event: any) {
     this.file = event.target.files[0];
+    this.importMic.nativeElement.value = '';
     this.controllerService.importMicro(this.file);
   }
 
