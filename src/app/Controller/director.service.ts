@@ -408,6 +408,7 @@ export class DirectorService {
     this.MDRMemoryQueue = [];
 
     // reset memory
+    this.mainMemory.emptyMemory();
     try {
       this.controlStore.loadMicro();
       this.macroTokenizer.init();
