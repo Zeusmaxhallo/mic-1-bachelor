@@ -25,6 +25,10 @@ export class MainMemoryService {
 
   public emptyMemory(){
     this.memory = {}
+    this.methodAreaSize = 0;
+    this.constantPoolSize = 0;
+    this._stackStartAddress = 0;
+    this.finished = false;
   }
 
   public store_32(address: number, value: number, setter?: boolean) {
@@ -119,7 +123,7 @@ export class MainMemoryService {
     
     console.groupEnd();
   }
-  
+
 
   private dec2hex(number: number) {
     let prefix = "0x"
