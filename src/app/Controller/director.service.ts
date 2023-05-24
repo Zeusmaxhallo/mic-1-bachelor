@@ -34,7 +34,6 @@ export class DirectorService {
     private macroTokenizer: MacroTokenizerService,
     private macroProvider: MacroProviderService,
     private microProvider: MicroProviderService,
-    private memory: MainMemoryService,
   ) { }
 
   private currentAddress = 1;
@@ -90,9 +89,6 @@ export class DirectorService {
   /** Setup the Director*/
   public init() {
     this.controlStore.loadMicro();
-    for (const register of this.regProvider.getRegisters()) {
-      this.showRegisterValue(register.getName(), register.getValue())
-    }
     this.endOfProgram = false;
   }
 
@@ -237,7 +233,6 @@ export class DirectorService {
       }
 
       MBR.setValue(this.mainMemory.get_8(addr));
-      this.showRegisterValue(MBR.getName(), MBR.getValue(), this.animationEnabled);
     } else {
       this.MBRMemoryQueue.shift();
     }
@@ -248,7 +243,6 @@ export class DirectorService {
       let addr = this.MDRMemoryQueue.shift();
       let MDR = this.regProvider.getRegister("MDR");
       MDR.setValue(this.mainMemory.get_32(addr));
-      this.showRegisterValue(MDR.getName(), MDR.getValue(), this.animationEnabled);
     } else { this.MDRMemoryQueue.shift(); }
 
 
