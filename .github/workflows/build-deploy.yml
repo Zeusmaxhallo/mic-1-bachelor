@@ -19,6 +19,12 @@ jobs:
         key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-
+    - name: Auto Increment Semver Action
+      uses: MCKanpolat/auto-semver-action@1.0.5
+      id: versioning
+      with:
+        releaseType: patch 
+        github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: Build
       run: |
         npm install --legacy-peer-deps

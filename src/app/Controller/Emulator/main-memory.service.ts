@@ -79,14 +79,6 @@ export class MainMemoryService {
     return 0;
   }
 
-  public save2LocalStorage() {
-    localStorage.setItem("mainMemory", JSON.stringify(this.memory));
-  }
-
-  public getFromLocalStorage() {
-    this.memory = JSON.parse(localStorage.getItem("mainMemory"));
-  }
-
   public printMemory() {
     this.printCodeArea();
     this.printConstantArea();
@@ -127,9 +119,7 @@ export class MainMemoryService {
     
     console.groupEnd();
   }
-
-
-
+  
 
   private dec2hex(number: number) {
     let prefix = "0x"

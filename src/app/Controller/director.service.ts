@@ -291,7 +291,6 @@ export class DirectorService {
       let addr = this.regProvider.getRegister("MAR").getValue() * 4;
       try {
         this.mainMemory.store_32(addr, this.regProvider.getRegister("MDR").getValue());
-        this.mainMemory.save2LocalStorage();
       } catch (error) {
         if (error instanceof Error) {
           console.error("Error in line " + this.lineNumber + " - " + error);
