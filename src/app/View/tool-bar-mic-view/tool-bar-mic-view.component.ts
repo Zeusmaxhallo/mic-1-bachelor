@@ -50,7 +50,6 @@ export class ToolBarMicViewComponent implements OnInit {
 
     this.director.init();
     this.director.step();
-    this.memory.save2LocalStorage();
 
     this.macroProvider.isLoaded();
     this.microProvider.isLoaded();
@@ -68,7 +67,6 @@ export class ToolBarMicViewComponent implements OnInit {
 
     this.director.init();
     this.director.runMacroInstruction();
-    this.memory.save2LocalStorage();
 
     this.macroProvider.isLoaded();
     this.microProvider.isLoaded();
