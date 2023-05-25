@@ -60,6 +60,7 @@ export class MacroTokenizerService {
 
 
   init(){
+    this.tokens = [];
     this.string = this.macroProvider.getMacro();
     while(true){
       this.token = this.getNextToken();
