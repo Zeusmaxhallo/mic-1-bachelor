@@ -50,6 +50,10 @@ export class DirectorService {
   public animationEnabled = true;
   public isAnimating = false;
 
+  private delay = function (ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
+
   private microBreakpoints: Array<number> = [];
   private macroBreakpoints: Array<number> = [];
   private macroBreakpointsAddr: Array<number> = [];
@@ -92,6 +96,7 @@ export class DirectorService {
 
   /** Run until macro-program is finished */
   public async run() {
+    let counter = 0;
     this.isRunning = true;
     while (!this.endOfProgram && this.isRunning) {
       await this.step();
@@ -99,6 +104,12 @@ export class DirectorService {
         this.hitBreakpoint = false;
         break;
       }
+      // stop after 1000 steps (probably endless loop)
+      if (counter >= 1000) {
+        this._consoleNotifier.next("Stopping run at Step " + counter + " - your program is probably in a endless loop. If that is not the case just press Run again!")
+        break;
+      }
+      counter++;
     }
   }
 
@@ -290,12 +301,9 @@ export class DirectorService {
 
     // wait for animation to finish -> animation sets isAnimating flag to false
     // while (this.isAnimating){}; does not work somehow so we check all 50ms for flag change
-    let delay = function (ms: number) {
-      return new Promise(resolve => setTimeout(resolve, ms))
-    }
     while (true) {
       if (!this.isAnimating) { break };
-      await delay(50);
+      await this.delay(50);
     }
 
   }
