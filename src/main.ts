@@ -11,6 +11,7 @@ if (environment.production) {
     window.console.log = function() {};
     window.console.table = function() {};
     window.console.group = function() {};
+    window.console.warn = function() {};
   }
 }
 
