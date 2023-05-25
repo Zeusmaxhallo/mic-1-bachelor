@@ -34,7 +34,6 @@ export class DirectorService {
     private macroTokenizer: MacroTokenizerService,
     private macroProvider: MacroProviderService,
     private microProvider: MicroProviderService,
-    private memory: MainMemoryService,
   ) { }
 
   private currentAddress = 1;
@@ -44,20 +43,18 @@ export class DirectorService {
   private MBRMemoryQueue: Array<number> = [];
   private MDRMemoryQueue: Array<number> = [];
 
-  private _isReady = new BehaviorSubject<boolean>(true);
-  private isReady = this._isReady.asObservable();
-  private sub: Subscription = new Subscription();
-
   public isRunning = false;
   public endOfProgram = true;
 
   public animationSpeed = 2;
   public animationEnabled = true;
+  public isAnimating = false;
 
   private microBreakpoints: Array<number> = [];
   private macroBreakpoints: Array<number> = [];
   private macroBreakpointsAddr: Array<number> = [];
   private hitBreakpoint = false;
+
 
   // Observables to notify other components 
   private startAnimationSource = new BehaviorSubject([]);
@@ -67,7 +64,7 @@ export class DirectorService {
   public setRegisterValues = this.setRegisterValuesSource.asObservable();
 
   private _finishedRun = new BehaviorSubject<boolean>(false);
-  public finishedRun = this._finishedRun.asObservable();
+  public finishedRun$ = this._finishedRun.asObservable();
 
   private _errorFlasher = new BehaviorSubject({ line: 0, error: "" });
   public errorFlasher$ = this._errorFlasher.asObservable();
@@ -97,97 +94,64 @@ export class DirectorService {
   }
 
   /** Run until macro-program is finished */
-  public run() {
+  public async run() {
     this.isRunning = true;
-    this.init();
-
-    this.sub = this.isReady.subscribe(
-      val => {
-
-        // check if run was stopped from extern
-        if (!this.isRunning) {
-          this.sub.unsubscribe()
-          return;
-        }
-
-        if (!this.endOfProgram) {
-          this.step();
-        } else {
-          this.sub.unsubscribe()
-          this.isRunning = false;
-        }
-      })
+    while (!this.endOfProgram && this.isRunning) {
+      await this.step();
+      if (this.hitBreakpoint) {
+        this.hitBreakpoint = false;
+        break;
+      }
+    }
   }
 
   /** director has to be initialized first -> .init() */
-  public runMacroInstruction() {
+  public async runMacroInstruction() {
 
-    // remember if animation was enabled
-    const animationEnableStatus = this.animationEnabled;
-    this.animationEnabled = false
+    // no animation -> remember current animationEnabled Status
+    const animationEnabledStore = this.animationEnabled;
+    this.animationEnabled = false;
 
-    this.isRunning = true;
-    this.step();
-    if (this.hitBreakpoint) {
-      this.isRunning = false;
-      this.hitBreakpoint = false;
+    // main-instruction (address: 1) gets executed after every instruction
+    // if we reached main the macro-instruction is finished
+    while (!this.endOfProgram) {
+      await this.step();
+      if (this.currentAddress === 1) { break };
+      if (this.hitBreakpoint) {
+        this.hitBreakpoint = false;
+        break;
+      }
+    }
+
+    // restore old animationEnabled value
+    this.animationEnabled = animationEnabledStore;
+  }
+
+  public async step() {
+
+    // check if program is finished -- pc reads outside of Code Area
+    if (this.mainMemory.finished && (this.currentAddress === 1 || this.currentAddress === 0)) {
+      this.endOfProgram = true;
+      this._consoleNotifier.next("Program terminated successfully!");
+      this._finishedRun.next(false); // disableButtons
       return;
     }
 
-    this.sub = this.isReady.subscribe(
-      val => {
-        // check if run was stopped from extern
-        if (!this.isRunning) {
-          this.sub.unsubscribe()
-          this.animationEnabled = animationEnableStatus;
-          return;
-        }
-
-        // main-instruction (address: 1) gets executed after every instruction
-        // if we reached main the macro-instruction is finished
-        if (this.currentAddress === 1 || this.endOfProgram) {
-          this.sub.unsubscribe()
-          this.isRunning = false;
-          this.animationEnabled = animationEnableStatus;
-        } else {
-          this.step();
-          if (this.hitBreakpoint) {
-            this.sub.unsubscribe();
-            this.isRunning = false;
-            this.animationEnabled = animationEnableStatus
-            this.hitBreakpoint = false;
-          }
-        }
-      }
-    )
-
-  }
-
-  public step() {
-
-    // check if program is finished
-    if (this.mainMemory.finished && (this.currentAddress === 1 || this.currentAddress === 0)) {
-      this.endOfProgram = true;
-      this._finishedRun.next(false);
-      this.isRunning = false;
-      this._isReady.next(false);
-      this._consoleNotifier.next("Program terminated successfully!")
-      return
-    }
 
     let line = this.controlStore.getMicro()[this.currentAddress];
     let tokens;
 
-    // check if there is an Instruction at current address
+    // check if there is an Instruction at the current Address
     if (line === undefined) {
-      this._errorFlasher.next({ line: 1000, error: "no Instruction at address " + this.currentAddress });
-      this.isRunning = false;
+      this._errorFlasher.next({ line: 1000, error: "no Instruction at address " + this.currentAddress })
       return;
     }
 
+    // get line number of the Editor
     this.lineNumber = line.lineNumber;
     console.log("Executing Instruction at Address: " + this.currentAddress + " line: " + this.lineNumber);
     this._currentLineNotifier.next({ line: line.lineNumber });
+
 
     // throw Error when there are no Tokens in current line
     try {
@@ -195,7 +159,6 @@ export class DirectorService {
     } catch (error) {
       console.error("Error in line " + this.lineNumber + " - " + error);
       this._errorFlasher.next({ line: this.lineNumber, error: "Invalid Instruction" });
-      this.isRunning = false;
       return;
     }
     if (!tokens) {
@@ -206,6 +169,7 @@ export class DirectorService {
     if (this.microBreakpoints.includes(this.lineNumber)) {
       console.log("%cHit Breakpoint in the micro-code in line " + this.lineNumber, "color: #248c46");
       this.hitBreakpoint = true;
+      this._finishedRun.next(true)
       this._breakpointFlasher.next({ line: this.lineNumber });
     }
 
@@ -213,9 +177,9 @@ export class DirectorService {
     if (this.macroBreakpointsAddr.includes(this.currentMacroAddr)) {
       console.log("%cHit Breakpoint in the memory address: " + (this.currentMacroAddr), "color: #248c46");
       this.hitBreakpoint = true;
+      this._finishedRun.next(true)
       this._breakpointFlasherMacro.next({ line: this.macroParser.getLineOfAddress(this.currentMacroAddr) });
     }
-
 
     // set MBR
     if (this.MBRMemoryQueue[0]) {
@@ -229,19 +193,12 @@ export class DirectorService {
       }
       this.currentMacroAddr += 1;
 
-      if (this.hitBreakpoint) {
-        this.sub.unsubscribe();
-        this.isRunning = false;
-        this.hitBreakpoint = false;
-        this._finishedRun.next(true);
-      }
 
       MBR.setValue(this.mainMemory.get_8(addr));
       this.showRegisterValue(MBR.getName(), MBR.getValue(), this.animationEnabled);
     } else {
       this.MBRMemoryQueue.shift();
     }
-
 
     //set MDR
     if (this.MDRMemoryQueue[0]) {
@@ -250,7 +207,6 @@ export class DirectorService {
       MDR.setValue(this.mainMemory.get_32(addr));
       this.showRegisterValue(MDR.getName(), MDR.getValue(), this.animationEnabled);
     } else { this.MDRMemoryQueue.shift(); }
-
 
 
     // parse instruction
@@ -262,11 +218,9 @@ export class DirectorService {
       if (error instanceof Error) {
         console.error("Error in line " + this.lineNumber + " - " + error);
         this._errorFlasher.next({ line: this.lineNumber, error: error.message });
-        this.isRunning = false;
       }
-      return
+      return;
     }
-
 
     // calculate
     let bBusResult = this.bBus.activate(microInstruction.b);
@@ -299,19 +253,17 @@ export class DirectorService {
         }
         return
       }
-
     }
 
-    this.stackProvider.update(); // update Stack after each step
+    // update Stack
+    this.stackProvider.update();
 
-    // set next address
+    // set next Address
     this.currentAddress = parseInt(microInstruction.addr.join(""), 2)
-
 
     // find address after a jump
     let micro = this.controlStore.getMicro()
     if (micro[this.currentAddress] === undefined) {
-      console.log(micro)
       this.lineNumber
 
       let closestLine = Infinity;
@@ -329,8 +281,6 @@ export class DirectorService {
       this.currentAddress = parseInt(address);
     }
 
-
-
     // check if we have to jump
     if (microInstruction.jam[2] && aluResult === 0) {
       this.currentAddress += 256;
@@ -339,31 +289,32 @@ export class DirectorService {
       this.currentAddress += 256;
     }
 
-    // start animation
+    // start Animation
     this.animate(bBusResult, aluResult, shifterResult, cBusResult, aBusResult);
 
-    return;
+
+    // wait for animation to finish -> animation sets isAnimating flag to false
+    // while (this.isAnimating){}; does not work somehow so we check all 50ms for flag change
+    let delay = function (ms: number) {
+      return new Promise(resolve => setTimeout(resolve, ms))
+    }
+    while (true) {
+      if (!this.isAnimating) { break };
+      await delay(50);
+    }
 
   }
 
-  private async animate(bBusResult: BBusResult, aluResult: number, shifterResult: number, cBusResult: CBusResult, aBusResult: number) {
+  private animate(bBusResult: BBusResult, aluResult: number, shifterResult: number, cBusResult: CBusResult, aBusResult: number) {
 
     if (this.animationEnabled) {
+
+      this.isAnimating = true;
 
       // Tell Mic-Visualization to start a animation via this Observable
       this.startAnimationSource.next([bBusResult, aluResult, shifterResult, cBusResult, aBusResult]);
     } else {
-
-
-      let delay = function (ms: number) {
-        return new Promise(resolve => setTimeout(resolve, ms))
-      }
-      await delay(10);
-
-      this._isReady.next(true);
-      if (!this.isRunning) {
-        this._finishedRun.next(true);
-      }
+      this._finishedRun.next(true);
       this.updateRegisterVis();
     }
   }
@@ -382,13 +333,13 @@ export class DirectorService {
   }
 
 
-  public set animationComplete(v: boolean) {
+  public set animationComplete(animated: boolean) {
     console.log("animations Complete");
+    this.isAnimating = false;
     //enable buttons
     if (!this.isRunning) {
       this._finishedRun.next(true);
     }
-    if (v) { this._isReady.next(true) }
   }
 
 
