@@ -25,15 +25,17 @@ export class RegistersComponent implements OnInit {
 
     const registerElement = document.querySelector("." + register + "_Value");
     const oldValue = registerElement.innerHTML;
+
+    registerElement.innerHTML = value.toString();
     
 
-    anime({
-      targets: registerElement,
-      innerHTML: [oldValue, value],
-      easing: 'linear',
-      round: 1, 
-      duration: Math.abs(parseInt(oldValue) - value) < 2 ? 1 : 300
-    });
+    //anime({
+    //  targets: registerElement,
+    //  innerHTML: [oldValue, value],
+    //  easing: 'linear',
+    //  round: 1, 
+    //  duration: Math.abs(parseInt(oldValue) - value) < 2 ? 1 : 300
+    //});
 
   }
 

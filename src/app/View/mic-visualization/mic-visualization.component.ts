@@ -45,7 +45,7 @@ export class MicVisualizationComponent implements AfterViewInit {
 
 
     this.director.startAnimation.subscribe(
-      async results => {
+      results => {
         if (results[0]) {
           const bBusResult: BBusResult = results[0];
           const aluResult: number = results[1];
@@ -55,11 +55,6 @@ export class MicVisualizationComponent implements AfterViewInit {
 
           this.animationSpeed = this.director.animationSpeed;
 
-          let delay = function (ms: number) {
-            return new Promise(resolve => setTimeout(resolve, ms))
-          }
-          await delay(1);
-          
           // start first animation -> wait until finished -> start next -> ...
           const bBusAnimation = this.bBus.startAnimation(bBusResult.register, bBusResult.value);
           this.aBus.startAnimation(aBusResult);

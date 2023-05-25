@@ -134,7 +134,7 @@ export class MainMemoryService {
   }
 
   public setCode(code: number[]) {
-    this.methodAreaSize = Math.ceil(code.length / 4) * 4; // align next Memory Addresses
+    this.methodAreaSize = code.length; // align next Memory Addresses
 
     this.regProvider.getRegister("MBR").setValue(code[0]); // Initialize MBR with first instruction
 
@@ -149,11 +149,13 @@ export class MainMemoryService {
    */
   public setConstants(constants: number[]) {
     this.constantPoolSize = constants.length * 4;
-    this.regProvider.getRegister("CPP").setValue(this.methodAreaSize / 4); // set CPP to first constant
+    let alignedMethodAreaSize = Math.ceil(this.methodAreaSize / 4) * 4;
+
+    this.regProvider.getRegister("CPP").setValue(alignedMethodAreaSize / 4); // set CPP to first constant
     for (let i = 0; i < constants.length; i++) {
-      this.store_32(this.methodAreaSize + i * 4, constants[i], true); // constants start after the MethodArea
+      this.store_32(alignedMethodAreaSize + i * 4, constants[i], true); // constants start after the MethodArea
     }
-    this._stackStartAddress = this.methodAreaSize + this.constantPoolSize;
+    this._stackStartAddress = alignedMethodAreaSize + this.constantPoolSize;
 
     // Set SP and LV to start of Stack
     this.regProvider.getRegister("SP").setValue(this._stackStartAddress / 4);

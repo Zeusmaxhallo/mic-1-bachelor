@@ -92,7 +92,7 @@ export class Microprogramms{
     (0x13F)T:OPC=PC-1;fetch; goto goto2
 
 
-(0xB6)INVOKEVIRTUAL:PC=PC+1; fetch
+    (0xB6)INVOKEVIRTUAL:PC=PC+1; fetch
     H=MBRU <<8
     H = MBRU OR H
     MAR=CPP + H; rd

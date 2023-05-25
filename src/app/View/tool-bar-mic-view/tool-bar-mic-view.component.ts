@@ -31,7 +31,9 @@ export class ToolBarMicViewComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.director.finishedRun.subscribe( result => {
+    this.director.animationEnabled = this.animate;
+    
+    this.director.finishedRun$.subscribe( result => {
       result ? this.enableRunButtons() : this.disableRunButtons();
     })
 
@@ -47,14 +49,13 @@ export class ToolBarMicViewComponent implements OnInit {
       this.macroParser.parse();
       this.director.reset();
     }
+    this.disableRunButtons();
 
     this.director.init();
     this.director.step();
 
     this.macroProvider.isLoaded();
     this.microProvider.isLoaded();
-
-    this.disableRunButtons();
   }
 
   stepMacro(){
