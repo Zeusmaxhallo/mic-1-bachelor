@@ -41,8 +41,6 @@ skip: GOTO test
 .method switch(p1, p2)
 ILOAD p2
 ILOAD p1
-// commenting the IRETURN in would create a loop
-// IRETURN
 .end-method`;
 
 const microCode: string = `Main1: PC=PC+1; fetch; goto(MBR)
