@@ -152,6 +152,7 @@ export class DirectorService {
     // check if there is an Instruction at the current Address
     if (line === undefined) {
       this._errorFlasher.next({ line: 1000, error: "no Instruction at address " + this.currentAddress })
+      this.endOfProgram = true;
       return;
     }
 
@@ -167,6 +168,7 @@ export class DirectorService {
     } catch (error) {
       console.error("Error in line " + this.lineNumber + " - " + error);
       this._errorFlasher.next({ line: this.lineNumber, error: "Invalid Instruction" });
+      this.endOfProgram = true;
       return;
     }
     if (!tokens) {
@@ -225,6 +227,7 @@ export class DirectorService {
         console.error("Error in line " + this.lineNumber + " - " + error);
         this._errorFlasher.next({ line: this.lineNumber, error: error.message });
       }
+      this.endOfProgram = true;
       return;
     }
 
@@ -256,6 +259,7 @@ export class DirectorService {
           console.error("Error in line " + this.lineNumber + " - " + error);
           this._errorFlasher.next({ line: this.lineNumber, error: error.message });
           this.isRunning = false;
+          this.endOfProgram = true;
         }
         return
       }
