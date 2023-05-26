@@ -564,12 +564,18 @@ export class MacroParserService {
     let valueByte1: number = view.getUint8(0);
     let valueByte2: number = view.getUint8(1);
     view.setInt16(0, this.constantOffsetToCPP[constName]);
+    
+    // contains the found i indexes in the following for-loop. The last element is this array is the index of the value we need to replace. 
+    // Thats where we need to replace the the method number(that is a placeholder) with the disp of this method
+    let candiatesForReplacement: number[] = []; 
     for(let i = 0; i < this.parsedCode.length; i++){
       if(this.parsedCode[i] === 182 && this.parsedCode[i+1] === valueByte1 && this.parsedCode[i+2] === valueByte2){
-        this.parsedCode[i+1] = view.getUint8(0);
-        this.parsedCode[i+2] = view.getUint8(1);
+        candiatesForReplacement.push(i)
       }
     }
+    let indexOfValueToReplace = candiatesForReplacement[(candiatesForReplacement.length)-1]
+    this.parsedCode[indexOfValueToReplace+1] = view.getUint8(0);
+    this.parsedCode[indexOfValueToReplace+2] = view.getUint8(1);
 
     // replace placeholder offset in addrToOffset
     this.addrToOffset[this.methodToAddr[this.constantOffsetToCPP[constName]]] = constValue;
