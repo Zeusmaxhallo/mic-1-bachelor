@@ -342,6 +342,7 @@ export class DirectorService {
 
   public set animationComplete(animated: boolean) {
     console.log("animations Complete");
+    this.updateRegisterVis()
     this.isAnimating = false;
     //enable buttons
     if (!this.isRunning) {
