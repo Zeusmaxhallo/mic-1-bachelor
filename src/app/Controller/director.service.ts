@@ -85,6 +85,9 @@ export class DirectorService {
   private _currentLineNotifier = new BehaviorSubject({ line: 0 });
   public currentLineNotifier$ = this._currentLineNotifier.asObservable();
 
+  private _aluFlags = new BehaviorSubject({ N: false, Z: false });
+  public aluFlags$ = this._aluFlags.asObservable();
+
 
 
 
@@ -298,6 +301,8 @@ export class DirectorService {
     if (microInstruction.jam[1] && aluResult < 0) {
       this.currentAddress += 256;
     }
+
+    this._aluFlags.next({ N: this.alu.n, Z: this.alu.z });
 
     // start Animation
     this.animate(bBusResult, aluResult, shifterResult, cBusResult, aBusResult);

@@ -32,6 +32,9 @@
     <!-- A-Bus Component -->
     <g app-a-bus #aBus [speed]="animationSpeed * 0.5" (endEvent)="endAnimation($event)" />
 
+    <!-- N and Z Arrows -->
+    <g app-alu-flag-arrows />
+
     <g id="Shifter" transform="translate(0 -175)">
         <g id="H_3">
             <rect id="Rectangle 17_2" x="265" y="850" width="106" height="36" fill="#D9D9D9"
@@ -101,6 +104,11 @@
             fill="black" />
     </g>
     -->
+
+
+
+
+
     <defs>
         <filter id="filter0_b_0_1" x="234.009" y="711" width="31.094" height="28"
             filterUnits="userSpaceOnUse"

@@ -33,6 +33,7 @@ import { MdbDropdownModule } from 'mdb-angular-ui-kit/dropdown';
 import {MatTabsModule} from '@angular/material/tabs';
 import { DebugConsoleComponent } from './View/debug-console/debug-console.component';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { AluFlagArrowsComponent } from './View/SVG/alu-flag-arrows/alu-flag-arrows.component';
 
 
 @NgModule({
@@ -53,6 +54,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     GettingStartedDialogComponent,
     AboutDialogComponent,
     DebugConsoleComponent,
+    AluFlagArrowsComponent,
   ],
   imports: [
     BrowserModule,
