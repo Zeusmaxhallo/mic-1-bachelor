@@ -85,6 +85,9 @@ export class DirectorService {
   private _currentLineNotifier = new BehaviorSubject({ line: 0 });
   public currentLineNotifier$ = this._currentLineNotifier.asObservable();
 
+  private _aluFlags = new BehaviorSubject({ N: false, Z: false });
+  public aluFlags$ = this._aluFlags.asObservable();
+
 
 
 
@@ -152,6 +155,7 @@ export class DirectorService {
     // check if there is an Instruction at the current Address
     if (line === undefined) {
       this._errorFlasher.next({ line: 1000, error: "no Instruction at address " + this.currentAddress })
+      this.endOfProgram = true;
       return;
     }
 
@@ -167,6 +171,7 @@ export class DirectorService {
     } catch (error) {
       console.error("Error in line " + this.lineNumber + " - " + error);
       this._errorFlasher.next({ line: this.lineNumber, error: "Invalid Instruction" });
+      this.endOfProgram = true;
       return;
     }
     if (!tokens) {
@@ -225,6 +230,7 @@ export class DirectorService {
         console.error("Error in line " + this.lineNumber + " - " + error);
         this._errorFlasher.next({ line: this.lineNumber, error: error.message });
       }
+      this.endOfProgram = true;
       return;
     }
 
@@ -256,6 +262,7 @@ export class DirectorService {
           console.error("Error in line " + this.lineNumber + " - " + error);
           this._errorFlasher.next({ line: this.lineNumber, error: error.message });
           this.isRunning = false;
+          this.endOfProgram = true;
         }
         return
       }
@@ -294,6 +301,8 @@ export class DirectorService {
     if (microInstruction.jam[1] && aluResult < 0) {
       this.currentAddress += 256;
     }
+
+    this._aluFlags.next({ N: this.alu.n, Z: this.alu.z });
 
     // start Animation
     this.animate(bBusResult, aluResult, shifterResult, cBusResult, aBusResult);
