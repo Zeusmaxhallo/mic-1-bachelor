@@ -104,6 +104,8 @@ export class MacroParserService {
     console.table(this.constants);
     console.log("list of Methods: ");
     console.table(this.methods);
+    console.log("methods and there number of parameters")
+    console.table(this.methodsParameterNumber);
     console.log("variablenames and their offset to LV: ");
     console.table(this.variableOffsetToLV);
     console.log("variable offsets and the value of the variable at the end: ");
@@ -636,7 +638,7 @@ export class MacroParserService {
 
           // if parsedParameter is not undefined after this, the parameter is a variable
           if(parsedParameter === undefined){
-            parsedParameter = this.variableOffsetToLV[instructionToken[i]];
+            parsedParameter = this.variableOffsetToLV[instructionToken[i]] + (this.methodsParameterNumber[methodName]);
           }
 
           // if parsedParameter is not NaN after this, the parameter is a byte
