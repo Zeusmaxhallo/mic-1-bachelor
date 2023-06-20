@@ -642,7 +642,7 @@ export class MacroParserService {
           }
 
           // if parsedParameter is not NaN after this, the parameter is a byte
-          if(parsedParameter === undefined){
+          if(isNaN(parsedParameter)){
             if(+instructionToken < -128 || +instructionToken > 127){
               throw new Error("The number " + +instructionToken + " does not fit in a signed byte");
             }
