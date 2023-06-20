@@ -1,0 +1,40 @@
+<div class="table" *ngIf="presentationMode === false">
+    <table id="memory" style="font-size: small;">
+        <tr>
+            <th>
+                Addresses
+            </th>
+            <th>
+                Values
+            </th>
+        </tr>
+        <tr *ngFor="let row of memoryArr">
+            <td>
+                {{row.address}}
+            </td>
+            <td>
+                {{row.value}}
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="table" *ngIf="presentationMode === true">
+    <table id="memory" style="font-size: large;">
+        <tr>
+            <th>
+                Addresses
+            </th>
+            <th>
+                Values
+            </th>
+        </tr>
+        <tr *ngFor="let row of memoryArr">
+            <td>
+                {{row.address}}
+            </td>
+            <td>
+                {{row.value}}
+            </td>
+        </tr>
+    </table>
+</div>

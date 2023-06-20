@@ -27,7 +27,7 @@ export class ToolBarMicViewComponent implements OnInit {
     private macroTokenizer: MacroTokenizerService,
     private macroParser: MacroParserService,
     private macroProvider: MacroProviderService,
-    private microProvider: MicroProviderService
+    private microProvider: MicroProviderService,
   ) {}
 
   ngOnInit(): void {

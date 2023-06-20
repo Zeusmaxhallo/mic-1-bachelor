@@ -36,6 +36,8 @@ export class MacroParserService {
 
   private _errorFlasher = new BehaviorSubject({ line: 0, error: "" });
   public errorFlasher$ = this._errorFlasher.asObservable();
+  private _memoryViewRefresher = new BehaviorSubject<boolean>(false);
+  public memoryViewRefresher$ = this._memoryViewRefresher.asObservable();
 
 
   constructor(
@@ -96,6 +98,8 @@ export class MacroParserService {
     this.memory.setConstants(this.constants);
     this.memory.createVariables(this.variables.length);
 
+    this._memoryViewRefresher.next(true);
+
     console.log("Memory: ");
     this.memory.printMemory();
     console.log("constantnames and their offset to CPP: ");
@@ -141,6 +145,8 @@ export class MacroParserService {
     this.methodNumber = 0;
     this.currentLocalVarCount = 0;
     this.currentLine = 1;
+
+    this._memoryViewRefresher.next(false);
   }
 
   // saves the constants with a value to the Main Memory and slices the constant field and the constant tokens out from the tokensarray

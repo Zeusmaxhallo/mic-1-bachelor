@@ -171,5 +171,9 @@ export class MainMemoryService {
     this.regProvider.getRegister("SP").setValue(this.regProvider.getRegister("SP").getValue() + amount);
   }
 
+  public getMemory(){
+    return this.memory;
+  }
+
 
 }
