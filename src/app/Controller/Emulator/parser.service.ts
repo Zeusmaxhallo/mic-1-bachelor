@@ -265,11 +265,23 @@ export class ParserService {
     let aluInstruction = this.tokens.slice(0, dividerPos + 1);
     let registerAmount = aluInstruction.filter(x => x.type == "REGISTER").length
 
+
+    
+
     // split shifter and Alu instructions
     let shifterInstruction: Token[] = [];
     for (let i = 0; i < aluInstruction.length; i++) {
+
       if (aluInstruction[i].type == "BITWISE_OPERATOR") {
-        shifterInstruction = aluInstruction.splice(i, 2);
+        // shifter Instruction has to be at the end of the AluInstruction
+        if(aluInstruction.length - i <= 3){
+          shifterInstruction = aluInstruction.splice(i, 2);
+          break;
+        }else{
+          throw new Error("InvalidAluInstruction - Shifter Operation must come at the end of the Alu Instruction")
+        }
+
+        
       }
     }
 

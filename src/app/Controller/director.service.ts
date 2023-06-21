@@ -277,7 +277,6 @@ export class DirectorService {
     // find address after a jump
     let micro = this.controlStore.getMicro()
     if (micro[this.currentAddress] === undefined) {
-      this.lineNumber
 
       let closestLine = Infinity;
       let address: string;
