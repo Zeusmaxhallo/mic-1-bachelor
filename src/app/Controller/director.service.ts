@@ -227,6 +227,26 @@ export class DirectorService {
       microInstruction = this.parser.parse();
     } catch (error) {
       if (error instanceof Error) {
+        
+        // skip rest of current step if the instruction is empty
+        if(error.message === "EmptyInstructionError"){
+
+          // if the next Instruction is not defined -> error
+          if(this.controlStore.getMicro()[this.currentAddress + 1] === undefined){
+            this._errorFlasher.next({ line: this.lineNumber, error: error.message });
+            this.endOfProgram = true;
+            return;
+          };
+
+          // if next instruction is defined skip to next instruction
+          this.currentAddress++;
+          this._finishedRun.next(true);
+          this.updateRegisterVis();
+          return;
+        }
+
+
+
         console.error("Error in line " + this.lineNumber + " - " + error);
         this._errorFlasher.next({ line: this.lineNumber, error: error.message });
       }
