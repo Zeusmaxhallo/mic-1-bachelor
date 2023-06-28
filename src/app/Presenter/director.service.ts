@@ -140,12 +140,12 @@ export class DirectorService {
 
   public async step() {
 
-    if(this.isAnimating === true){
+    if (this.isAnimating) {
       this.updateRegisterVis();
     }
 
-    // check if program is finished -- pc reads outside of Code Area
-    if (this.mainMemory.finished && (this.currentAddress === 1 || this.currentAddress === 0)) {
+    // the flag 0xFF means the program is finished - if we find it -> end program
+    if (this.currentAddress === 255) {
       this.endOfProgram = true;
       this._consoleNotifier.next("Program terminated successfully!");
       this._finishedRun.next(false); // disableButtons
@@ -233,10 +233,10 @@ export class DirectorService {
       if (error instanceof Error) {
 
         // skip rest of current step if the instruction is empty
-        if(error.message === "EmptyInstructionError"){
+        if (error.message === "EmptyInstructionError") {
 
           // if the next Instruction is not defined -> error
-          if(this.controlStore.getMicro()[this.currentAddress + 1] === undefined){
+          if (this.controlStore.getMicro()[this.currentAddress + 1] === undefined) {
             this._errorFlasher.next({ line: this.lineNumber, error: error.message });
             this.endOfProgram = true;
             return;
@@ -248,8 +248,6 @@ export class DirectorService {
           this.updateRegisterVis();
           return;
         }
-
-
 
         console.error("Error in line " + this.lineNumber + " - " + error);
         this._errorFlasher.next({ line: this.lineNumber, error: error.message });
@@ -300,7 +298,7 @@ export class DirectorService {
 
     // find address after a jump
     let micro = this.controlStore.getMicro()
-    if (micro[this.currentAddress] === undefined) {
+    if (micro[this.currentAddress] === undefined && this.currentAddress !== 255) {
 
       let closestLine = Infinity;
       let address: string;
