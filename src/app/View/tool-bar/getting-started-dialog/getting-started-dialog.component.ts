@@ -161,8 +161,8 @@ const microCode: string = `Main1: PC=PC+1; fetch; goto(MBR)
     LV=TOS; goto Main1
 
 (0xCC)IRETURN:MAR=SP=LV; rd
-    LV=MAR=MDR; rd
     ireturn1:   //wait
+    LV=MAR=MDR; rd
     MAR=LV+1
     PC=MDR;rd;fetch
     MAR=SP
@@ -290,8 +290,8 @@ PC=PC+1; fetch
 LV=TOS; goto Main1
 
 (0xCC)IRETURN:MAR=SP=LV; rd
-LV=MAR=MDR; rd
 ireturn1:   //wait
+LV=MAR=MDR; rd
 MAR=LV+1
 PC=MDR;rd;fetch
 MAR=SP
