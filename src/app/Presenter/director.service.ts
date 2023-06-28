@@ -140,6 +140,10 @@ export class DirectorService {
 
   public async step() {
 
+    if(this.isAnimating === true){
+      this.updateRegisterVis();
+    }
+
     // check if program is finished -- pc reads outside of Code Area
     if (this.mainMemory.finished && (this.currentAddress === 1 || this.currentAddress === 0)) {
       this.endOfProgram = true;
