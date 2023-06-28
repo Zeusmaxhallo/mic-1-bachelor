@@ -77,6 +77,7 @@ export class MacroParserService {
 
         // place a flag so that the director can use it as a flag for ending the program
         this.parsedCode.push(255);
+        this.parsedTokenNumber += 1;
       }
       else if(this.tokens[0].value.slice(0, 7) === '.method'){
         let methodStr = this.tokens[0].value.slice(8);
