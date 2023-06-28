@@ -46,7 +46,6 @@ export class ToolBarMicViewComponent implements OnInit {
 
   step(){
     this.controller.step();
-    this.disableRunButtons();
   }
 
   stepMacro(){
