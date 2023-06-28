@@ -1,11 +1,11 @@
 import { AfterViewInit, Component, ElementRef, ViewChild, ɵɵqueryRefresh } from "@angular/core";
-import { MicroProviderService } from "src/app/Controller/micro-provider.service";
-import { ControllerService } from "src/app/Controller/controller.service";
+import { MicroProviderService } from "src/app/Model/micro-provider.service";
+import { ControllerService } from "src/app/Presenter/controller.service";
 import * as ace from "ace-builds";
-import { DirectorService } from "src/app/Controller/director.service";
+import { DirectorService } from "src/app/Presenter/director.service";
 import { timer } from "rxjs";
-import { ThemeControlService } from "src/app/Controller/theme-control.service";
-import { PresentationModeControllerService } from "src/app/Controller/presentation-mode-controller.service";
+import { ThemeControlService } from "src/app/Presenter/theme-control.service";
+import { PresentationModeControllerService } from "src/app/Presenter/presentation-mode-controller.service";
 
 
 const LANG = "ace/mode/micro";
@@ -159,7 +159,7 @@ export class MicroEditorComponent implements AfterViewInit {
     this.aceEditor.getSession().addMarker(new ace.Range(line - 1, 0, line, 0), "ace_highlight-line", "text");
   }
 
-  
+
 
   private highlightBreakpoint(line: number) {
     this.aceEditor.getSession().addMarker(new ace.Range(line - 1, 0, line, 0), "ace_breakpoint-line", "text");

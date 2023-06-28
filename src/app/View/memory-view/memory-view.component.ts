@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MainMemoryService } from 'src/app/Controller/Emulator/main-memory.service';
 import { MacroParserService } from 'src/app/Controller/macro-parser.service';
-import { PresentationModeControllerService } from 'src/app/Controller/presentation-mode-controller.service';
+import { PresentationModeControllerService } from 'src/app/Presenter/presentation-mode-controller.service';
 
 @Component({
   selector: 'app-memory-view',

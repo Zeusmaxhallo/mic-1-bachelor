@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ViewChild } from '@angular/core';
-import { DirectorService } from 'src/app/Controller/director.service';
+import { DirectorService } from 'src/app/Presenter/director.service';
 import { BBusResult, BBusService } from 'src/app/Controller/Emulator/b-bus.service';
 import { CBusResult } from 'src/app/Controller/Emulator/c-bus.service';
 import { ABusComponent } from '../SVG/a-bus/a-bus.component';
@@ -64,7 +64,7 @@ export class MicVisualizationComponent implements AfterViewInit {
               const cBusAnim = this.cBus.startAnimation(cBusResult.registers, cBusResult.value);
               cBusAnim.then(()=> this.director.animationComplete = true);
             })
-            
+
           })
         }
 

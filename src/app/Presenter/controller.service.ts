@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import * as FileSaver from 'file-saver';
-import { MacroProviderService } from './macro-provider.service';
-import { MicroProviderService } from './micro-provider.service';
-import { RegProviderService } from './reg-provider.service';
+import { MacroProviderService } from '../Model/macro-provider.service';
+import { MicroProviderService } from '../Model/micro-provider.service';
+import { RegProviderService } from '../Model/reg-provider.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,8 +10,8 @@ import { RegProviderService } from './reg-provider.service';
 export class ControllerService {
 
   constructor(
-    private regProvider: RegProviderService, 
-    private macroProvider: MacroProviderService, 
+    private regProvider: RegProviderService,
+    private macroProvider: MacroProviderService,
     private microProvider: MicroProviderService
   ) { }
 
@@ -36,8 +36,8 @@ export class ControllerService {
   }
 
   //reads the imported file and sets it in the microprograms editor
-  importMicro(file: any){    
-    if(file.type === "text/plain"){      
+  importMicro(file: any){
+    if(file.type === "text/plain"){
       let fileReader = new FileReader();
       fileReader.readAsText(file);
 
@@ -51,15 +51,15 @@ export class ControllerService {
   }
 
   //downloads a txt file with the macrocode as content
-  exportMacro(){ 
+  exportMacro(){
     var textMac: string = this.macroProvider.getMacro();
-    var data = new Blob([textMac], {type: 'text/plain'}); 
+    var data = new Blob([textMac], {type: 'text/plain'});
     FileSaver.saveAs(data, 'macro.txt');
   }
 
   exportMicro(){
     var textMic: string = this.microProvider.getMicro();
-    var data = new Blob([textMic], {type: 'text/plain'}); 
+    var data = new Blob([textMic], {type: 'text/plain'});
     FileSaver.saveAs(data, 'micro.txt');
   }
 }

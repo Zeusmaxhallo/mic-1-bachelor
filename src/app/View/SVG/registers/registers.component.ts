@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { PresentationModeControllerService } from 'src/app/Controller/presentation-mode-controller.service';
+import { PresentationModeControllerService } from 'src/app/Presenter/presentation-mode-controller.service';
 declare let anime: any;
 
 @Component({
@@ -27,13 +27,13 @@ export class RegistersComponent implements OnInit {
     const oldValue = registerElement.innerHTML;
 
     registerElement.innerHTML = value.toString();
-    
+
 
     //anime({
     //  targets: registerElement,
     //  innerHTML: [oldValue, value],
     //  easing: 'linear',
-    //  round: 1, 
+    //  round: 1,
     //  duration: Math.abs(parseInt(oldValue) - value) < 2 ? 1 : 300
     //});
 

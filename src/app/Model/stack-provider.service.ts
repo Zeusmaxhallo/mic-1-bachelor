@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { MainMemoryService } from './Emulator/main-memory.service';
+import { MainMemoryService } from '../Controller/Emulator/main-memory.service';
 import { RegProviderService } from './reg-provider.service';
 
 @Injectable({
@@ -16,11 +16,11 @@ export class StackProviderService  {
   private _lv: number = 0;
 
   private _items: [number,number][] = [];
-  
+
   public get items() : [number,number][]  {
     return this._items;
   }
-  
+
 
 
   public update(){

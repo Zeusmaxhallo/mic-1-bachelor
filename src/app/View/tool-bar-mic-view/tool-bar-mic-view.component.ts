@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { DirectorService } from 'src/app/Controller/director.service';
+import { DirectorService } from 'src/app/Presenter/director.service';
 import { ControlStoreService } from 'src/app/Controller/Emulator/control-store.service';
 import { MainMemoryService } from 'src/app/Controller/Emulator/main-memory.service';
 import { MacroParserService } from 'src/app/Controller/macro-parser.service';
-import { MacroProviderService } from 'src/app/Controller/macro-provider.service';
+import { MacroProviderService } from 'src/app/Model/macro-provider.service';
 import { MacroTokenizerService } from 'src/app/Controller/macro-tokenizer.service';
-import { MicroProviderService } from 'src/app/Controller/micro-provider.service';
+import { MicroProviderService } from 'src/app/Model/micro-provider.service';
 
 @Component({
   selector: 'app-tool-bar-mic-view',
@@ -32,7 +32,7 @@ export class ToolBarMicViewComponent implements OnInit {
 
   ngOnInit(): void {
     this.director.animationEnabled = this.animate;
-    
+
     this.director.finishedRun$.subscribe( result => {
       result ? this.enableRunButtons() : this.disableRunButtons();
     })
@@ -45,7 +45,7 @@ export class ToolBarMicViewComponent implements OnInit {
   step(){
     if(this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()){
       this.controlStore.loadMicro();
-      this.macroTokenizer.init(); 
+      this.macroTokenizer.init();
       this.macroParser.parse();
       this.director.reset();
     }
@@ -61,7 +61,7 @@ export class ToolBarMicViewComponent implements OnInit {
   stepMacro(){
     if(this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()){
       this.controlStore.loadMicro();
-      this.macroTokenizer.init(); 
+      this.macroTokenizer.init();
       this.macroParser.parse();
       this.director.reset();
     }
@@ -95,7 +95,7 @@ export class ToolBarMicViewComponent implements OnInit {
   run(){
     if(this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()){
       this.controlStore.loadMicro();
-      this.macroTokenizer.init(); 
+      this.macroTokenizer.init();
       this.macroParser.parse();
       this.director.reset();
     }

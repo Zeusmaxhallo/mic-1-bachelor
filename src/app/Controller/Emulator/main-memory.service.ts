@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { RegProviderService } from '../reg-provider.service';
+import { RegProviderService } from '../../Model/reg-provider.service';
 
 @Injectable({
   providedIn: 'root'
@@ -70,7 +70,7 @@ export class MainMemoryService {
   }
 
   public get_8(address: number, intern?: boolean): number {
-    if (address >= this.methodAreaSize) { 
+    if (address >= this.methodAreaSize) {
       console.warn("PC reading outside of Method Area (PC is not pointing to Code), current PC value: ", address);
       this.finished = true;
     }
@@ -120,7 +120,7 @@ export class MainMemoryService {
     for (let i = 0; i < keys.length; i += 4) {
       console.log(`  ${this.dec2hex(parseInt(keys[i]))}        0b${this.get_32(parseInt(keys[i])).toString(2)} = ${this.get_32(parseInt(keys[i]))}`)
     }
-    
+
     console.groupEnd();
   }
 
