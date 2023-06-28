@@ -3,6 +3,10 @@ import * as FileSaver from 'file-saver';
 import { MacroProviderService } from '../Model/macro-provider.service';
 import { MicroProviderService } from '../Model/micro-provider.service';
 import { RegProviderService } from '../Model/reg-provider.service';
+import { ControlStoreService } from '../Controller/Emulator/control-store.service';
+import { MacroTokenizerService } from '../Controller/macro-tokenizer.service';
+import { MacroParserService } from '../Controller/macro-parser.service';
+import { DirectorService } from './director.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,14 +14,27 @@ import { RegProviderService } from '../Model/reg-provider.service';
 export class ControllerService {
 
   constructor(
-    private regProvider: RegProviderService,
     private macroProvider: MacroProviderService,
-    private microProvider: MicroProviderService
+    private microProvider: MicroProviderService,
+    private controlStore: ControlStoreService,
+    private macroTokenizer: MacroTokenizerService,
+    private macroParser: MacroParserService,
+    private director: DirectorService,
   ) { }
 
   step(){
-    let PC = this.regProvider.getRegister("PC");
-    PC.setValue(PC.getValue() + 1);
+    if(this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()){
+      this.controlStore.loadMicro();
+      this.macroTokenizer.init();
+      this.macroParser.parse();
+      this.director.reset();
+    }
+
+    this.director.init();
+    this.director.step();
+
+    this.macroProvider.isLoaded();
+    this.microProvider.isLoaded();
   }
 
   //reads the imported file and sets it in the macroassembler editor

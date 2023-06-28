@@ -6,6 +6,7 @@ import { MacroParserService } from 'src/app/Controller/macro-parser.service';
 import { MacroProviderService } from 'src/app/Model/macro-provider.service';
 import { MacroTokenizerService } from 'src/app/Controller/macro-tokenizer.service';
 import { MicroProviderService } from 'src/app/Model/micro-provider.service';
+import { ControllerService } from 'src/app/Presenter/controller.service';
 
 @Component({
   selector: 'app-tool-bar-mic-view',
@@ -28,6 +29,7 @@ export class ToolBarMicViewComponent implements OnInit {
     private macroParser: MacroParserService,
     private macroProvider: MacroProviderService,
     private microProvider: MicroProviderService,
+    private controller: ControllerService,
   ) {}
 
   ngOnInit(): void {
@@ -43,19 +45,8 @@ export class ToolBarMicViewComponent implements OnInit {
   }
 
   step(){
-    if(this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()){
-      this.controlStore.loadMicro();
-      this.macroTokenizer.init();
-      this.macroParser.parse();
-      this.director.reset();
-    }
+    this.controller.step();
     this.disableRunButtons();
-
-    this.director.init();
-    this.director.step();
-
-    this.macroProvider.isLoaded();
-    this.microProvider.isLoaded();
   }
 
   stepMacro(){
