@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
-import { MacroProviderService } from 'src/app/Controller/macro-provider.service';
-import { MicroProviderService } from 'src/app/Controller/micro-provider.service';
+import { MacroProviderService } from 'src/app/Model/macro-provider.service';
+import { MicroProviderService } from 'src/app/Model/micro-provider.service';
 
 const code1: string = `.main
 BIPUSH 7
@@ -44,7 +44,7 @@ ILOAD p1
 .end-method`;
 
 const microCode: string = `Main1: PC=PC+1; fetch; goto(MBR)
-        
+
 (0x00)NOP:; goto Main1
 
 (0x10)BIPUSH: SP=MAR=SP+1;
@@ -107,7 +107,7 @@ const microCode: string = `Main1: PC=PC+1; fetch; goto(MBR)
     H=MDR
     PC=PC+1; fetch
     MDR=MBR+H; wr; goto Main1
-    
+
 (0xA7)GOTO:OPC=PC-1
     goto2: PC=PC+1; fetch;
     H=MBR <<8
@@ -307,8 +307,8 @@ MDR=TOS; wr; goto Main1`;
 export class GettingStartedDialogComponent implements OnInit {
 
   constructor(
-    private microProvider: MicroProviderService, 
-    private macroProvider: MacroProviderService, 
+    private microProvider: MicroProviderService,
+    private macroProvider: MacroProviderService,
     private dialogRef: MatDialogRef<GettingStartedDialogComponent>
   ) { }
 

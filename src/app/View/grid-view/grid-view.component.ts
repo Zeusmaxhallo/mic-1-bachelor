@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { GridViewControllerService } from 'src/app/Controller/grid-view-controller.service';
+import { GridViewControllerService } from 'src/app/Presenter/grid-view-controller.service';
 
 @Component({
   selector: 'app-grid-view',

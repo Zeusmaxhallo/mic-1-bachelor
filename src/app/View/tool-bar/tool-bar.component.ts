@@ -1,12 +1,12 @@
 import { Component, HostBinding, OnInit, ViewChild } from '@angular/core';
-import { ControllerService } from 'src/app/Controller/controller.service';
+import { ControllerService } from 'src/app/Presenter/controller.service';
 import { MatDialog } from '@angular/material/dialog';
 import { GettingStartedDialogComponent } from './getting-started-dialog/getting-started-dialog.component';
 import { AboutDialogComponent } from './about-dialog/about-dialog.component';
-import { GridViewControllerService } from 'src/app/Controller/grid-view-controller.service';
+import { GridViewControllerService } from 'src/app/Presenter/grid-view-controller.service';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
-import { ThemeControlService } from 'src/app/Controller/theme-control.service';
-import { PresentationModeControllerService } from 'src/app/Controller/presentation-mode-controller.service';
+import { ThemeControlService } from 'src/app/Presenter/theme-control.service';
+import { PresentationModeControllerService } from 'src/app/Presenter/presentation-mode-controller.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -21,7 +21,7 @@ export class ToolBarComponent implements OnInit {
   @ViewChild('fileMic') importMic: any;
   @HostBinding('class') className = '';
 
-  public currentApplicationVersion = environment.appVersion; 
+  public currentApplicationVersion = environment.appVersion;
 
   constructor(
     private controllerService: ControllerService,

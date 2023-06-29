@@ -1,12 +1,12 @@
 import { AfterViewInit, Component, ElementRef, OnChanges, SimpleChanges, ViewChild } from "@angular/core";
-import { MacroProviderService } from "src/app/Controller/macro-provider.service";
-import { ControllerService } from "src/app/Controller/controller.service";
+import { MacroProviderService } from "src/app/Model/macro-provider.service";
+import { ControllerService } from "src/app/Presenter/controller.service";
 import * as ace from "ace-builds";
-import { DirectorService } from "src/app/Controller/director.service";
+import { DirectorService } from "src/app/Presenter/director.service";
 import { timer } from "rxjs";
 import { MacroParserService } from "src/app/Controller/macro-parser.service";
-import { ThemeControlService } from "src/app/Controller/theme-control.service";
-import { PresentationModeControllerService } from "src/app/Controller/presentation-mode-controller.service";
+import { ThemeControlService } from "src/app/Presenter/theme-control.service";
+import { PresentationModeControllerService } from "src/app/Presenter/presentation-mode-controller.service";
 
 
 const LANG = "ace/mode/mic1";

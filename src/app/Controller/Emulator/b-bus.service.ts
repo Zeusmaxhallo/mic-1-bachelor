@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { RegProviderService } from '../reg-provider.service';
+import { RegProviderService } from '../../Model/reg-provider.service';
 
 export interface BBusResult{
   register: string;
@@ -22,8 +22,8 @@ export class BBusService {
   }
 
   /**
-   * 
-   * @param reg 
+   *
+   * @param reg
    * @returns BBusResult :: {register: string, value: number}
    */
   public activate(reg: Array<number>): BBusResult {

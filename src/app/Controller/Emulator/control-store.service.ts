@@ -1,7 +1,7 @@
 import { Token } from '../micro-tokenizer.service';
 import { Injectable } from '@angular/core';
 import { ParserService, Instruction, Line } from 'src/app/Controller/Emulator/parser.service';
-import { MicroProviderService } from '../micro-provider.service';
+import { MicroProviderService } from '../../Model/micro-provider.service';
 
 @Injectable({
   providedIn: 'root'
@@ -24,9 +24,9 @@ export class ControlStoreService {
   getMicroAddr(){
     return this.microAddr;
   }
-  
+
   getMicro(){
     return this.micro;
   }
-  
+
 }

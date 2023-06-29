@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { RegProviderService } from '../reg-provider.service';
+import { RegProviderService } from '../../Model/reg-provider.service';
 import { MicroTokenizerService } from '../micro-tokenizer.service';
 import { Token } from '../micro-tokenizer.service';
 
@@ -98,7 +98,7 @@ export class ParserService {
       Alu:   ${this.alu.join("")},
       C:     ${this.c.join("")},
       Mem:   ${this.mem.join("")},
-      B:     ${this.b.join("")}, 
+      B:     ${this.b.join("")},
     `)
     }
 
@@ -266,7 +266,7 @@ export class ParserService {
     let registerAmount = aluInstruction.filter(x => x.type == "REGISTER").length
 
 
-    
+
 
     // split shifter and Alu instructions
     let shifterInstruction: Token[] = [];
@@ -281,7 +281,7 @@ export class ParserService {
           throw new Error("InvalidAluInstruction - Shifter Operation must come at the end of the Alu Instruction")
         }
 
-        
+
       }
     }
 
@@ -343,7 +343,7 @@ export class ParserService {
       } else { aluInstruction.shift(); }
     }
 
-    // 0 
+    // 0
     if (aluInstruction[0].value == "0") {
       this.alu = [0, 0, 0, 1, 0, 0, 0, 0];
       return;
@@ -359,7 +359,7 @@ export class ParserService {
   }
 
   private aluCase1Reg(aluInstruction: Token[]) {
-    // Alu instructions with one Register can be "A", "B", "-A", "A+1", "B+1" or "B-1". 
+    // Alu instructions with one Register can be "A", "B", "-A", "A+1", "B+1" or "B-1".
 
     if (aluInstruction.length > 4) { throw new Error("InvalidAluInstruction"); }
 
@@ -623,10 +623,10 @@ export class ParserService {
 
 
 
-  /**  
+  /**
    * Find the Address for each micro-instruction and create Labels (if given)
    * @param input - Array of Instruction Strings
-   * @return dictionary with addresses and Array with Tokens  
+   * @return dictionary with addresses and Array with Tokens
    * */
   public index(input: string[]): { [address: number]: Line } {
     let tokens: Token[][] = [];
@@ -653,7 +653,7 @@ export class ParserService {
       // skip empty lines
       if (line.length == 0 || tokens.length == 0) { continue; }
 
-      // if instruction has given Address, e.g (0xF7) -> take it 
+      // if instruction has given Address, e.g (0xF7) -> take it
       if (line[0].type == "ADDRESS") {
         const match = /[a-fA-F0-9]{2,3}/.exec(line[0].value);
         if (match == null) {

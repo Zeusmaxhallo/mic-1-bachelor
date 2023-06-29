@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
-import { AluService } from './Emulator/alu.service';
-import { BBusService, BBusResult } from './Emulator/b-bus.service';
-import { CBusService, CBusResult } from './Emulator/c-bus.service';
-import { ControlStoreService } from './Emulator/control-store.service';
-import { MainMemoryService } from './Emulator/main-memory.service';
-import { Instruction, Line, ParserService } from './Emulator/parser.service';
-import { ShifterService } from './Emulator/shifter.service';
-import { RegProviderService } from './reg-provider.service';
-import { StackProviderService } from './stack-provider.service';
+import { AluService } from '../Controller/Emulator/alu.service';
+import { BBusService, BBusResult } from '../Controller/Emulator/b-bus.service';
+import { CBusService, CBusResult } from '../Controller/Emulator/c-bus.service';
+import { ControlStoreService } from '../Controller/Emulator/control-store.service';
+import { MainMemoryService } from '../Controller/Emulator/main-memory.service';
+import { Instruction, Line, ParserService } from '../Controller/Emulator/parser.service';
+import { ShifterService } from '../Controller/Emulator/shifter.service';
+import { RegProviderService } from '../Model/reg-provider.service';
+import { StackProviderService } from '../Model/stack-provider.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { MacroParserService } from './macro-parser.service';
-import { MacroTokenizerService } from './macro-tokenizer.service';
-import { MacroProviderService } from './macro-provider.service';
-import { MicroProviderService } from './micro-provider.service';
+import { MacroParserService } from '../Controller/macro-parser.service';
+import { MacroTokenizerService } from '../Controller/macro-tokenizer.service';
+import { MacroProviderService } from '../Model/macro-provider.service';
+import { MicroProviderService } from '../Model/micro-provider.service';
 
 
 @Injectable({
@@ -60,7 +60,7 @@ export class DirectorService {
   private hitBreakpoint = false;
 
 
-  // Observables to notify other components 
+  // Observables to notify other components
   private startAnimationSource = new BehaviorSubject([]);
   public startAnimation = this.startAnimationSource.asObservable();
 
@@ -140,8 +140,12 @@ export class DirectorService {
 
   public async step() {
 
-    // check if program is finished -- pc reads outside of Code Area
-    if (this.mainMemory.finished && (this.currentAddress === 1 || this.currentAddress === 0)) {
+    if (this.isAnimating) {
+      this.updateRegisterVis();
+    }
+
+    // the flag 0xFF means the program is finished - if we find it -> end program
+    if (this.currentAddress === 255) {
       this.endOfProgram = true;
       this._consoleNotifier.next("Program terminated successfully!");
       this._finishedRun.next(false); // disableButtons
@@ -227,12 +231,12 @@ export class DirectorService {
       microInstruction = this.parser.parse();
     } catch (error) {
       if (error instanceof Error) {
-        
+
         // skip rest of current step if the instruction is empty
-        if(error.message === "EmptyInstructionError"){
+        if (error.message === "EmptyInstructionError") {
 
           // if the next Instruction is not defined -> error
-          if(this.controlStore.getMicro()[this.currentAddress + 1] === undefined){
+          if (this.controlStore.getMicro()[this.currentAddress + 1] === undefined) {
             this._errorFlasher.next({ line: this.lineNumber, error: error.message });
             this.endOfProgram = true;
             return;
@@ -244,8 +248,6 @@ export class DirectorService {
           this.updateRegisterVis();
           return;
         }
-
-
 
         console.error("Error in line " + this.lineNumber + " - " + error);
         this._errorFlasher.next({ line: this.lineNumber, error: error.message });
@@ -296,7 +298,7 @@ export class DirectorService {
 
     // find address after a jump
     let micro = this.controlStore.getMicro()
-    if (micro[this.currentAddress] === undefined) {
+    if (micro[this.currentAddress] === undefined && this.currentAddress !== 255) {
 
       let closestLine = Infinity;
       let address: string;
@@ -417,7 +419,6 @@ export class DirectorService {
 
     //reset program
     this.endOfProgram = false;
-    this.mainMemory.finished = false;
 
     // reset stack View
     this.stackProvider.update()

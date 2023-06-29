@@ -1,8 +1,8 @@
 import { AfterViewChecked, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { DirectorService } from 'src/app/Controller/director.service';
+import { DirectorService } from 'src/app/Presenter/director.service';
 import { MacroParserService } from 'src/app/Controller/macro-parser.service';
-import { MacroProviderService } from 'src/app/Controller/macro-provider.service';
-import { PresentationModeControllerService } from 'src/app/Controller/presentation-mode-controller.service';
+import { MacroProviderService } from 'src/app/Model/macro-provider.service';
+import { PresentationModeControllerService } from 'src/app/Presenter/presentation-mode-controller.service';
 
 
 interface Line {
@@ -29,7 +29,7 @@ export class DebugConsoleComponent implements OnInit, AfterViewChecked {
 
   ngOnInit(): void {
 
-    // toggle presentationMode 
+    // toggle presentationMode
     this.presentationModeController.presentationMode$.subscribe( mode => {
       this.presentationMode = mode.presentationMode;
     })

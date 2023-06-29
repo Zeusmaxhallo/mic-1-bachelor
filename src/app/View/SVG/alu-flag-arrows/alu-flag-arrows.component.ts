@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
-import { DirectorService } from 'src/app/Controller/director.service';
-import { PresentationModeControllerService } from 'src/app/Controller/presentation-mode-controller.service';
+import { DirectorService } from 'src/app/Presenter/director.service';
+import { PresentationModeControllerService } from 'src/app/Presenter/presentation-mode-controller.service';
 
 
 @Component({

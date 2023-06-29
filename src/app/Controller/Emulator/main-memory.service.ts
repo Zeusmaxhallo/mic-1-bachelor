@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { RegProviderService } from '../reg-provider.service';
+import { RegProviderService } from '../../Model/reg-provider.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,8 +12,6 @@ export class MainMemoryService {
   private constantPoolSize: number;
 
   private _stackStartAddress = 0;
-
-  public finished = false;
 
   constructor(
     private regProvider: RegProviderService,
@@ -28,7 +26,6 @@ export class MainMemoryService {
     this.methodAreaSize = 0;
     this.constantPoolSize = 0;
     this._stackStartAddress = 0;
-    this.finished = false;
   }
 
   public store_32(address: number, value: number, setter?: boolean) {
@@ -70,9 +67,8 @@ export class MainMemoryService {
   }
 
   public get_8(address: number, intern?: boolean): number {
-    if (address >= this.methodAreaSize) { 
+    if (address >= this.methodAreaSize) {
       console.warn("PC reading outside of Method Area (PC is not pointing to Code), current PC value: ", address);
-      this.finished = true;
     }
     if (address in this.memory) {
       return this.memory[address];
@@ -120,7 +116,7 @@ export class MainMemoryService {
     for (let i = 0; i < keys.length; i += 4) {
       console.log(`  ${this.dec2hex(parseInt(keys[i]))}        0b${this.get_32(parseInt(keys[i])).toString(2)} = ${this.get_32(parseInt(keys[i]))}`)
     }
-    
+
     console.groupEnd();
   }
 
@@ -141,7 +137,6 @@ export class MainMemoryService {
     for (let i = 0; i < code.length; i++) {
       this.store_8(i, code[i]);
     }
-    this.finished = false;
   }
 
   /**
