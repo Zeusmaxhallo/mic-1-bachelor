@@ -419,7 +419,6 @@ export class DirectorService {
 
     //reset program
     this.endOfProgram = false;
-    this.mainMemory.finished = false;
 
     // reset stack View
     this.stackProvider.update()

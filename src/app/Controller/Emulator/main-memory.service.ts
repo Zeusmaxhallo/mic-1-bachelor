@@ -13,8 +13,6 @@ export class MainMemoryService {
 
   private _stackStartAddress = 0;
 
-  public finished = false;
-
   constructor(
     private regProvider: RegProviderService,
   ) { }
@@ -28,7 +26,6 @@ export class MainMemoryService {
     this.methodAreaSize = 0;
     this.constantPoolSize = 0;
     this._stackStartAddress = 0;
-    this.finished = false;
   }
 
   public store_32(address: number, value: number, setter?: boolean) {
@@ -72,7 +69,6 @@ export class MainMemoryService {
   public get_8(address: number, intern?: boolean): number {
     if (address >= this.methodAreaSize) {
       console.warn("PC reading outside of Method Area (PC is not pointing to Code), current PC value: ", address);
-      this.finished = true;
     }
     if (address in this.memory) {
       return this.memory[address];
@@ -141,7 +137,6 @@ export class MainMemoryService {
     for (let i = 0; i < code.length; i++) {
       this.store_8(i, code[i]);
     }
-    this.finished = false;
   }
 
   /**
