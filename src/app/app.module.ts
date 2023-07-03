@@ -35,6 +35,8 @@ import { DebugConsoleComponent } from './View/debug-console/debug-console.compon
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AluFlagArrowsComponent } from './View/SVG/alu-flag-arrows/alu-flag-arrows.component';
 import { MemoryViewComponent } from './View/memory-view/memory-view.component';
+import {MatTreeModule} from '@angular/material/tree';
+
 
 
 @NgModule({
@@ -77,6 +79,7 @@ import { MemoryViewComponent } from './View/memory-view/memory-view.component';
     MdbDropdownModule,
     MatTabsModule,
     MatSlideToggleModule,
+    MatTreeModule,
   ],
 
   providers: [],
