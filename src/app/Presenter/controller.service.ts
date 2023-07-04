@@ -59,6 +59,20 @@ export class ControllerService {
     this.stepMacro();
   }
 
+  run(){
+    if(this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()){
+      this.controlStore.loadMicro();
+      this.macroTokenizer.init();
+      this.macroParser.parse();
+      this.director.reset();
+    }
+
+    this.director.run();
+
+    this.macroProvider.isLoaded();
+    this.microProvider.isLoaded();
+  }
+
   //reads the imported file and sets it in the macroassembler editor
   importMacro(file: any){
     if(file.type === "text/plain"){
