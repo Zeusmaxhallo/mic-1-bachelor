@@ -37,6 +37,28 @@ export class ControllerService {
     this.microProvider.isLoaded();
   }
 
+  stepMacro(){
+    if(this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()){
+      this.controlStore.loadMicro();
+      this.macroTokenizer.init();
+      this.macroParser.parse();
+      this.director.reset();
+    }
+
+    this.director.init();
+    this.director.runMacroInstruction();
+
+    this.macroProvider.isLoaded();
+    this.microProvider.isLoaded();
+  }
+
+  reset(){
+    this.director.reset();
+
+    // step through INVOKEVIRUAL for main method
+    this.stepMacro();
+  }
+
   //reads the imported file and sets it in the macroassembler editor
   importMacro(file: any){
     if(file.type === "text/plain"){

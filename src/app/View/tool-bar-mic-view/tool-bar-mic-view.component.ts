@@ -49,25 +49,11 @@ export class ToolBarMicViewComponent implements OnInit {
   }
 
   stepMacro(){
-    if(this.macroProvider.getMacroGotChanged() || this.microProvider.getMicroGotChanged()){
-      this.controlStore.loadMicro();
-      this.macroTokenizer.init();
-      this.macroParser.parse();
-      this.director.reset();
-    }
-
-    this.director.init();
-    this.director.runMacroInstruction();
-
-    this.macroProvider.isLoaded();
-    this.microProvider.isLoaded();
+    this.controller.stepMacro();
   }
 
   reset(){
-    this.director.reset();
-
-    // step through INVOKEVIRUAL for main method
-    this.stepMacro();
+    this.controller.reset();
   }
 
   private enableRunButtons(){
