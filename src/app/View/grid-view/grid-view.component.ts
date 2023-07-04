@@ -14,11 +14,16 @@ export class GridViewComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.gridViewController.switchEditors$.subscribe(
+      content => {
+        if(content.switchEditors === true){
+          this.areEditorsSwapped = true;
+        }
+        else{
+          this.areEditorsSwapped = false;
+        }
+      }
+    )
   }
 
-  ngDoCheck(){
-    if(this.gridViewController.getAreEditorsSwapped() !== this.areEditorsSwapped){
-      this.areEditorsSwapped = !this.areEditorsSwapped;
-    }
-  }
 }
