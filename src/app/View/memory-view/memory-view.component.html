@@ -4,10 +4,12 @@
         <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding [ngStyle]="{'color' : lightMode ? 'black' : 'white' }">
             <!-- use a disabled button to provide padding for tree leaf -->
             <button mat-icon-button disabled></button>
-            <div class="entry">
+            <div class="entry" *ngIf="node.level != 0">
                 <span class="address">({{node.name.split(" ")[0]}})</span>
                 <span class="value">{{node.name.split(" ")[1]}}</span>
             </div>
+            <div *ngIf="node.level === 0">{{node.name}}</div>
+
         </mat-tree-node>
         <!-- This is the tree node template for expandable nodes -->
         <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding [ngStyle]="{'color' : lightMode ? 'black' : 'white' }">
