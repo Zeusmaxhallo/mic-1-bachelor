@@ -51,10 +51,12 @@ export class CBusService {
     }
 
     // Print to Console
+    /** 
     console.log(`C-Bus Operation: ${operation.join("")}
     |  write value:   ${value},
     |  to Registers:  ${this._writtenRegisters}
     `);
+    */
 
     return {registers: this._writtenRegisters, value: value};
   }

@@ -13,6 +13,7 @@ import { MacroParserService } from '../Controller/macro-parser.service';
 import { MacroTokenizerService } from '../Controller/macro-tokenizer.service';
 import { MacroProviderService } from '../Model/macro-provider.service';
 import { MicroProviderService } from '../Model/micro-provider.service';
+import { VideoControllerService } from '../GraphicsAdapter/video-controller.service';
 
 
 @Injectable({
@@ -34,6 +35,7 @@ export class DirectorService {
     private macroTokenizer: MacroTokenizerService,
     private macroProvider: MacroProviderService,
     private microProvider: MicroProviderService,
+    private videoController: VideoControllerService,
   ) { }
 
   private currentAddress = 1;
@@ -433,6 +435,9 @@ export class DirectorService {
 
     this.macroProvider.isLoaded();
     this.microProvider.isLoaded();
+
+    // wipe Screen
+    this.videoController.wipeScreen();
 
 
     // notify console that reset was successful

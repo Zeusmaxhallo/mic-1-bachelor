@@ -49,10 +49,12 @@ export class BBusService {
 
 
     // print on Console
+    /**
     console.log(`B-Bus Operation: ${reg.join("")}
     |  reading from:  ${register},
     |  value:         ${this.value}
     `);
+     */
 
     this.messageSource.next([register, this.value]);
     return {register: register, value: this.value}

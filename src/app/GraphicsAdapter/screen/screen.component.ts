@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { VideoControllerService } from '../video-controller.service';
 
 @Component({
   selector: 'app-screen',
@@ -12,16 +13,25 @@ export class ScreenComponent implements AfterViewInit {
   private readonly WIDTH = 320;
   private readonly HEIGHT = 200;
 
-  constructor() { }
+  constructor(private videoController: VideoControllerService) { }
 
   ngAfterViewInit(): void {
-    // blank canvas
     this.ctx = this.canvas.nativeElement.getContext("2d");
-    this.ctx.fillStyle = "rgb(0,0,0)";
-    this.ctx.fillRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height); 
+    
+    this.wipeScreen();
+
+    this.videoController.wipeScreen$.subscribe(val => {
+      this.wipeScreen();
+    })
+
+
+    this.videoController.sendPixel$.subscribe(val => {
+      this.setPixel(val.x, val.y, val.color)
+    })
   }
 
   public setPixel(x: number, y: number, color: string) {
+
     this.ctx.fillStyle = color;
 
     // calc how big a pixel is
@@ -34,6 +44,11 @@ export class ScreenComponent implements AfterViewInit {
     this.ctx.fillRect(x, y, PixelWidth, PixelHeight);
   }
 
+  private wipeScreen() {
+    this.ctx.fillStyle = "rgb(0,0,0)";
+    this.ctx.fillRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
 
-
+  }
 }
+
+

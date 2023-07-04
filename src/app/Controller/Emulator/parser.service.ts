@@ -30,7 +30,7 @@ export class ParserService {
   // jump labels and address
   public labels: { [id: string]: number } = {};
 
-  public static print = true;
+  public static print = false;
 
   // address of current instruction
   private address: number;
