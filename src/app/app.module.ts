@@ -36,7 +36,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AluFlagArrowsComponent } from './View/SVG/alu-flag-arrows/alu-flag-arrows.component';
 import { MemoryViewComponent } from './View/memory-view/memory-view.component';
 import {MatTreeModule} from '@angular/material/tree';
-
+import { ScreenComponent } from './GraphicsAdapter/screen/screen.component';
 
 
 @NgModule({
@@ -59,6 +59,7 @@ import {MatTreeModule} from '@angular/material/tree';
     DebugConsoleComponent,
     AluFlagArrowsComponent,
     MemoryViewComponent,
+    ScreenComponent,
   ],
   imports: [
     BrowserModule,
