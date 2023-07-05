@@ -6,6 +6,7 @@ import { timer } from "rxjs";
 import { MacroParserService } from "src/app/Controller/macro-parser.service";
 import { ThemeControlService } from "src/app/Presenter/theme-control.service";
 import { PresentationModeControllerService } from "src/app/Presenter/presentation-mode-controller.service";
+import { ControllerService } from "src/app/Presenter/controller.service";
 
 
 const LANG = "ace/mode/mic1";
@@ -50,6 +51,7 @@ export class EditorComponent implements AfterViewInit {
     private macroParser: MacroParserService,
     private themeController: ThemeControlService,
     private presentationModeController: PresentationModeControllerService,
+    private controller: ControllerService,
   ) { }
 
   ngOnInit(): void {
@@ -71,7 +73,7 @@ export class EditorComponent implements AfterViewInit {
       this.content = this.aceEditor.getValue();
 
       // Updates the macrocode on the macro provider
-      this.macroProvider.setMacro(this.content);
+      this.controller.setMacroInModel(this.content);
       this.removeErrorHighlighting();
     })
 
@@ -149,7 +151,7 @@ export class EditorComponent implements AfterViewInit {
     });
 
     // updates macrocode when new code is imported or macrocode is loaded from local storage
-    this.macroProvider.macroCode$.subscribe(
+    this.controller.macroCode$.subscribe(
       content => {
         this.content = content.macroCode;
         this.removeErrorHighlighting();
