@@ -1,6 +1,5 @@
 import { AfterViewInit, Component, ElementRef, OnChanges, SimpleChanges, ViewChild } from "@angular/core";
 import { MacroProviderService } from "src/app/Model/macro-provider.service";
-import { ControllerService } from "src/app/Presenter/controller.service";
 import * as ace from "ace-builds";
 import { DirectorService } from "src/app/Presenter/director.service";
 import { timer } from "rxjs";
@@ -47,7 +46,6 @@ export class EditorComponent implements AfterViewInit {
 
   constructor(
     private macroProvider: MacroProviderService,
-    private controllerService: ControllerService,
     private directorService: DirectorService,
     private macroParser: MacroParserService,
     private themeController: ThemeControlService,
@@ -77,6 +75,18 @@ export class EditorComponent implements AfterViewInit {
       this.removeErrorHighlighting();
     })
 
+    // toggle Breakpoints
+    let editor = this.aceEditor;
+
+    let setBreakpoint = (line: number) => {
+      let editorLineWithoutEmptyRows = this.macroProvider.getEditorLineWithoutEmptyRows(line);
+      this.directorService.setMacroBreakpoint(editorLineWithoutEmptyRows + 1);
+    }
+    
+    let clearBreakpoint = (line: number) => {
+      this.directorService.clearMacroBreakpoint(line + 1);
+    }
+
 
     // toggle Theme
     this.themeController.toggleThemeNotifier$.subscribe(
@@ -88,18 +98,6 @@ export class EditorComponent implements AfterViewInit {
         }
       }
     )
-
-    // toggle Breakpoints
-    let editor = this.aceEditor;
-
-    let setBreakpoint = (line: number) => {
-      let editorLineWithoutEmptyRows = this.macroProvider.getEditorLineWithoutEmptyRows(line);
-      this.directorService.setMacroBreakpoint(editorLineWithoutEmptyRows + 1);
-    }
-
-    let clearBreakpoint = (line: number) => {
-      this.directorService.clearMacroBreakpoint(line + 1);
-    }
 
     this.aceEditor.on("guttermousedown", function (e) {
       let target = e.domEvent.target;
@@ -149,6 +147,17 @@ export class EditorComponent implements AfterViewInit {
         source.subscribe(() => this.removeBreakpointHighlighting())
       }
     });
+
+    // updates macrocode when new code is imported or macrocode is loaded from local storage
+    this.macroProvider.macroCode$.subscribe(
+      content => {
+        this.content = content.macroCode;
+        this.removeErrorHighlighting();
+        this.aceEditor.session.setValue(this.content);
+        this.directorService.clearMacroBreakpoints();
+        this.aceEditor.session.setValue(this.content);
+      }
+    )
   }
 
   private highlightBreakpoint(line: number) {
@@ -170,21 +179,6 @@ export class EditorComponent implements AfterViewInit {
     this.aceEditor.getSession().addMarker(new ace.Range(line - 1, 0, line, 0), "ace_error-line", "text");
     this.aceEditor.scrollToRow(line - 4);
 
-  }
-
-  ngDoCheck() {
-    if (this.macroProvider.getMacro() !== this.content) {
-      this.content = this.macroProvider.getMacro();
-      this.removeErrorHighlighting();
-      this.aceEditor.session.setValue(this.content);
-      this.directorService.clearMacroBreakpoints();
-      this.aceEditor.session.setValue(this.content);
-    }
-  }
-
-  import(event: any) {
-    this.file = event.target.files[0];
-    this.controllerService.importMacro(this.file);
   }
 
   private removeErrorHighlighting() {
@@ -213,10 +207,6 @@ export class EditorComponent implements AfterViewInit {
         }
       }
     }
-  }
-
-  exportMacro() {
-    this.controllerService.exportMacro();
   }
 
   getOptions(){

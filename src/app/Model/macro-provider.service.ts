@@ -1,24 +1,33 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MacroProviderService {
   private macro: string = "";
-
   macroGotChanged: boolean = false;
+
+  private _macroCode = new BehaviorSubject({ macroCode: this.macro});
+  public macroCode$ = this._macroCode.asObservable();
 
   constructor() {
     const code = localStorage.getItem("macroCode");
     if (code){
       this.macro = code;
+
+      this._macroCode.next({ macroCode: this.macro});
     }
   }
 
   setMacro(macro: string){
     this.macroGotChanged = true;
     this.macro = macro;
+
+    // puts the macroCode of the user to the local storage to make it persistant
     localStorage.setItem("macroCode", macro);
+
+    this._macroCode.next({ macroCode: this.macro});
   }
 
   getMacro(){
