@@ -312,6 +312,8 @@ export class ControllerService {
 
   private _macroCode = new BehaviorSubject({ macroCode: ""});
   public macroCode$ = this._macroCode.asObservable();
+  private _microCode = new BehaviorSubject({ microCode: ""});
+  public microCode$ = this._microCode.asObservable();
 
   constructor(
     private macroProvider: MacroProviderService,
@@ -321,9 +323,10 @@ export class ControllerService {
     private macroParser: MacroParserService,
     private director: DirectorService,
   ) { 
-    const code = localStorage.getItem("macroCode");
-    if (code){
-      this.setMacroInView(code);
+    const codeMac = localStorage.getItem("macroCode");
+    const codeMic = localStorage.getItem("microCode");
+    if (codeMac && codeMic){
+      this.setCodeInView(codeMac, codeMic);
     }
   }
 
@@ -403,6 +406,7 @@ export class ControllerService {
 
       fileReader.onload = (e) => {
         this.microProvider.setMicro(fileReader.result.toString());
+        this._microCode.next({ microCode: fileReader.result.toString()});
       }
 
     }else{
@@ -427,8 +431,9 @@ export class ControllerService {
     this.macroProvider.setMacro(macro);
   }
 
-  setMacroInView(macro: string){
-    this._macroCode.next({ macroCode: macro});
+  setCodeInView(macro: string, micro: string){
+    this._macroCode.next({ macroCode: macro });
+    this._microCode.next({ microCode: micro });
   }
 
   setDemoCode(demoCodeOption: string){
@@ -436,16 +441,19 @@ export class ControllerService {
       this.microProvider.setMicro(microCode);
       this.macroProvider.setMacro(code1);
       this._macroCode.next({ macroCode: code1});
+      this._microCode.next({ microCode: code1});
     }
     if(demoCodeOption === "demo2"){
       this.microProvider.setMicro(customMicroCode);
       this.macroProvider.setMacro(code2);
       this._macroCode.next({ macroCode: code2});
+      this._microCode.next({ microCode: code2});
     }
     if(demoCodeOption === "demo3"){
       this.microProvider.setMicro(microCode);
       this.macroProvider.setMacro(code3);
       this._macroCode.next({ macroCode: code3});
+      this._microCode.next({ microCode: code3});
     }
   }
 

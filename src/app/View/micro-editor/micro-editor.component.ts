@@ -150,7 +150,15 @@ export class MicroEditorComponent implements AfterViewInit {
       this.highlightLine(line.line);
     })
 
-
+    this.controllerService.microCode$.subscribe(
+      content => {
+        this.content = this.microProvider.getMicro();
+        this.removeErrorHighlighting();
+        this.aceEditor.session.clearBreakpoints();
+        this.directorService.clearMicroBreakpoints();
+        this.aceEditor.session.setValue(this.content);
+      }
+    )
 
   }
 
@@ -181,21 +189,6 @@ export class MicroEditorComponent implements AfterViewInit {
     this.aceEditor.getSession().addMarker(new ace.Range(line - 1, 0, line, 0), "ace_error-line", "text");
     this.aceEditor.scrollToRow(line - 4);
 
-  }
-
-  ngDoCheck() {
-    if (this.microProvider.getMicro() !== this.content) {
-      this.content = this.microProvider.getMicro();
-      this.removeErrorHighlighting();
-      this.aceEditor.session.clearBreakpoints();
-      this.directorService.clearMicroBreakpoints();
-      this.aceEditor.session.setValue(this.content);
-    }
-  }
-
-  import(event: any) {
-    this.file = event.target.files[0];
-    this.controllerService.importMicro(this.file);
   }
 
   private removeErrorHighlighting() {
