@@ -4,7 +4,7 @@ import { MainMemoryService } from '../Controller/Emulator/main-memory.service';
 import { add, random } from 'cypress/types/lodash';
 
 const VRAM_ADDRESS = 1024;
-const VRAM_SIZE = 1000;
+const VRAM_SIZE = 64000;
 
 const SCREEN_HEIGHT = 200;
 const SCREEN_WIDTH = 320;

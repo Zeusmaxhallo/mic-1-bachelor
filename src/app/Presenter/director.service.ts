@@ -109,8 +109,8 @@ export class DirectorService {
         this.hitBreakpoint = false;
         break;
       }
-      // stop after 1000 steps (probably endless loop)
-      if (counter >= 1000) {
+      // stop after 10000 steps (probably endless loop)
+      if (counter >= 10000) {
         this._consoleNotifier.next("Stopping run at Step " + counter + " - your program is probably in a endless loop. If that is not the case just press Run again!")
         break;
       }
@@ -337,6 +337,7 @@ export class DirectorService {
       if (!this.isAnimating) { break };
       await this.delay(50);
     }
+
 
   }
 
