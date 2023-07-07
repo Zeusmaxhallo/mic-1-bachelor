@@ -1,13 +1,14 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, timer } from 'rxjs';
 import { MainMemoryService } from '../Controller/Emulator/main-memory.service';
-import { add, random } from 'cypress/types/lodash';
 
 const VRAM_ADDRESS = 1024;
 const VRAM_SIZE = 64000;
 
 const SCREEN_HEIGHT = 200;
 const SCREEN_WIDTH = 320;
+
+const CHANGE_MODE_ADDRESS = 127
 
 
 @Injectable({
@@ -21,21 +22,35 @@ export class VideoControllerService {
   private _wipeScreen = new BehaviorSubject(true);
   public wipeScreen$ = this._wipeScreen.asObservable();
 
+  private textMode: boolean;
+
 
   constructor(
     private mainMemory: MainMemoryService
   ) {
     this.mainMemory.memoryUpdate$.subscribe(entry => {
       //filter all relevant changes
+
+      // changes in BitmapMode RAM
       if (entry.address >= VRAM_ADDRESS * 4 && entry.address <= (VRAM_ADDRESS + VRAM_SIZE) * 4) {
         this.updateVis(entry.address, entry.value);
       }
-    })
 
+      // Mode Change 
+      if (entry.address === CHANGE_MODE_ADDRESS * 4) {
+        this.textMode = !entry.value;
+      }
+    })
   }
 
   private updateVis(address: number, value: number) {
 
+    this.textMode ? console.log("CharacterMode") : this.bitmap(address, value);
+
+
+  }
+
+  private bitmap(address: number, value: number) {
     const buffer = new ArrayBuffer(4);
     const view = new DataView(buffer, 0);
 
