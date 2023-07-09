@@ -39,7 +39,7 @@ export class AluService {
     const view = new DataView(buffer, 0);
 
     view.setUint32(0, this.regProvider.getRegister("H").getValue())
-    this.a  = view.getInt16(2);
+    this.a  = view.getInt32(0);
   }
 
   // dictionary of all available alu codes and corresponding functions
