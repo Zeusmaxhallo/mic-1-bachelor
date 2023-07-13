@@ -98,7 +98,14 @@ export class VideoControllerService {
     let first = { character: view.getUint8(0), attribute: view.getUint8(1) };
     let second = { character: view.getUint8(2), attribute: view.getUint8(3) };
 
-    let bits = this.characterROM.getCharacter(first.character).bits;
+    let bits = new Array<string>
+    try {
+      bits = this.characterROM.getCharacter(first.character).bits;
+    } catch (error) {
+      console.log("character", first.character, "is not in Character ROM returning 0")
+      bits = ["00000000","00000000","00000000","00000000","00000000","00000000","00000000","00000000"];
+    }
+    
 
     let color = `rgb(${"255"},${"255"},${"255"})`
     let backgroundColor = `rgb(${"0"},${"0"},${"0"})`
@@ -121,7 +128,13 @@ export class VideoControllerService {
 
     // second Character
 
-    bits = this.characterROM.getCharacter(second.character).bits;
+    try {
+      bits = this.characterROM.getCharacter(second.character).bits;
+    } catch (error) {
+      console.log("character", second.character, "is not in Character ROM returning 0")
+      bits = ["00000000","00000000","00000000","00000000","00000000","00000000","00000000","00000000"];
+    }
+    
     for (let i = 0; i < 8; i++) {
       for (let j = 0; j < 8; j++) {
         if(parseInt(bits[i][j])){
