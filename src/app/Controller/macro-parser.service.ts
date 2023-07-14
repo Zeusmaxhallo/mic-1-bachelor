@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { ControlStoreService } from './Emulator/control-store.service';
-import { MainMemoryService } from './Emulator/main-memory.service';
+import { ControlStoreService } from '../Model/Emulator/control-store.service';
+import { MainMemoryService } from '../Model/Emulator/main-memory.service';
 import { MacroTokenizerService } from './macro-tokenizer.service';
 import { Token } from './micro-tokenizer.service';
 import { BehaviorSubject } from 'rxjs';

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import * as FileSaver from 'file-saver';
 import { MacroProviderService } from '../Model/macro-provider.service';
 import { MicroProviderService } from '../Model/micro-provider.service';
-import { ControlStoreService } from '../Controller/Emulator/control-store.service';
+import { ControlStoreService } from '../Model/Emulator/control-store.service';
 import { MacroTokenizerService } from '../Controller/macro-tokenizer.service';
 import { MacroParserService } from '../Controller/macro-parser.service';
 import { DirectorService } from './director.service';

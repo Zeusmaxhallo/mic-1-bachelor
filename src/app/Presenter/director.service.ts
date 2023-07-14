@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { AluService } from '../Controller/Emulator/alu.service';
-import { BBusService, BBusResult } from '../Controller/Emulator/b-bus.service';
-import { CBusService, CBusResult } from '../Controller/Emulator/c-bus.service';
-import { ControlStoreService } from '../Controller/Emulator/control-store.service';
-import { MainMemoryService } from '../Controller/Emulator/main-memory.service';
-import { Instruction, Line, ParserService } from '../Controller/Emulator/parser.service';
-import { ShifterService } from '../Controller/Emulator/shifter.service';
+import { AluService } from '../Model/Emulator/alu.service';
+import { BBusService, BBusResult } from '../Model/Emulator/b-bus.service';
+import { CBusService, CBusResult } from '../Model/Emulator/c-bus.service';
+import { ControlStoreService } from '../Model/Emulator/control-store.service';
+import { MainMemoryService } from '../Model/Emulator/main-memory.service';
+import { Instruction, Line, ParserService } from '../Model/Emulator/parser.service';
+import { ShifterService } from '../Model/Emulator/shifter.service';
 import { RegProviderService } from '../Model/reg-provider.service';
 import { StackProviderService } from '../Model/stack-provider.service';
 import { BehaviorSubject, Subscription } from 'rxjs';

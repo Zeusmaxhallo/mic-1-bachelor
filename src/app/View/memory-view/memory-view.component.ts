@@ -1,7 +1,7 @@
 import { FlatTreeControl } from '@angular/cdk/tree';
 import { Component, OnInit } from '@angular/core';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
-import { MainMemoryService } from 'src/app/Controller/Emulator/main-memory.service';
+import { MainMemoryService } from 'src/app/Model/Emulator/main-memory.service';
 import { MacroParserService } from 'src/app/Controller/macro-parser.service';
 import { RegProviderService } from 'src/app/Model/reg-provider.service';
 import { PresentationModeControllerService } from 'src/app/Presenter/presentation-mode-controller.service';

@@ -1,7 +1,7 @@
 import { animate, keyframes, state, style, transition, trigger } from '@angular/animations';
 import { Component, OnInit } from '@angular/core';
-import { AluService } from 'src/app/Controller/Emulator/alu.service';
-import { ShifterService } from 'src/app/Controller/Emulator/shifter.service';
+import { AluService } from 'src/app/Model/Emulator/alu.service';
+import { ShifterService } from 'src/app/Model/Emulator/shifter.service';
 import { PresentationModeControllerService } from 'src/app/Presenter/presentation-mode-controller.service';
 import { RegProviderService } from 'src/app/Model/reg-provider.service';
 import { StackProviderService } from 'src/app/Model/stack-provider.service';

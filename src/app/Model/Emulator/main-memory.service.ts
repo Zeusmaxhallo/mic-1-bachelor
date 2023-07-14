@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { RegProviderService } from '../../Model/reg-provider.service';
+import { RegProviderService } from '../reg-provider.service';
 import { BehaviorSubject } from 'rxjs';
 
 @Injectable({

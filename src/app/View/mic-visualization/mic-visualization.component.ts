@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { DirectorService } from 'src/app/Presenter/director.service';
-import { BBusResult } from 'src/app/Controller/Emulator/b-bus.service';
-import { CBusResult } from 'src/app/Controller/Emulator/c-bus.service';
+import { BBusResult } from 'src/app/Model/Emulator/b-bus.service';
+import { CBusResult } from 'src/app/Model/Emulator/c-bus.service';
 import { ABusComponent } from '../SVG/a-bus/a-bus.component';
 import { BBusComponent } from '../SVG/b-bus/b-bus.component';
 import { CBusComponent } from '../SVG/c-bus/c-bus.component';
