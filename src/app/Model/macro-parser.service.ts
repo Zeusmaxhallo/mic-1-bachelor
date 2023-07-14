@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { ControlStoreService } from '../Model/Emulator/control-store.service';
-import { MainMemoryService } from '../Model/Emulator/main-memory.service';
+import { ControlStoreService } from './Emulator/control-store.service';
+import { MainMemoryService } from './Emulator/main-memory.service';
 import { MacroTokenizerService } from './macro-tokenizer.service';
 import { Token } from './micro-tokenizer.service';
 import { BehaviorSubject } from 'rxjs';
@@ -17,9 +17,9 @@ export class MacroParserService {
   private methods: {[name: string]: number} = {}; // gives a number that is a offset to a const. The value of this const is the startingpoint of this method
   private methodsParameterNumber: {[name: string]: number} = {}; // gives the number of parameters for a method
   private lineToLastUsedAddress: {[line: number]: number} = {};
-  private addrToOffset: {[addr: number]: number} = {}; 
+  private addrToOffset: {[addr: number]: number} = {};
 
-  // Returns the addres of an method addr that has a placeholder offset. 
+  // Returns the addres of an method addr that has a placeholder offset.
   // Needs the offset to CPP of this methods constant
   private methodToAddr: {[offsetCPP: number]: number} = {};
 
@@ -70,8 +70,8 @@ export class MacroParserService {
         view.setInt16(0, this.methods["main"]);
         this.parsedCode.push(view.getUint8(0));
         this.parsedCode.push(view.getUint8(1));
-        this.parsedTokenNumber += 1; 
-        
+        this.parsedTokenNumber += 1;
+
         // if there was an Error in MainBlock set ErrorFlag
         this.mainBlock() ? ErrorFlag = true : {};
 
@@ -86,7 +86,7 @@ export class MacroParserService {
         // Adds a Invoke to this method at the address where this method begins
         const buffer = new ArrayBuffer(2);
         const view = new DataView(buffer, 0);
-        view.setInt16(0, this.methodsParameterNumber[methodName] + 1); // +1 because objref is also always a parameter 
+        view.setInt16(0, this.methodsParameterNumber[methodName] + 1); // +1 because objref is also always a parameter
         this.parsedCode.push(view.getUint8(0));
         this.parsedCode.push(view.getUint8(1))
         this.parsedTokenNumber += 2;
@@ -223,7 +223,7 @@ export class MacroParserService {
     }
     if(endVarIndex === 0){
       throw new Error("Variablefield not closed. Close it with .end-var");
-    }   
+    }
 
     let varArr = arr.slice(startVarIndex + 1, endVarIndex);
     for(let variable of varArr){
@@ -271,13 +271,13 @@ export class MacroParserService {
 
     // new array with only the main block
     let mainBlockArr: Token[] = [];
-    mainBlockArr = this.tokens.slice(startMainIndex + 1, endMainIndex);    
+    mainBlockArr = this.tokens.slice(startMainIndex + 1, endMainIndex);
 
     // var field inside the main field
     if(mainBlockArr[0].type === 'FIELD'){
       if(mainBlockArr[0].value !== '.var'){
         throw new Error("This Field is not allowed in this scope: " + mainBlockArr[0].value);
-      }   
+      }
       this.setVariable(mainBlockArr);
 
       // writes the number of local variables to the memory
@@ -299,9 +299,9 @@ export class MacroParserService {
     }
     this.lineToLastUsedAddress[this.currentLine] = this.parsedTokenNumber+3;
     this.currentLine += 1;
-    console.log("currentLine: " + this.currentLine); 
+    console.log("currentLine: " + this.currentLine);
 
-    // create constant that has the startingpoint of this main-method in memory as the value. Than replace the 
+    // create constant that has the startingpoint of this main-method in memory as the value. Than replace the
     // placeholder disp after the INVOKEVIRTUAL with the offset to this constant
     let constName = "dispConstMethod" + this.methods["main"];
     let constValue: number = this.parsedTokenNumber;
@@ -339,7 +339,7 @@ export class MacroParserService {
 
             if(instructionToken.length === 1){
               this.lineToLastUsedAddress[this.currentLine] = this.parsedTokenNumber+3;
-              console.log("currentLine: " + this.currentLine);  
+              console.log("currentLine: " + this.currentLine);
             }
           }
           // Instruction that is not in the control store or label
@@ -354,7 +354,7 @@ export class MacroParserService {
             else{
               // Comment in when microcode is fully available. And comment out the log
               // throw new Error("Unexpected Token: " + instructionToken[0]);
-              console.error("Address of " + instructionToken[0] + " is: " + instructionAddress); 
+              console.error("Address of " + instructionToken[0] + " is: " + instructionAddress);
               this._errorFlasher.next({ line: this.currentLine, error: "Address of " + instructionToken[0] + " is: " + instructionAddress });
               hasError = true;
             }
@@ -369,12 +369,12 @@ export class MacroParserService {
             let parsedParameterTmp = parsedParameter;
             const buffer = new ArrayBuffer(2);
             const view = new DataView(buffer, 0);
-            view.setInt16(0, parsedParameterTmp); 
+            view.setInt16(0, parsedParameterTmp);
             this.parsedCode.push(view.getUint8(0));
             this.parsedTokenNumber += 1;
             parsedParameter = view.getUint8(1);
           }
-          
+
           // if parsedParameter is not undefined after this, the parameter is a variable
           if(parsedParameter === undefined){
             parsedParameter = this.variableOffsetToLV[instructionToken[i]];
@@ -387,7 +387,7 @@ export class MacroParserService {
             }
             parsedParameter = +instructionToken[i];
           }
-          
+
           // If parsed Parameter is NaN than it must be a offset/label or a method index
           // The check for method parameters is not here. So just offset and method.
           // Case for method
@@ -396,7 +396,7 @@ export class MacroParserService {
             const buffer = new ArrayBuffer(2);
             const view = new DataView(buffer, 0);
             let offsetToConst = this.methods[instructionToken[i]];
-            view.setInt16(0, offsetToConst); 
+            view.setInt16(0, offsetToConst);
             this.parsedCode.push(view.getUint8(0));
             this.parsedTokenNumber += 1;
             parsedParameter = view.getUint8(1);
@@ -416,7 +416,7 @@ export class MacroParserService {
                 this.addrToOffset[this.parsedTokenNumber+5] = this.parsedTokenNumber+3 + offset;
                 const buffer = new ArrayBuffer(2);
                 const view = new DataView(buffer, 0);
-                view.setInt16(0, offset); 
+                view.setInt16(0, offset);
                 this.parsedCode.push(view.getUint8(0));
                 this.parsedTokenNumber += 1;
                 parsedParameter = view.getUint8(1);
@@ -426,7 +426,7 @@ export class MacroParserService {
                 // search where the label is in the later code and calculate offset
                 let labelTokenPosition = 3;
                 for(let instruction2 of mainBlockArr){
-                  let instructionToken2 = instruction2.value.split(' ');          
+                  let instructionToken2 = instruction2.value.split(' ');
                   for(let j = 0; j < instructionToken.length; j++){
                     if(instructionToken2[j] === instructionToken[i] + ":"){
                       labelTokenPosition += 1;
@@ -458,7 +458,7 @@ export class MacroParserService {
                   this.addrToOffset[this.parsedTokenNumber+5] = this.parsedTokenNumber+3 + offset;
                   const buffer = new ArrayBuffer(2);
                   const view = new DataView(buffer, 0);
-                  view.setInt16(0, offset); 
+                  view.setInt16(0, offset);
                   this.parsedCode.push(view.getUint8(0));
                   this.parsedTokenNumber += 1;
                   parsedParameter = view.getUint8(1);
@@ -476,14 +476,14 @@ export class MacroParserService {
 
           this.lineToLastUsedAddress[this.currentLine] = this.parsedTokenNumber+3;
           this.currentLine += 1;
-          console.log("currentLine: " + this.currentLine);  
+          console.log("currentLine: " + this.currentLine);
         }
       }
     }
     this.currentLine += 1;
-  
+
     // mainblock is sliced out of the tokens when the block is parsed
-    this.tokens.splice(startMainIndex, endMainIndex + 1); 
+    this.tokens.splice(startMainIndex, endMainIndex + 1);
 
     return hasError;
   }
@@ -533,7 +533,7 @@ export class MacroParserService {
 
     // new array with only the method block
     let methodBlockArr: Token[] = [];
-    methodBlockArr = this.tokens.slice(startMethodIndex + 1, endMethodIndex);    
+    methodBlockArr = this.tokens.slice(startMethodIndex + 1, endMethodIndex);
 
     // var field inside the method field
     if(methodBlockArr[0].type === 'FIELD'){
@@ -558,12 +558,12 @@ export class MacroParserService {
       this.parsedCode.push(view.getUint8(0));
       this.parsedCode.push(view.getUint8(1));
       this.parsedTokenNumber += 2;
-    }    
+    }
     this.lineToLastUsedAddress[this.currentLine] = this.parsedTokenNumber+3;
     this.currentLine += 1;
-    console.log("currentLine: " + this.currentLine);  
+    console.log("currentLine: " + this.currentLine);
 
-    // create constant that has the startingpoint of this method in memory as the value. Than replace the 
+    // create constant that has the startingpoint of this method in memory as the value. Than replace the
     // placeholder disp after the INVOKEVIRTUAL with the offset to this constant
     let constName = "dispConstMethod" + this.methods[methodName];
     let constValue: number = this.parsedTokenNumber;
@@ -576,10 +576,10 @@ export class MacroParserService {
     let valueByte1: number = view.getUint8(0);
     let valueByte2: number = view.getUint8(1);
     view.setInt16(0, this.constantOffsetToCPP[constName]);
-    
-    // contains the found i indexes in the following for-loop. The last element is this array is the index of the value we need to replace. 
+
+    // contains the found i indexes in the following for-loop. The last element is this array is the index of the value we need to replace.
     // Thats where we need to replace the the method number(that is a placeholder) with the disp of this method
-    let candiatesForReplacement: number[] = []; 
+    let candiatesForReplacement: number[] = [];
     for(let i = 0; i < this.parsedCode.length; i++){
       if(this.parsedCode[i] === 182 && this.parsedCode[i+1] === valueByte1 && this.parsedCode[i+2] === valueByte2){
         candiatesForReplacement.push(i)
@@ -608,9 +608,9 @@ export class MacroParserService {
             this.parsedCode.push(instructionAddress);
             this.parsedTokenNumber += 1;
 
-            if(instructionToken.length === 1){            
+            if(instructionToken.length === 1){
               this.lineToLastUsedAddress[this.currentLine] = this.parsedTokenNumber+3;
-              console.log("currentLine: " + this.currentLine);  
+              console.log("currentLine: " + this.currentLine);
             }
           }
           // Instruction that is not in the control store or label
@@ -625,7 +625,7 @@ export class MacroParserService {
             else{
               // Comment in when microcode is fully available. And comment out the log
               // throw new Error("Unexpected Token: " + instructionToken[0]);
-              console.error("Address of " + instructionToken[0] + " is: " + instructionAddress); 
+              console.error("Address of " + instructionToken[0] + " is: " + instructionAddress);
               this._errorFlasher.next({ line: this.currentLine, error: "Address of " + instructionToken[0] + " is: " + instructionAddress });
               hasError = true;
             }
@@ -640,7 +640,7 @@ export class MacroParserService {
             let parsedParameterTmp = parsedParameter;
             const buffer = new ArrayBuffer(2);
             const view = new DataView(buffer, 0);
-            view.setInt16(0, parsedParameterTmp); 
+            view.setInt16(0, parsedParameterTmp);
             this.parsedCode.push(view.getUint8(0));
             this.parsedTokenNumber += 1;
             parsedParameter = view.getUint8(1);
@@ -667,7 +667,7 @@ export class MacroParserService {
             const buffer = new ArrayBuffer(2);
             const view = new DataView(buffer, 0);
             let offsetToConst = this.methods[instructionToken[i]];
-            view.setInt16(0, offsetToConst); 
+            view.setInt16(0, offsetToConst);
             this.parsedCode.push(view.getUint8(0));
             this.parsedTokenNumber += 1;
             parsedParameter = view.getUint8(1);
@@ -687,7 +687,7 @@ export class MacroParserService {
                 this.addrToOffset[this.parsedTokenNumber+5] = this.parsedTokenNumber+3 + offset;
                 const buffer = new ArrayBuffer(2);
                 const view = new DataView(buffer, 0);
-                view.setInt16(0, offset); 
+                view.setInt16(0, offset);
                 this.parsedCode.push(view.getUint8(0));
                 this.parsedTokenNumber += 1;
                 parsedParameter = view.getUint8(1);
@@ -697,7 +697,7 @@ export class MacroParserService {
                 // search where the label is in the later code and calculate offset
                 let labelTokenPosition = startTokenNumberMethod;
                 for(let instruction2 of methodBlockArr){
-                  let instructionToken2 = instruction2.value.split(' ');          
+                  let instructionToken2 = instruction2.value.split(' ');
                   for(let j = 0; j < instructionToken.length; j++){
                     if(instructionToken2[j] === instructionToken[i] + ":"){
                       labelTokenPosition += 1;
@@ -723,13 +723,13 @@ export class MacroParserService {
                     }
                   }
                 }
-                  
+
                 if(labelTokenPosition > 0 && offset !== 0){
                   console.log("OFFSET: " + offset);
                   this.addrToOffset[this.parsedTokenNumber+5] = this.parsedTokenNumber+3 + offset;
                   const buffer = new ArrayBuffer(2);
                   const view = new DataView(buffer, 0);
-                  view.setInt16(0, offset); 
+                  view.setInt16(0, offset);
                   this.parsedCode.push(view.getUint8(0));
                   this.parsedTokenNumber += 1;
                   parsedParameter = view.getUint8(1);
@@ -749,21 +749,21 @@ export class MacroParserService {
               }
             }
           }
-          
+
           console.log(parsedParameter);
           this.parsedCode.push(parsedParameter);
           this.parsedTokenNumber += 1;
-     
+
           this.lineToLastUsedAddress[this.currentLine] = this.parsedTokenNumber+3;
           this.currentLine += 1;
-          console.log("currentLine: " + this.currentLine);  
+          console.log("currentLine: " + this.currentLine);
         }
       }
     }
     this.currentLine += 1;
 
     // methodblock is sliced out of the tokens when the block is parsed
-    this.tokens.splice(startMethodIndex, endMethodIndex + 1); 
+    this.tokens.splice(startMethodIndex, endMethodIndex + 1);
 
     return hasError
   }
@@ -780,14 +780,14 @@ export class MacroParserService {
 
       // other method blocks are identified and there parameters are counted.
       // it creates an identifying entry to the dictionary methods. The number in this entry is than later
-      // used to place a 2 byte number in the memory after an 'INVOKEVIRTUAL'. This number is than later replaced 
+      // used to place a 2 byte number in the memory after an 'INVOKEVIRTUAL'. This number is than later replaced
       // by a offset to a constant that has the place where this method begins as the value.
       if(token.type === "FIELD" && token.value.slice(0, 7) === ".method"){
         let methodStr = token.value.slice(8);
         let methodName = methodStr.slice(0, methodStr.indexOf("("));
         let parameterStr = methodStr.slice(methodStr.indexOf("("), methodStr.indexOf(")")+1);
         let parameterCount = 0;
-        
+
         this.methodNumber += 1;
         this.methods[methodName] = this.methodNumber;
 

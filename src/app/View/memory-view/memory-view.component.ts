@@ -2,7 +2,7 @@ import { FlatTreeControl } from '@angular/cdk/tree';
 import { Component, OnInit } from '@angular/core';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 import { MainMemoryService } from 'src/app/Model/Emulator/main-memory.service';
-import { MacroParserService } from 'src/app/Controller/macro-parser.service';
+import { MacroParserService } from 'src/app/Model/macro-parser.service';
 import { RegProviderService } from 'src/app/Model/reg-provider.service';
 import { PresentationModeControllerService } from 'src/app/Presenter/presentation-mode-controller.service';
 import { ThemeControlService } from 'src/app/Presenter/theme-control.service';
@@ -37,7 +37,7 @@ const MEMORY_FIELD:MemoryField[] = [
     name: "General Memory",
     children:[]
   }
-]; 
+];
 
 @Component({
   selector: 'app-memory-view',
@@ -91,7 +91,7 @@ export class MemoryViewComponent implements OnInit {
 
     // reset Fields
     this.memoryFields = MEMORY_FIELD;
-    
+
     // set MethodArea
     let entries = [];
 
@@ -132,7 +132,7 @@ export class MemoryViewComponent implements OnInit {
     }else{
       this.memoryFields[2].children[index] =  updatedEntry;
     }
-    
+
 
     this.dataSource.data = this.memoryFields;
 

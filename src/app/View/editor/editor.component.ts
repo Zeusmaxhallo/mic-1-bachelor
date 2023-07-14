@@ -3,7 +3,7 @@ import { MacroProviderService } from "src/app/Model/macro-provider.service";
 import * as ace from "ace-builds";
 import { DirectorService } from "src/app/Presenter/director.service";
 import { timer } from "rxjs";
-import { MacroParserService } from "src/app/Controller/macro-parser.service";
+import { MacroParserService } from "src/app/Model/macro-parser.service";
 import { ThemeControlService } from "src/app/Presenter/theme-control.service";
 import { PresentationModeControllerService } from "src/app/Presenter/presentation-mode-controller.service";
 import { ControllerService } from "src/app/Presenter/controller.service";
@@ -84,7 +84,7 @@ export class EditorComponent implements AfterViewInit {
       let editorLineWithoutEmptyRows = this.macroProvider.getEditorLineWithoutEmptyRows(line);
       this.directorService.setMacroBreakpoint(editorLineWithoutEmptyRows + 1);
     }
-    
+
     let clearBreakpoint = (line: number) => {
       this.directorService.clearMacroBreakpoint(line + 1);
     }

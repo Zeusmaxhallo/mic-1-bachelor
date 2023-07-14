@@ -3,8 +3,8 @@ import * as FileSaver from 'file-saver';
 import { MacroProviderService } from '../Model/macro-provider.service';
 import { MicroProviderService } from '../Model/micro-provider.service';
 import { ControlStoreService } from '../Model/Emulator/control-store.service';
-import { MacroTokenizerService } from '../Controller/macro-tokenizer.service';
-import { MacroParserService } from '../Controller/macro-parser.service';
+import { MacroTokenizerService } from '../Model/macro-tokenizer.service';
+import { MacroParserService } from '../Model/macro-parser.service';
 import { DirectorService } from './director.service';
 import { BehaviorSubject } from 'rxjs';
 
@@ -322,7 +322,7 @@ export class ControllerService {
     private macroTokenizer: MacroTokenizerService,
     private macroParser: MacroParserService,
     private director: DirectorService,
-  ) { 
+  ) {
     const codeMac = localStorage.getItem("macroCode");
     const codeMic = localStorage.getItem("microCode");
     if (codeMac && codeMic){

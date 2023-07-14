@@ -1,6 +1,6 @@
 import { AfterViewChecked, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { DirectorService } from 'src/app/Presenter/director.service';
-import { MacroParserService } from 'src/app/Controller/macro-parser.service';
+import { MacroParserService } from 'src/app/Model/macro-parser.service';
 import { MacroProviderService } from 'src/app/Model/macro-provider.service';
 import { PresentationModeControllerService } from 'src/app/Presenter/presentation-mode-controller.service';
 

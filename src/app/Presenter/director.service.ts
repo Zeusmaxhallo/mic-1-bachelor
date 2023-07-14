@@ -9,8 +9,8 @@ import { ShifterService } from '../Model/Emulator/shifter.service';
 import { RegProviderService } from '../Model/reg-provider.service';
 import { StackProviderService } from '../Model/stack-provider.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { MacroParserService } from '../Controller/macro-parser.service';
-import { MacroTokenizerService } from '../Controller/macro-tokenizer.service';
+import { MacroParserService } from '../Model/macro-parser.service';
+import { MacroTokenizerService } from '../Model/macro-tokenizer.service';
 import { MacroProviderService } from '../Model/macro-provider.service';
 import { MicroProviderService } from '../Model/micro-provider.service';
 

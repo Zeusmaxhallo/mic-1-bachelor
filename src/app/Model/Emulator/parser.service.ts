@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { RegProviderService } from '../reg-provider.service';
-import { MicroTokenizerService } from '../../Controller/micro-tokenizer.service';
-import { Token } from '../../Controller/micro-tokenizer.service';
+import { MicroTokenizerService } from '../micro-tokenizer.service';
+import { Token } from '../micro-tokenizer.service';
 
 export interface Instruction {
   addr: Array<number>;

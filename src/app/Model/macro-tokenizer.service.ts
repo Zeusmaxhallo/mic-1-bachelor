@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { MacroProviderService } from '../Model/macro-provider.service';
+import { MacroProviderService } from './macro-provider.service';
 import { Token } from './micro-tokenizer.service';
 import { BehaviorSubject } from 'rxjs';
 
