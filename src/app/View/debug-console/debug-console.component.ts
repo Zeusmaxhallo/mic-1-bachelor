@@ -61,15 +61,6 @@ export class DebugConsoleComponent implements OnInit, AfterViewChecked {
       }
     )
 
-    /*
-    this.director.breakpointFlasherMacro$.subscribe(
-      breakpoint => {
-        if (!breakpoint.line) { return };
-        this.content.push({type: "info", content: "macrocode \t->\t Hit Breakpoint in line " + breakpoint.line})
-      }
-    )
-    */
-
     // log reset Event
     this.director.consoleNotifier$.subscribe(
       content => {
