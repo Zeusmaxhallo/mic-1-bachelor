@@ -2,7 +2,7 @@ import { animate, keyframes, state, style, transition, trigger } from '@angular/
 import { Component, OnInit } from '@angular/core';
 import { AluService } from 'src/app/Model/Emulator/alu.service';
 import { ShifterService } from 'src/app/Model/Emulator/shifter.service';
-import { PresentationModeControllerService } from 'src/app/Presenter/presentation-mode-controller.service';
+import { PresentationControllerService } from 'src/app/Presenter/presentation-controller.service';
 import { RegProviderService } from 'src/app/Model/reg-provider.service';
 import { StackProviderService } from 'src/app/Model/stack-provider.service';
 
@@ -39,11 +39,11 @@ export class StackComponent implements OnInit {
   constructor(
     public stackProvider:StackProviderService,
      private regProvider: RegProviderService,
-    private presentationModeController:PresentationModeControllerService,
+    private presentationController: PresentationControllerService,
   ) { }
 
   ngOnInit(): void {
-    this.presentationModeController.presentationMode$.subscribe( mode => {
+    this.presentationController.presentationMode$.subscribe( mode => {
       this.presentationMode = mode.presentationMode;
     })
   }

@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { DirectorService } from 'src/app/Presenter/director.service';
-import { PresentationModeControllerService } from 'src/app/Presenter/presentation-mode-controller.service';
+import { PresentationControllerService } from 'src/app/Presenter/presentation-controller.service';
 
 
 @Component({
@@ -18,7 +18,7 @@ export class AluFlagArrowsComponent implements AfterViewInit {
 
   constructor(
     private director: DirectorService,
-    private presentationModeController: PresentationModeControllerService,
+    private presentationController: PresentationControllerService,
   ) { }
 
   ngAfterViewInit(): void {
@@ -35,7 +35,7 @@ export class AluFlagArrowsComponent implements AfterViewInit {
     });
 
 
-    this.presentationModeController.presentationMode$.subscribe( mode => {
+    this.presentationController.presentationMode$.subscribe( mode => {
       this.presentationMode = mode.presentationMode;
     })
   }

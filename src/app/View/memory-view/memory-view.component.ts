@@ -4,7 +4,7 @@ import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree'
 import { MainMemoryService } from 'src/app/Model/Emulator/main-memory.service';
 import { MacroParserService } from 'src/app/Model/macro-parser.service';
 import { RegProviderService } from 'src/app/Model/reg-provider.service';
-import { PresentationModeControllerService } from 'src/app/Presenter/presentation-mode-controller.service';
+import { PresentationControllerService } from 'src/app/Presenter/presentation-controller.service';
 import { ThemeControlService } from 'src/app/Presenter/theme-control.service';
 
 /**
@@ -58,7 +58,7 @@ export class MemoryViewComponent implements OnInit {
   constructor(
     private mainMemory: MainMemoryService,
     private macroParser: MacroParserService,
-    private presentationModeController: PresentationModeControllerService,
+    private presentationController: PresentationControllerService,
     private regProvider: RegProviderService,
     private themeController: ThemeControlService
     ) {
@@ -66,7 +66,7 @@ export class MemoryViewComponent implements OnInit {
      }
 
   ngOnInit(): void {
-    this.presentationModeController.presentationMode$.subscribe(b => {
+    this.presentationController.presentationMode$.subscribe(b => {
       this.presentationMode = b.presentationMode;
     })
 

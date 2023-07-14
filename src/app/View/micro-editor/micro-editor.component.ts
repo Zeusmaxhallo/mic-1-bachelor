@@ -5,7 +5,7 @@ import * as ace from "ace-builds";
 import { DirectorService } from "src/app/Presenter/director.service";
 import { timer } from "rxjs";
 import { ThemeControlService } from "src/app/Presenter/theme-control.service";
-import { PresentationModeControllerService } from "src/app/Presenter/presentation-mode-controller.service";
+import { PresentationControllerService } from "src/app/Presenter/presentation-controller.service";
 
 
 const LANG = "ace/mode/micro";
@@ -48,7 +48,7 @@ export class MicroEditorComponent implements AfterViewInit {
     private controllerService: ControllerService,
     private directorService: DirectorService,
     private themeControl: ThemeControlService,
-    private presentationModeController: PresentationModeControllerService,
+    private presentationController: PresentationControllerService,
   ) { }
 
 
@@ -127,7 +127,7 @@ export class MicroEditorComponent implements AfterViewInit {
     })
 
     // change editor options when Presentationmode is toggled
-    this.presentationModeController.presentationMode$.subscribe(presentationMode => {
+    this.presentationController.presentationMode$.subscribe(presentationMode => {
       if(presentationMode.presentationMode == true){
         this.aceEditor.setOptions(editorOptionsPresentation)
       }
@@ -234,7 +234,7 @@ export class MicroEditorComponent implements AfterViewInit {
 
 
   getOptions(){
-    if(this.presentationModeController.getPresentationMode() == false){
+    if(this.presentationController.getPresentationMode() == false){
       return editorOptions
     }
     else{

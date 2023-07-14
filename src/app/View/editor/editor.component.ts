@@ -3,9 +3,8 @@ import { MacroProviderService } from "src/app/Model/macro-provider.service";
 import * as ace from "ace-builds";
 import { DirectorService } from "src/app/Presenter/director.service";
 import { timer } from "rxjs";
-import { MacroParserService } from "src/app/Model/macro-parser.service";
 import { ThemeControlService } from "src/app/Presenter/theme-control.service";
-import { PresentationModeControllerService } from "src/app/Presenter/presentation-mode-controller.service";
+import { PresentationControllerService } from "src/app/Presenter/presentation-controller.service";
 import { ControllerService } from "src/app/Presenter/controller.service";
 
 
@@ -48,9 +47,8 @@ export class EditorComponent implements AfterViewInit {
   constructor(
     private macroProvider: MacroProviderService,
     private directorService: DirectorService,
-    private macroParser: MacroParserService,
     private themeController: ThemeControlService,
-    private presentationModeController: PresentationModeControllerService,
+    private presentationController: PresentationControllerService,
     private controller: ControllerService,
   ) { }
 
@@ -123,7 +121,7 @@ export class EditorComponent implements AfterViewInit {
     });
 
     // flash an error message when an error occurs
-    this.macroParser.errorFlasher$.subscribe(error => {
+    this.presentationController.errorFlasher$.subscribe(error => {
       if (error.error) {
         let editorErrorLine = this.macroProvider.getEditorLineWithParserLine(error.line);
         this.flashErrorMessage(error.error, editorErrorLine);
@@ -131,7 +129,7 @@ export class EditorComponent implements AfterViewInit {
     });
 
     // change editor options when Presentationmode is toggled
-    this.presentationModeController.presentationMode$.subscribe(presentationMode => {
+    this.presentationController.presentationMode$.subscribe(presentationMode => {
       if(presentationMode.presentationMode == true){
         this.aceEditor.setOptions(editorOptionsPresentation)
       }
@@ -212,7 +210,7 @@ export class EditorComponent implements AfterViewInit {
   }
 
   getOptions(){
-    if(this.presentationModeController.getPresentationMode() == false){
+    if(this.presentationController.getPresentationMode() == false){
       return editorOptions
     }
     else{

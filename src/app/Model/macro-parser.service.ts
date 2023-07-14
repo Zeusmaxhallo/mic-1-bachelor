@@ -4,6 +4,8 @@ import { MainMemoryService } from './Emulator/main-memory.service';
 import { MacroTokenizerService } from './macro-tokenizer.service';
 import { Token } from './micro-tokenizer.service';
 import { BehaviorSubject } from 'rxjs';
+import { ControllerService } from '../Presenter/controller.service';
+import { PresentationControllerService } from '../Presenter/presentation-controller.service';
 
 @Injectable({
   providedIn: 'root'
@@ -34,8 +36,6 @@ export class MacroParserService {
   private currentLocalVarCount: number = 0; // temporary saves the number of current local variables when setVariable() is invoked
   private currentLine: number = 1;
 
-  private _errorFlasher = new BehaviorSubject({ line: 0, error: "" });
-  public errorFlasher$ = this._errorFlasher.asObservable();
   private _memoryViewRefresher = new BehaviorSubject<boolean>(false);
   public memoryViewRefresher$ = this._memoryViewRefresher.asObservable();
 
@@ -44,6 +44,7 @@ export class MacroParserService {
     private macroTokenizer: MacroTokenizerService,
     private memory: MainMemoryService,
     private controlStore: ControlStoreService,
+    private presentationController: PresentationControllerService,
   ) { }
 
 
@@ -355,7 +356,7 @@ export class MacroParserService {
               // Comment in when microcode is fully available. And comment out the log
               // throw new Error("Unexpected Token: " + instructionToken[0]);
               console.error("Address of " + instructionToken[0] + " is: " + instructionAddress);
-              this._errorFlasher.next({ line: this.currentLine, error: "Address of " + instructionToken[0] + " is: " + instructionAddress });
+              this.presentationController.flashErrorInMacro(this.currentLine, "Address of " + instructionToken[0] + " is: " + instructionAddress)
               hasError = true;
             }
           }
@@ -629,7 +630,7 @@ export class MacroParserService {
               // Comment in when microcode is fully available. And comment out the log
               // throw new Error("Unexpected Token: " + instructionToken[0]);
               console.error("Address of " + instructionToken[0] + " is: " + instructionAddress);
-              this._errorFlasher.next({ line: this.currentLine, error: "Address of " + instructionToken[0] + " is: " + instructionAddress });
+              this.presentationController.flashErrorInMacro(this.currentLine, "Address of " + instructionToken[0] + " is: " + instructionAddress)
               hasError = true;
             }
           }
