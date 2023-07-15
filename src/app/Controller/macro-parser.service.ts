@@ -446,6 +446,9 @@ export class MacroParserService {
                       else if(this.methods[instructionToken2[j]] >= 0){
                         labelTokenPosition += 2
                       }
+                      else if(this.constantOffsetToCPP[instructionToken2[j]] > 0){
+                        labelTokenPosition += 2;
+                      }
                       else{
                         labelTokenPosition += 1;
                       }
@@ -716,6 +719,9 @@ export class MacroParserService {
                       }
                       else if(this.methods[instructionToken2[j]] >= 0){
                         labelTokenPosition += 2
+                      }
+                      else if(this.constantOffsetToCPP[instructionToken2[j]] > 0){
+                        labelTokenPosition += 2;
                       }
                       else{
                         labelTokenPosition += 1;
