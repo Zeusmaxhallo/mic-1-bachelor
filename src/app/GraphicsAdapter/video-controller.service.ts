@@ -15,6 +15,27 @@ const COLUMNS = SCREEN_WIDTH / 8;
 const ROWS = SCREEN_HEIGHT / 8;
 
 
+// all 16 VGA TextMode Colors in the right order
+const COLORS = [
+  "black",         // 0
+  "blue",          // 1
+  "green",         // 2
+  "cyan",          // 3          
+  "red",           // 4
+  "magenta",       // 5
+  "brown",         // 6
+  "lightGray",     // 7
+  "darkGray",      // 8
+  "lightBlue",     // 9
+  "lightGreen",    // A
+  "lightCyan",     // B
+  "lightRed",      // C
+  "pink",          // D
+  "yellow",        // E
+  "white",         // F
+]
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -87,7 +108,9 @@ export class VideoControllerService {
     // 
     let n = (address / 4 - VRAM_ADDRESS) * 2;
     let x = Math.floor(n % COLUMNS) * 8;
-    let y = Math.floor(n / ROWS) * 8;
+    let y = Math.floor(n / COLUMNS) * 8;
+
+    console.log("ROWS:", ROWS)
 
     console.log(x, y)
 
@@ -103,57 +126,61 @@ export class VideoControllerService {
       bits = this.characterROM.getCharacter(first.character).bits;
     } catch (error) {
       console.log("character", first.character, "is not in Character ROM returning 0")
-      bits = ["00000000","00000000","00000000","00000000","00000000","00000000","00000000","00000000"];
+      bits = ["00000000", "00000000", "00000000", "00000000", "00000000", "00000000", "00000000", "00000000"];
     }
-    
 
-    let color = `rgb(${"255"},${"255"},${"255"})`
-    let backgroundColor = `rgb(${"0"},${"0"},${"0"})`
+    /** 
+    Bit 76543210
+        ||||||||
+        |||||^^^-fore color
+        ||||^----fore color bright bit
+        |^^^-----back color
+        ^--------back color bright bit OR enables blinking Text
+    */
+    let color = COLORS[first.attribute & 0b00001111 ];
+    let backgroundColor = COLORS[(first.attribute & 0b01110000) >> 4];
 
-    console.log(first,second)
-    console.log(value);
-
+    console.log(first.attribute & 0b00001111 )
+    console.log(color,backgroundColor)
 
 
     // first Character
     for (let i = 0; i < 8; i++) {
       for (let j = 0; j < 8; j++) {
-        if(parseInt(bits[i][j])){
-          this._sendPixel.next({ x: x + j, y: y + i, color: color});
-        }else{
-          this._sendPixel.next({ x: x + j, y: y + i, color: backgroundColor});
+        if (parseInt(bits[i][j])) {
+          this._sendPixel.next({ x: x + j, y: y + i, color: color });
+        } else {
+          this._sendPixel.next({ x: x + j, y: y + i, color: backgroundColor });
         }
       }
     }
 
-    // second Character
-
+    // set second Character
     try {
       bits = this.characterROM.getCharacter(second.character).bits;
     } catch (error) {
       console.log("character", second.character, "is not in Character ROM returning 0")
-      bits = ["00000000","00000000","00000000","00000000","00000000","00000000","00000000","00000000"];
+      bits = ["00000000", "00000000", "00000000", "00000000", "00000000", "00000000", "00000000", "00000000"];
     }
-    
+
+    // set color for second Character
+    color = COLORS[second.attribute & 0b00001111 ];
+    backgroundColor = COLORS[(second.attribute & 0b01110000) >> 4];
+
     for (let i = 0; i < 8; i++) {
       for (let j = 0; j < 8; j++) {
-        if(parseInt(bits[i][j])){
-          this._sendPixel.next({ x: x + j + 8, y: y + i, color: color});
-        }else{
-          this._sendPixel.next({ x: x + j + 8, y: y + i, color: backgroundColor});
+        if (parseInt(bits[i][j])) {
+          this._sendPixel.next({ x: x + j + 8, y: y + i, color: color });
+        } else {
+          this._sendPixel.next({ x: x + j + 8, y: y + i, color: backgroundColor });
         }
       }
     }
-
-
-
   }
 
   public wipeScreen() {
     this._wipeScreen.next(true);
 
   }
-
-
 
 }
