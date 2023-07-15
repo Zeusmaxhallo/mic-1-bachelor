@@ -7,6 +7,7 @@ import { MacroTokenizerService } from '../Model/macro-tokenizer.service';
 import { MacroParserService } from '../Model/macro-parser.service';
 import { DirectorService } from './director.service';
 import { BehaviorSubject } from 'rxjs';
+import { MainMemoryService } from '../Model/Emulator/main-memory.service';
 
 
 const code1: string = `.main
@@ -322,6 +323,7 @@ export class ControllerService {
     private macroTokenizer: MacroTokenizerService,
     private macroParser: MacroParserService,
     private director: DirectorService,
+    private mainMemory: MainMemoryService,
   ) {
     const codeMac = localStorage.getItem("macroCode");
     const codeMic = localStorage.getItem("microCode");
@@ -431,6 +433,10 @@ export class ControllerService {
     this.macroProvider.setMacro(macro);
   }
 
+  setMicroInModel(micro: string){
+    this.microProvider.setMicro(micro);
+  }
+
   setCodeInView(macro: string, micro: string){
     this._macroCode.next({ macroCode: macro });
     this._microCode.next({ microCode: micro });
@@ -441,20 +447,32 @@ export class ControllerService {
       this.microProvider.setMicro(microCode);
       this.macroProvider.setMacro(code1);
       this._macroCode.next({ macroCode: code1});
-      this._microCode.next({ microCode: code1});
+      this._microCode.next({ microCode: microCode});
     }
     if(demoCodeOption === "demo2"){
       this.microProvider.setMicro(customMicroCode);
       this.macroProvider.setMacro(code2);
       this._macroCode.next({ macroCode: code2});
-      this._microCode.next({ microCode: code2});
+      this._microCode.next({ microCode: customMicroCode});
     }
     if(demoCodeOption === "demo3"){
       this.microProvider.setMicro(microCode);
       this.macroProvider.setMacro(code3);
       this._macroCode.next({ macroCode: code3});
-      this._microCode.next({ microCode: code3});
+      this._microCode.next({ microCode: microCode});
     }
+  }
+
+  getEditorLineWithoutEmptyRows(line: number){
+    return this.macroProvider.getEditorLineWithoutEmptyRows(line);
+  }
+
+  getEditorLineWithParserLine(parserLine: number){
+    return this.macroProvider.getEditorLineWithParserLine(parserLine);
+  }
+
+  dec2hex(dec: number){
+    return this.mainMemory.dec2hex(dec);
   }
 
 }

@@ -1,5 +1,4 @@
 import { AfterViewInit, Component, ElementRef, ViewChild, ɵɵqueryRefresh } from "@angular/core";
-import { MicroProviderService } from "src/app/Model/micro-provider.service";
 import { ControllerService } from "src/app/Presenter/controller.service";
 import * as ace from "ace-builds";
 import { DirectorService } from "src/app/Presenter/director.service";
@@ -44,8 +43,7 @@ export class MicroEditorComponent implements AfterViewInit {
 
 
   constructor(
-    private microProvider: MicroProviderService,
-    private controllerService: ControllerService,
+    private controller: ControllerService,
     private directorService: DirectorService,
     private themeControl: ThemeControlService,
     private presentationController: PresentationControllerService,
@@ -53,7 +51,6 @@ export class MicroEditorComponent implements AfterViewInit {
 
 
   ngOnInit(): void {
-    this.content = this.microProvider.getMicro();
   }
 
   ngAfterViewInit(): void {
@@ -71,7 +68,7 @@ export class MicroEditorComponent implements AfterViewInit {
       this.content = this.aceEditor.getValue();
 
       // Updates the microcode on the micro provider
-      this.microProvider.setMicro(this.content);
+      this.controller.setMicroInModel(this.content);
       this.removeErrorHighlighting();
     })
 
@@ -150,9 +147,10 @@ export class MicroEditorComponent implements AfterViewInit {
       this.highlightLine(line.line);
     })
 
-    this.controllerService.microCode$.subscribe(
+    // updates microcode when new code is imported or microcode is loaded from local storage
+    this.controller.microCode$.subscribe(
       content => {
-        this.content = this.microProvider.getMicro();
+        this.content = content.microCode;
         this.removeErrorHighlighting();
         this.aceEditor.session.clearBreakpoints();
         this.directorService.clearMicroBreakpoints();

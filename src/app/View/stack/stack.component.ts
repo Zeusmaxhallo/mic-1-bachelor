@@ -1,10 +1,7 @@
 import { animate, keyframes, state, style, transition, trigger } from '@angular/animations';
 import { Component, OnInit } from '@angular/core';
-import { AluService } from 'src/app/Model/Emulator/alu.service';
-import { ShifterService } from 'src/app/Model/Emulator/shifter.service';
-import { PresentationControllerService } from 'src/app/Presenter/presentation-controller.service';
-import { RegProviderService } from 'src/app/Model/reg-provider.service';
 import { StackProviderService } from 'src/app/Model/stack-provider.service';
+import { PresentationControllerService } from 'src/app/Presenter/presentation-controller.service';
 
 
 @Component({
@@ -37,9 +34,8 @@ export class StackComponent implements OnInit {
   public presentationMode = false;
 
   constructor(
-    public stackProvider:StackProviderService,
-     private regProvider: RegProviderService,
     private presentationController: PresentationControllerService,
+    public stackProvider: StackProviderService,
   ) { }
 
   ngOnInit(): void {
@@ -49,11 +45,11 @@ export class StackComponent implements OnInit {
   }
 
    isLV(address: number):boolean{
-    return address == this.regProvider.getRegister("LV").getValue() * 4;
+    return address == this.presentationController.getRegisterValue("LV") * 4;
   }
 
   isSP(address: number):boolean{
-    return address == this.regProvider.getRegister("SP").getValue() * 4;
+    return address == this.presentationController.getRegisterValue("SP") * 4;
   }
 
   dec2hex(number:number){

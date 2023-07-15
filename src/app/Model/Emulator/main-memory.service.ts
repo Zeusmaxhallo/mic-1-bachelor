@@ -14,8 +14,8 @@ export class MainMemoryService {
 
   private _stackStartAddress = 0;
 
-  private _memoryUpdate = new BehaviorSubject({ address: 0, value: 0});
-  public memoryUpdate$ = this._memoryUpdate.asObservable();
+  private _updateMemoryView = new BehaviorSubject({address: 0, value: 0});
+  public updateMemoryView$ = this._updateMemoryView.asObservable();
 
   constructor(
     private regProvider: RegProviderService,
@@ -49,7 +49,7 @@ export class MainMemoryService {
     this.memory[address + 2] = view.getUint8(2);
     this.memory[address + 3] = view.getUint8(3);
 
-    this._memoryUpdate.next({address: address, value: value})
+    this._updateMemoryView.next({ address: address, value: value});
   }
 
   private store_8(address: number, value: number) {

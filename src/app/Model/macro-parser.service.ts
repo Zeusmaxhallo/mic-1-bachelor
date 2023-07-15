@@ -4,7 +4,6 @@ import { MainMemoryService } from './Emulator/main-memory.service';
 import { MacroTokenizerService } from './macro-tokenizer.service';
 import { Token } from './micro-tokenizer.service';
 import { BehaviorSubject } from 'rxjs';
-import { ControllerService } from '../Presenter/controller.service';
 import { PresentationControllerService } from '../Presenter/presentation-controller.service';
 
 @Injectable({
@@ -36,10 +35,7 @@ export class MacroParserService {
   private currentLocalVarCount: number = 0; // temporary saves the number of current local variables when setVariable() is invoked
   private currentLine: number = 1;
 
-  private _memoryViewRefresher = new BehaviorSubject<boolean>(false);
-  public memoryViewRefresher$ = this._memoryViewRefresher.asObservable();
-
-
+  
   constructor(
     private macroTokenizer: MacroTokenizerService,
     private memory: MainMemoryService,
@@ -103,7 +99,7 @@ export class MacroParserService {
     this.memory.setConstants(this.constants);
     this.memory.createVariables(this.variables.length);
 
-    this._memoryViewRefresher.next(true);
+    this.presentationController.memoryViewRefresher(true);
 
     console.log("Memory: ");
     this.memory.printMemory();
@@ -151,7 +147,7 @@ export class MacroParserService {
     this.currentLocalVarCount = 0;
     this.currentLine = 1;
 
-    this._memoryViewRefresher.next(false);
+    this.presentationController.memoryViewRefresher(false);
   }
 
   // saves the constants with a value to the Main Memory and slices the constant field and the constant tokens out from the tokensarray

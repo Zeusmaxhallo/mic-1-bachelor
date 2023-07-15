@@ -45,7 +45,6 @@ export class EditorComponent implements AfterViewInit {
   file: String;
 
   constructor(
-    private macroProvider: MacroProviderService,
     private directorService: DirectorService,
     private themeController: ThemeControlService,
     private presentationController: PresentationControllerService,
@@ -53,7 +52,6 @@ export class EditorComponent implements AfterViewInit {
   ) { }
 
   ngOnInit(): void {
-    this.content = this.macroProvider.getMacro();
   }
 
   ngAfterViewInit(): void {
@@ -79,7 +77,7 @@ export class EditorComponent implements AfterViewInit {
     let editor = this.aceEditor;
 
     let setBreakpoint = (line: number) => {
-      let editorLineWithoutEmptyRows = this.macroProvider.getEditorLineWithoutEmptyRows(line);
+      let editorLineWithoutEmptyRows = this.controller.getEditorLineWithoutEmptyRows(line);
       this.directorService.setMacroBreakpoint(editorLineWithoutEmptyRows + 1);
     }
 
@@ -123,7 +121,7 @@ export class EditorComponent implements AfterViewInit {
     // flash an error message when an error occurs
     this.presentationController.errorFlasher$.subscribe(error => {
       if (error.error) {
-        let editorErrorLine = this.macroProvider.getEditorLineWithParserLine(error.line);
+        let editorErrorLine = this.controller.getEditorLineWithParserLine(error.line);
         this.flashErrorMessage(error.error, editorErrorLine);
       }
     });
@@ -141,7 +139,7 @@ export class EditorComponent implements AfterViewInit {
     // highlight line if we hit a breakpoint
     this.directorService.breakpointFlasherMacro$.subscribe(breakpoint => {
       if (breakpoint.line) {
-        let editorBreakpointLine = this.macroProvider.getEditorLineWithParserLine(breakpoint.line);
+        let editorBreakpointLine = this.controller.getEditorLineWithParserLine(breakpoint.line);
         this.highlightBreakpoint(editorBreakpointLine)
         const source = timer(10000);
         source.subscribe(() => this.removeBreakpointHighlighting())
