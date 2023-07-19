@@ -44,7 +44,7 @@ export class ParserService {
 
 
 
-  public init(instruction: Token[], address: number) {
+  private init(instruction: Token[], address: number) {
 
     this.tokens = instruction;
     this.address = address
@@ -59,7 +59,10 @@ export class ParserService {
   }
 
 
-  parse(): Instruction {
+  parse(instruction: Token[], address: number): Instruction {
+
+    this.init(instruction, address);
+
     if (this.tokens.length == 0) {
       throw new Error("EmptyInstructionError");
     }
@@ -274,10 +277,10 @@ export class ParserService {
 
       if (aluInstruction[i].type == "BITWISE_OPERATOR") {
         // shifter Instruction has to be at the end of the AluInstruction
-        if(aluInstruction.length - i <= 3){
+        if (aluInstruction.length - i <= 3) {
           shifterInstruction = aluInstruction.splice(i, 2);
           break;
-        }else{
+        } else {
           throw new Error("InvalidAluInstruction - Shifter Operation must come at the end of the Alu Instruction")
         }
 

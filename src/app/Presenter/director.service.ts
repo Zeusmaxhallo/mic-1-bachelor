@@ -225,10 +225,9 @@ export class DirectorService {
 
 
     // parse instruction
-    this.parser.init(tokens, this.currentAddress);
     let microInstruction: Instruction
     try {
-      microInstruction = this.parser.parse();
+      microInstruction = this.parser.parse(tokens, this.currentAddress);
     } catch (error) {
       if (error instanceof Error) {
 
