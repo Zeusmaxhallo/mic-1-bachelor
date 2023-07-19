@@ -3,7 +3,6 @@ import { ControlStoreService } from './Emulator/control-store.service';
 import { MainMemoryService } from './Emulator/main-memory.service';
 import { MacroTokenizerService } from './macro-tokenizer.service';
 import { Token } from './micro-tokenizer.service';
-import { BehaviorSubject } from 'rxjs';
 import { PresentationControllerService } from '../Presenter/presentation-controller.service';
 
 @Injectable({
@@ -90,6 +89,10 @@ export class MacroParserService {
 
         // if there was an Error in MethodBlock set ErrorFlag
         this.methodBlock() ? ErrorFlag = true : {};
+
+        // place a flag so that the director can use it as a flag for ending the program
+        this.parsedCode.push(255);
+        this.parsedTokenNumber += 1;
       }
       else{
         throw new Error("Unexpected Token: " + this.tokens[0].value);
