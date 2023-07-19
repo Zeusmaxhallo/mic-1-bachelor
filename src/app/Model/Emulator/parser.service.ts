@@ -645,8 +645,7 @@ export class ParserService {
 
     // tokenize all lines
     for (let i = 0; i < input.length; i++) {
-      this.microTokenizer.init(input[i]);
-      tokens[i] = this.microTokenizer.getAllTokens();
+      tokens[i] = this.microTokenizer.getAllTokens(input[i]);
     }
 
     // find the address for each instruction and (if given) create a Label
