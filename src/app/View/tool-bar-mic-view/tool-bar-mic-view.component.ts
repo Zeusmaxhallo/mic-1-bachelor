@@ -21,7 +21,7 @@ export class ToolBarMicViewComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.director.animationEnabled = this.animate;
+    this.animate = this.director.animationEnabled;
 
     this.director.finishedRun$.subscribe( result => {
       result ? this.enableRunButtons() : this.disableRunButtons();
@@ -67,7 +67,7 @@ export class ToolBarMicViewComponent implements OnInit {
   }
 
   toggleAnimVisibility(){
-    this.director.animationEnabled = this.animate;
+    this.director.toggleAnimationEnabled(this.animate);
   }
 
 }

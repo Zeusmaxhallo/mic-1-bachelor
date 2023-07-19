@@ -34,7 +34,15 @@ export class DirectorService {
     private macroTokenizer: MacroTokenizerService,
     private macroProvider: MacroProviderService,
     private microProvider: MicroProviderService,
-  ) { }
+  ) {
+    let enableAnim = localStorage.getItem("animationEnabled");
+    // if there is no data in localStorage enable the animation
+    if (enableAnim === "false") {
+      this.animationEnabled = false;
+    } else {
+      this.animationEnabled = true;
+    }
+  }
 
   private currentAddress = 1;
   private lineNumber = 0;
@@ -469,5 +477,10 @@ export class DirectorService {
 
   public clearMacroBreakpoints() {
     this.macroBreakpoints = [];
+  }
+
+  public toggleAnimationEnabled(enabled: boolean) {
+    this.animationEnabled = enabled;
+    localStorage.setItem("animationEnabled", String(enabled));
   }
 }
