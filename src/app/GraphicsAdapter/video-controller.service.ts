@@ -17,22 +17,22 @@ const ROWS = SCREEN_HEIGHT / 8;
 
 // all 16 VGA TextMode Colors in the right order
 const COLORS = [
-  "black",         // 0
-  "blue",          // 1
-  "green",         // 2
-  "cyan",          // 3          
-  "red",           // 4
-  "magenta",       // 5
-  "brown",         // 6
-  "lightGray",     // 7
-  "darkGray",      // 8
-  "lightBlue",     // 9
-  "lightGreen",    // A
-  "lightCyan",     // B
-  "lightRed",      // C
-  "pink",          // D
-  "yellow",        // E
-  "white",         // F
+  "black",            // 0
+  "blue",             // 1
+  "green",            // 2
+  "cyan",             // 3          
+  "red",              // 4
+  "magenta",          // 5
+  "brown",            // 6
+  "lightGray",        // 7
+  "darkGray",         // 8
+  "lightBlue",        // 9
+  "lightGreen",       // A
+  "RGB(128,255,255)", // B   -> lightCyan
+  "RGB(255,204,203)", // C   -> lightRed 
+  "pink",             // D
+  "yellow",           // E
+  "white",            // F
 ]
 
 
@@ -105,14 +105,9 @@ export class VideoControllerService {
      * -> draw both characters
     */
 
-    // 
     let n = (address / 4 - VRAM_ADDRESS) * 2;
     let x = Math.floor(n % COLUMNS) * 8;
     let y = Math.floor(n / COLUMNS) * 8;
-
-    console.log("ROWS:", ROWS)
-
-    console.log(x, y)
 
     const buffer = new ArrayBuffer(4);
     const view = new DataView(buffer, 0);
@@ -139,10 +134,6 @@ export class VideoControllerService {
     */
     let color = COLORS[first.attribute & 0b00001111 ];
     let backgroundColor = COLORS[(first.attribute & 0b01110000) >> 4];
-
-    console.log(first.attribute & 0b00001111 )
-    console.log(color,backgroundColor)
-
 
     // first Character
     for (let i = 0; i < 8; i++) {
