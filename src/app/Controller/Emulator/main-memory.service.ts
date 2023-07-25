@@ -2,6 +2,9 @@ import { Injectable } from '@angular/core';
 import { RegProviderService } from '../../Model/reg-provider.service';
 import { BehaviorSubject } from 'rxjs';
 
+const CURSOR_ADDRESS = 65536;
+
+
 @Injectable({
   providedIn: 'root'
 })
@@ -152,7 +155,7 @@ export class MainMemoryService {
     this.constantPoolSize = constants.length * 4;
     let alignedMethodAreaSize = Math.ceil(this.methodAreaSize / 4) * 4;
 
-    this.regProvider.getRegister("CPP").setValue(alignedMethodAreaSize / 4); // set CPP to first constant
+    this.regProvider.getRegister("CPP").setValue(alignedMethodAreaSize / 4); // set CPP to first constanthttps://www.wolframalpha.com/
     for (let i = 0; i < constants.length; i++) {
       this.store_32(alignedMethodAreaSize + i * 4, constants[i], true); // constants start after the MethodArea
     }
@@ -161,6 +164,9 @@ export class MainMemoryService {
     // Set SP and LV to start of Stack
     this.regProvider.getRegister("SP").setValue(this._stackStartAddress / 4);
     this.regProvider.getRegister("LV").setValue(this._stackStartAddress / 4);
+
+    // init cursor Position
+    this.store_32(CURSOR_ADDRESS * 4, 0);
 
   }
 

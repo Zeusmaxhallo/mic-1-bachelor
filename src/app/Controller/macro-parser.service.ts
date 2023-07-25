@@ -588,9 +588,12 @@ export class MacroParserService {
         candiatesForReplacement.push(i)
       }
     }
-    let indexOfValueToReplace = candiatesForReplacement[(candiatesForReplacement.length)-1]
-    this.parsedCode[indexOfValueToReplace+1] = view.getUint8(0);
-    this.parsedCode[indexOfValueToReplace+2] = view.getUint8(1);
+    
+    for(let i = 0; i < candiatesForReplacement.length; i++){
+      let indexOfValueToReplace = candiatesForReplacement[i]
+      this.parsedCode[indexOfValueToReplace+1] = view.getUint8(0);
+      this.parsedCode[indexOfValueToReplace+2] = view.getUint8(1);
+    }
 
     // replace placeholder offset in addrToOffset
     this.addrToOffset[this.methodToAddr[this.constantOffsetToCPP[constName]]] = constValue;
