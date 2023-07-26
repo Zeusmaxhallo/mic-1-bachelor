@@ -437,7 +437,7 @@ export class MacroParserService {
                       break;
                     }
                     else{
-                      if(this.labels[instructionToken2[j] + ":"] === -1){
+                      if(this.labels[instructionToken2[j] + ":"] !== undefined){
                         labelTokenPosition += 2;
                       }
                       else if(instructionToken2[j] === undefined || instructionToken2[j].endsWith(":")){
@@ -665,6 +665,15 @@ export class MacroParserService {
             parsedParameter = +instructionToken[i];
           }
 
+          // case for method parameternames
+          if(isNaN(parsedParameter)){
+            for(let j = 0; j < parameterNames.length; j++){
+              if(instructionToken[i] === parameterNames[j]){
+                parsedParameter = j+1;
+              }
+            }
+          }
+
           // If parsed Parameter is NaN than it must be a offset, method, or a method parameter
           // The check for method parameters comes not here. So just offset and method
           // Case for method
@@ -714,7 +723,7 @@ export class MacroParserService {
                       break;
                     }
                     else{
-                      if(this.labels[instructionToken2[j] + ":"] === -1){
+                      if(this.labels[instructionToken2[j] + ":"] !== undefined){
                         labelTokenPosition += 2;
                       }
                       else if(instructionToken2[j] === undefined || instructionToken2[j].endsWith(":")){
@@ -750,14 +759,6 @@ export class MacroParserService {
             }
           }
 
-          // case for parameternames
-          if(isNaN(parsedParameter)){
-            for(let j = 0; j < parameterNames.length; j++){
-              if(instructionToken[i] === parameterNames[j]){
-                parsedParameter = j+1;
-              }
-            }
-          }
 
           console.log(parsedParameter);
           this.parsedCode.push(parsedParameter);
