@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { RegProviderService } from '../../Model/reg-provider.service';
+import { RegProviderService } from '../reg-provider.service';
 import { BehaviorSubject } from 'rxjs';
 
 const CURSOR_ADDRESS = 65536;
@@ -17,8 +17,8 @@ export class MainMemoryService {
 
   private _stackStartAddress = 0;
 
-  private _memoryUpdate = new BehaviorSubject({ address: 0, value: 0});
-  public memoryUpdate$ = this._memoryUpdate.asObservable();
+  private _updateMemoryView = new BehaviorSubject({address: 0, value: 0});
+  public updateMemoryView$ = this._updateMemoryView.asObservable();
 
   constructor(
     private regProvider: RegProviderService,
@@ -52,7 +52,7 @@ export class MainMemoryService {
     this.memory[address + 2] = view.getUint8(2);
     this.memory[address + 3] = view.getUint8(3);
 
-    this._memoryUpdate.next({address: address, value: value})
+    this._updateMemoryView.next({address: address, value: value})
   }
 
   private store_8(address: number, value: number) {
@@ -155,7 +155,7 @@ export class MainMemoryService {
     this.constantPoolSize = constants.length * 4;
     let alignedMethodAreaSize = Math.ceil(this.methodAreaSize / 4) * 4;
 
-    this.regProvider.getRegister("CPP").setValue(alignedMethodAreaSize / 4); // set CPP to first constanthttps://www.wolframalpha.com/
+    this.regProvider.getRegister("CPP").setValue(alignedMethodAreaSize / 4); // set CPP to first constant
     for (let i = 0; i < constants.length; i++) {
       this.store_32(alignedMethodAreaSize + i * 4, constants[i], true); // constants start after the MethodArea
     }

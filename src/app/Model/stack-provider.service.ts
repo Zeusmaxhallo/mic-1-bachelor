@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { MainMemoryService } from '../Controller/Emulator/main-memory.service';
+import { MainMemoryService } from './Emulator/main-memory.service';
 import { RegProviderService } from './reg-provider.service';
 
 @Injectable({

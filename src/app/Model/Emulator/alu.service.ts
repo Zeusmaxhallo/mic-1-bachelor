@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { RegProviderService } from '../../Model/reg-provider.service';
+import { RegProviderService } from '../reg-provider.service';
 import { BBusService } from './b-bus.service';
 
 @Injectable({
@@ -45,7 +45,7 @@ export class AluService {
     }else{
       this.a  = view.getInt32(0);
     }
-    
+
   }
 
   // dictionary of all available alu codes and corresponding functions
@@ -89,7 +89,7 @@ export class AluService {
     this._n = this._result < 0;
 
     // print on Console
-    /** 
+    /**
     console.log(`Alu Operation: ${op}
     |  values:    [a: ${this.a}=0b${(this.a >>> 0).toString(2)}, b: ${this.b}=0b${(this.b >>> 0).toString(2)}],
     |  operation: ${this.operations[op]},

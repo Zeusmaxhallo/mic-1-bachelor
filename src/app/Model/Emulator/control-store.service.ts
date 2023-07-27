@@ -1,7 +1,7 @@
 import { Token } from '../micro-tokenizer.service';
 import { Injectable } from '@angular/core';
-import { ParserService, Instruction, Line } from 'src/app/Controller/Emulator/parser.service';
-import { MicroProviderService } from '../../Model/micro-provider.service';
+import { ParserService, Instruction, Line } from 'src/app/Model/Emulator/parser.service';
+import { MicroProviderService } from '../micro-provider.service';
 
 @Injectable({
   providedIn: 'root'

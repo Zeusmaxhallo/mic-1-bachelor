@@ -52,7 +52,7 @@ const Spec: any= [
 
   // Addresses: e.g (0x7F)
   [/^\(0x[a-fA-F0-9]+\)/, "ADDRESS"],
-  
+
   // Divider: ;
   [/^;/, "DIVIDER"],
 
@@ -84,11 +84,11 @@ export interface Token{
 export class MicroTokenizerService {
 
   private string: string = "";
-  private curser: number = 0; 
+  private curser: number = 0;
 
   constructor() { }
 
-  init(string:string): void{
+  private init(string:string): void{
       this.string = string
       this.curser = 0;
   }
@@ -105,7 +105,7 @@ export class MicroTokenizerService {
       this.curser += matched[0].length;
       return matched[0];
   }
-   
+
   getNextToken():Token{
     if (!this.hasMoreTokens()){
       return null;
@@ -120,7 +120,7 @@ export class MicroTokenizerService {
       if (tokenValue == null) {
          continue;
       }
-            
+
       // Skip null Token, e.g whitespace and comment
       if (tokenType == null) {
         return this.getNextToken();
@@ -132,10 +132,11 @@ export class MicroTokenizerService {
       }
     }
 
-    throw new SyntaxError(`Unexpected token: "${string[0]}"`); 
+    throw new SyntaxError(`Unexpected token: "${string[0]}"`);
   }
 
-  getAllTokens():Token[]{
+  getAllTokens(string:string):Token[]{
+    this.init(string);
     let tokens: Token[] = [];
     while(true){
       let token = this.getNextToken();

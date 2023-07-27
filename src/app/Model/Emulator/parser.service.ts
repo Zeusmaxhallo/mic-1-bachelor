@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { RegProviderService } from '../../Model/reg-provider.service';
+import { RegProviderService } from '../reg-provider.service';
 import { MicroTokenizerService } from '../micro-tokenizer.service';
 import { Token } from '../micro-tokenizer.service';
 
@@ -30,7 +30,7 @@ export class ParserService {
   // jump labels and address
   public labels: { [id: string]: number } = {};
 
-  public static print = false;
+  public static print = true;
 
   // address of current instruction
   private address: number;
@@ -44,7 +44,7 @@ export class ParserService {
 
 
 
-  public init(instruction: Token[], address: number) {
+  private init(instruction: Token[], address: number) {
 
     this.tokens = instruction;
     this.address = address
@@ -59,7 +59,10 @@ export class ParserService {
   }
 
 
-  parse(): Instruction {
+  parse(instruction: Token[], address: number): Instruction {
+
+    this.init(instruction, address);
+
     if (this.tokens.length == 0) {
       throw new Error("EmptyInstructionError");
     }
@@ -274,10 +277,10 @@ export class ParserService {
 
       if (aluInstruction[i].type == "BITWISE_OPERATOR") {
         // shifter Instruction has to be at the end of the AluInstruction
-        if(aluInstruction.length - i <= 3){
+        if (aluInstruction.length - i <= 3) {
           shifterInstruction = aluInstruction.splice(i, 2);
           break;
-        }else{
+        } else {
           throw new Error("InvalidAluInstruction - Shifter Operation must come at the end of the Alu Instruction")
         }
 
@@ -642,8 +645,7 @@ export class ParserService {
 
     // tokenize all lines
     for (let i = 0; i < input.length; i++) {
-      this.microTokenizer.init(input[i]);
-      tokens[i] = this.microTokenizer.getAllTokens();
+      tokens[i] = this.microTokenizer.getAllTokens(input[i]);
     }
 
     // find the address for each instruction and (if given) create a Label

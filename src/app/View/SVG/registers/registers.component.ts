@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { PresentationModeControllerService } from 'src/app/Presenter/presentation-mode-controller.service';
+import { PresentationControllerService } from 'src/app/Presenter/presentation-controller.service';
 declare let anime: any;
 
 @Component({
@@ -12,10 +12,10 @@ export class RegistersComponent implements OnInit {
   public presentationMode = false;
 
   constructor(
-    private presentationModeController: PresentationModeControllerService
+    private presentationController: PresentationControllerService
     ) {}
   ngOnInit(): void {
-    this.presentationModeController.presentationMode$.subscribe( mode => {
+    this.presentationController.presentationMode$.subscribe( mode => {
       this.presentationMode = mode.presentationMode;
     })
   }

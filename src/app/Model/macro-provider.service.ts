@@ -5,19 +5,16 @@ import { Injectable } from '@angular/core';
 })
 export class MacroProviderService {
   private macro: string = "";
-
   macroGotChanged: boolean = false;
 
   constructor() {
-    const code = localStorage.getItem("macroCode");
-    if (code){
-      this.macro = code;
-    }
+
   }
 
   setMacro(macro: string){
     this.macroGotChanged = true;
     this.macro = macro;
+
     localStorage.setItem("macroCode", macro);
   }
 
@@ -53,7 +50,7 @@ export class MacroProviderService {
           line++;
         }
       }
-      
+
       if(line === parserLine){
         if(this.macro.charAt(i) === '\n'){
           let j = i;
@@ -90,7 +87,7 @@ export class MacroProviderService {
           line++;
         }
       }
-      
+
       if(line === lineWithEmptyRows - emptyRowCounter){
         break;
       }

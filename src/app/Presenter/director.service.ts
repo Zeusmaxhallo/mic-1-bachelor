@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
-import { AluService } from '../Controller/Emulator/alu.service';
-import { BBusService, BBusResult } from '../Controller/Emulator/b-bus.service';
-import { CBusService, CBusResult } from '../Controller/Emulator/c-bus.service';
-import { ControlStoreService } from '../Controller/Emulator/control-store.service';
-import { MainMemoryService } from '../Controller/Emulator/main-memory.service';
-import { Instruction, Line, ParserService } from '../Controller/Emulator/parser.service';
-import { ShifterService } from '../Controller/Emulator/shifter.service';
+import { AluService } from '../Model/Emulator/alu.service';
+import { BBusService, BBusResult } from '../Model/Emulator/b-bus.service';
+import { CBusService, CBusResult } from '../Model/Emulator/c-bus.service';
+import { ControlStoreService } from '../Model/Emulator/control-store.service';
+import { MainMemoryService } from '../Model/Emulator/main-memory.service';
+import { Instruction, Line, ParserService } from '../Model/Emulator/parser.service';
+import { ShifterService } from '../Model/Emulator/shifter.service';
 import { RegProviderService } from '../Model/reg-provider.service';
 import { StackProviderService } from '../Model/stack-provider.service';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { MacroParserService } from '../Controller/macro-parser.service';
-import { MacroTokenizerService } from '../Controller/macro-tokenizer.service';
+import { MacroParserService } from '../Model/macro-parser.service';
+import { MacroTokenizerService } from '../Model/macro-tokenizer.service';
 import { MacroProviderService } from '../Model/macro-provider.service';
 import { MicroProviderService } from '../Model/micro-provider.service';
 import { VideoControllerService } from '../GraphicsAdapter/video-controller.service';
@@ -36,7 +36,15 @@ export class DirectorService {
     private macroProvider: MacroProviderService,
     private microProvider: MicroProviderService,
     private videoController: VideoControllerService,
-  ) { }
+  ) {
+    let enableAnim = localStorage.getItem("animationEnabled");
+    // if there is no data in localStorage enable the animation
+    if (enableAnim === "false") {
+      this.animationEnabled = false;
+    } else {
+      this.animationEnabled = true;
+    }
+  }
 
   private currentAddress = 1;
   private lineNumber = 0;
@@ -173,7 +181,7 @@ export class DirectorService {
 
     // get line number of the Editor
     this.lineNumber = line.lineNumber;
-    //console.log("Executing Instruction at Address: " + this.currentAddress + " line: " + this.lineNumber);
+    console.log("Executing Instruction at Address: " + this.currentAddress + " line: " + this.lineNumber);
     this._currentLineNotifier.next({ line: line.lineNumber });
 
 
@@ -214,7 +222,7 @@ export class DirectorService {
       if (this.macroParser.getOffsetOnAddress(this.currentMacroAddr) !== undefined) {
         let offset = this.macroParser.getOffsetOnAddress(this.currentMacroAddr) - 1;
         this.currentMacroAddr = offset;
-        //console.log("%cHit Jump-Instruction offset. Jump to memory address: " + (this.currentMacroAddr + 1), "color: #248c46");
+        console.log("%cHit Jump-Instruction offset. Jump to memory address: " + (this.currentMacroAddr + 1), "color: #248c46");
       }
       this.currentMacroAddr += 1;
 
@@ -233,10 +241,9 @@ export class DirectorService {
 
 
     // parse instruction
-    this.parser.init(tokens, this.currentAddress);
     let microInstruction: Instruction
     try {
-      microInstruction = this.parser.parse();
+      microInstruction = this.parser.parse(tokens, this.currentAddress);
     } catch (error) {
       if (error instanceof Error) {
 
@@ -319,6 +326,7 @@ export class DirectorService {
           }
         }
       }
+      console.log("next line is ", micro[parseInt(address)].lineNumber)
       this.currentAddress = parseInt(address);
     }
 
@@ -342,7 +350,6 @@ export class DirectorService {
       if (!this.isAnimating) { break };
       await this.delay(50);
     }
-
 
   }
 
@@ -481,5 +488,10 @@ export class DirectorService {
 
   public clearMacroBreakpoints() {
     this.macroBreakpoints = [];
+  }
+
+  public toggleAnimationEnabled(enabled: boolean) {
+    this.animationEnabled = enabled;
+    localStorage.setItem("animationEnabled", String(enabled));
   }
 }

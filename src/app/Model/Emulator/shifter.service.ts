@@ -20,7 +20,7 @@ export class ShifterService {
     "11": (a) => {throw new Error("ProtocolError - Shifter can only shift in one direction");}
   }
 
-  /** 
+  /**
    *  @param {[number,number]} operation - [SLL8, SRA1]
    *  @param {number} aluResult - Result from the previous Alu-Operation
   */
@@ -30,16 +30,14 @@ export class ShifterService {
     }
     let op: string = operation.join("");
     this._result = this.operations[op](aluResult);
-    
+
 
     // Print to Console
-    /**
     console.log(`Shifter Operation: ${op}
     |  input:     ${aluResult},
     |  function:  ${this.operations[op]},
     |  result:    ${this._result}
     `);
-    */
 
     return this._result;
   }

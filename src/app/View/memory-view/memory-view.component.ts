@@ -1,10 +1,8 @@
 import { FlatTreeControl } from '@angular/cdk/tree';
 import { Component, OnInit } from '@angular/core';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
-import { MainMemoryService } from 'src/app/Controller/Emulator/main-memory.service';
-import { MacroParserService } from 'src/app/Controller/macro-parser.service';
-import { RegProviderService } from 'src/app/Model/reg-provider.service';
-import { PresentationModeControllerService } from 'src/app/Presenter/presentation-mode-controller.service';
+import { ControllerService } from 'src/app/Presenter/controller.service';
+import { PresentationControllerService } from 'src/app/Presenter/presentation-controller.service';
 import { ThemeControlService } from 'src/app/Presenter/theme-control.service';
 
 /**
@@ -37,7 +35,7 @@ const MEMORY_FIELD:MemoryField[] = [
     name: "General Memory",
     children:[]
   }
-]; 
+];
 
 @Component({
   selector: 'app-memory-view',
@@ -56,27 +54,25 @@ export class MemoryViewComponent implements OnInit {
   private memoryFields:MemoryField[] = MEMORY_FIELD;
 
   constructor(
-    private mainMemory: MainMemoryService,
-    private macroParser: MacroParserService,
-    private presentationModeController: PresentationModeControllerService,
-    private regProvider: RegProviderService,
-    private themeController: ThemeControlService
+    private presentationController: PresentationControllerService,
+    private themeController: ThemeControlService,
+    private controller: ControllerService,
     ) {
       this.dataSource.data = this.memoryFields;
      }
 
   ngOnInit(): void {
-    this.presentationModeController.presentationMode$.subscribe(b => {
+    this.presentationController.presentationMode$.subscribe(b => {
       this.presentationMode = b.presentationMode;
     })
 
-    this.macroParser.memoryViewRefresher$.subscribe( result => {
-      if(result){
-        this.init();
+    this.presentationController.memoryViewRefresher$.subscribe( result => {
+      if(result.bool){
+        this.init(result.methodEntries, result.constantEntries, result.generalEntries);
       }
     })
 
-    this.mainMemory.memoryUpdate$.subscribe( entry => {
+    this.presentationController.memoryUpdate$.subscribe( entry => {
       this.refreshMemoryView(entry.address, entry.value);
     })
 
@@ -87,43 +83,20 @@ export class MemoryViewComponent implements OnInit {
     )
   }
 
-  private init(){
-
+  private init(methodEntries: {name: string, address: number}[], constantEntries: {name: string, address: number}[], generalEntries: {name: string, address: number}[]){
     // reset Fields
     this.memoryFields = MEMORY_FIELD;
-    
-    // set MethodArea
-    let entries = [];
 
-    for (let i = 0; i < this.mainMemory.methodAreaSize; i++) {
-      entries.push( {name: this.mainMemory.dec2hex(i) + " " + this.mainMemory.get_8(i,true), address: i});
-    }
-    this.memoryFields[0].children = entries;
-
-
-    // set ConstantPool
-    entries = [];
-    let start = this.regProvider.getRegister("CPP").getValue() * 4;
-    for (let i = start; i < start + this.mainMemory.constantPoolSize; i += 4) {
-      entries.push( {name: this.mainMemory.dec2hex(i) + " " + this.mainMemory.get_32(i), address: i});
-    }
-    this.memoryFields[1].children = entries;
-
-    // set GeneralArea
-    entries = [];
-    start = this.regProvider.getRegister("CPP").getValue() * 4 + this.mainMemory.constantPoolSize;
-    const keys = Object.keys(this.mainMemory.getMemory()).filter(address => parseInt(address) >= start).sort();
-    for (let i = 0; i < keys.length; i += 4) {
-      entries.push( {name: this.mainMemory.dec2hex(parseInt(keys[i])) + " " + this.mainMemory.get_32(parseInt(keys[i])), address: i});
-    }
-    this.memoryFields[2].children = entries;
+    this.memoryFields[0].children = methodEntries;
+    this.memoryFields[1].children = constantEntries;
+    this.memoryFields[2].children = generalEntries;
 
     this.dataSource.data = this.memoryFields;
   }
 
   private refreshMemoryView(address:number, value: number){
     this.memoryFields = this.dataSource.data;
-    const updatedEntry = {name: this.mainMemory.dec2hex(address) + " " + value, address: address};
+    const updatedEntry = {name: this.controller.dec2hex(address) + " " + value, address: address};
 
     // update the changed entry in the View
     let index = this.memoryFields[2].children.findIndex(x => x.address === address);
@@ -132,7 +105,7 @@ export class MemoryViewComponent implements OnInit {
     }else{
       this.memoryFields[2].children[index] =  updatedEntry;
     }
-    
+
 
     this.dataSource.data = this.memoryFields;
 

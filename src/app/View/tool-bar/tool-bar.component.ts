@@ -3,10 +3,9 @@ import { ControllerService } from 'src/app/Presenter/controller.service';
 import { MatDialog } from '@angular/material/dialog';
 import { GettingStartedDialogComponent } from './getting-started-dialog/getting-started-dialog.component';
 import { AboutDialogComponent } from './about-dialog/about-dialog.component';
-import { GridViewControllerService } from 'src/app/Presenter/grid-view-controller.service';
 import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { ThemeControlService } from 'src/app/Presenter/theme-control.service';
-import { PresentationModeControllerService } from 'src/app/Presenter/presentation-mode-controller.service';
+import { PresentationControllerService } from 'src/app/Presenter/presentation-controller.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -26,9 +25,8 @@ export class ToolBarComponent implements OnInit {
   constructor(
     private controllerService: ControllerService,
     private dialog: MatDialog,
-    private gridViewController: GridViewControllerService,
     private themeControl: ThemeControlService,
-    private presentationModeController: PresentationModeControllerService,
+    private presentationController: PresentationControllerService,
   ) { }
 
   ngOnInit(): void { }
@@ -73,7 +71,7 @@ export class ToolBarComponent implements OnInit {
   }
 
   public switchEditors(event: MatSlideToggleChange){
-    this.gridViewController.switchEditors();
+    this.presentationController.switchEditors();
   }
 
   public toggleTheme(event: MatSlideToggleChange) {
@@ -81,7 +79,7 @@ export class ToolBarComponent implements OnInit {
   }
 
   public togglePresentationMode(event: MatSlideToggleChange) {
-    this.presentationModeController.toggleMode();
+    this.presentationController.toggleMode();
   }
 
 }

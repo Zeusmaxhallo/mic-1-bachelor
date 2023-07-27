@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, timer } from 'rxjs';
-import { MainMemoryService } from '../Controller/Emulator/main-memory.service';
+import { MainMemoryService } from '../Model/Emulator/main-memory.service';
 import { CharacterROMService } from './character-rom.service';
 
 const VRAM_ADDRESS = 1024;
@@ -20,7 +20,7 @@ const COLORS = [
   "black",            // 0
   "blue",             // 1
   "green",            // 2
-  "cyan",             // 3          
+  "cyan",             // 3
   "red",              // 4
   "magenta",          // 5
   "brown",            // 6
@@ -29,7 +29,7 @@ const COLORS = [
   "lightBlue",        // 9
   "lightGreen",       // A
   "RGB(128,255,255)", // B   -> lightCyan
-  "RGB(255,204,203)", // C   -> lightRed 
+  "RGB(255,204,203)", // C   -> lightRed
   "pink",             // D
   "yellow",           // E
   "white",            // F
@@ -54,7 +54,7 @@ export class VideoControllerService {
     private mainMemory: MainMemoryService,
     private characterROM: CharacterROMService,
   ) {
-    this.mainMemory.memoryUpdate$.subscribe(entry => {
+    this.mainMemory.updateMemoryView$.subscribe(entry => {
       //filter all relevant changes
 
       // detect changes in VRAM
@@ -62,7 +62,7 @@ export class VideoControllerService {
         this.updateVis(entry.address, entry.value);
       }
 
-      // detect Mode Change 
+      // detect Mode Change
       if (entry.address === CHANGE_MODE_ADDRESS * 4) {
         this.textMode = !entry.value;
         console.log(this.textMode ? "enabled TextMode" : "enabled graphicsMode");
@@ -101,7 +101,7 @@ export class VideoControllerService {
 
     /**
      * on the address is a 32 Bit Word
-     * we don't know which one of the 16 Bit values changed 
+     * we don't know which one of the 16 Bit values changed
      * -> draw both characters
     */
 
@@ -116,7 +116,7 @@ export class VideoControllerService {
     let first = { character: view.getUint8(0), attribute: view.getUint8(1) };
     let second = { character: view.getUint8(2), attribute: view.getUint8(3) };
 
-    let bits = new Array<string>
+    let bits = new Array<string>;
     try {
       bits = this.characterROM.getCharacter(first.character).bits;
     } catch (error) {
@@ -124,7 +124,7 @@ export class VideoControllerService {
       bits = ["00000000", "00000000", "00000000", "00000000", "00000000", "00000000", "00000000", "00000000"];
     }
 
-    /** 
+    /**
     Bit 76543210
         ||||||||
         |||||^^^-fore color
