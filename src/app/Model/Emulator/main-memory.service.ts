@@ -174,7 +174,10 @@ export class MainMemoryService {
     this.store_32(CURSOR_ADDRESS * 4, 0);
 
     // test string
-    const string = "Hallo Welt";
+    let string = "BIPUSH 100\n\nILOAD var\n\nIADD\n\nBIPUSH 123";
+    //for (let i = 0; i < 80; i++){
+    //  string = string + "a";
+    //}
     const start = 300;
 
     for (let i = 0; i < string.length; i++){
