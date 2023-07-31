@@ -53,6 +53,11 @@ export class MainMemoryService {
     this.memory[address + 3] = view.getUint8(3);
 
     this._updateMemoryView.next({address: address, value: value})
+
+
+    if(address === CURSOR_ADDRESS * 4){
+      console.log("cursor: ", value);
+    }
   }
 
   private store_8(address: number, value: number) {
@@ -168,6 +173,13 @@ export class MainMemoryService {
     // init cursor Position
     this.store_32(CURSOR_ADDRESS * 4, 0);
 
+    // test string
+    const string = "Hallo Welt";
+    const start = 300;
+
+    for (let i = 0; i < string.length; i++){
+      this.store_32((start + i) * 4, string.charCodeAt(i));
+    }
   }
 
   public createVariables(amount: number) {

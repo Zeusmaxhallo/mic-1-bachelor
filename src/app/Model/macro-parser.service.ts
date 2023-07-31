@@ -601,7 +601,7 @@ export class MacroParserService {
     // instructions in the method field
     for(let instruction of methodBlockArr){
       let instructionToken = instruction.value.split(' ');
-      console.log(instructionToken);
+      //console.log(instructionToken);
 
       for(let i = 0; i < instructionToken.length; i++){
         // The first element of instruction is always the instruction without parameters

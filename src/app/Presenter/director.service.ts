@@ -181,7 +181,7 @@ export class DirectorService {
 
     // get line number of the Editor
     this.lineNumber = line.lineNumber;
-    console.log("Executing Instruction at Address: " + this.currentAddress + " line: " + this.lineNumber);
+    //console.log("Executing Instruction at Address: " + this.currentAddress + " line: " + this.lineNumber);
     this._currentLineNotifier.next({ line: line.lineNumber });
 
 
@@ -222,7 +222,7 @@ export class DirectorService {
       if (this.macroParser.getOffsetOnAddress(this.currentMacroAddr) !== undefined) {
         let offset = this.macroParser.getOffsetOnAddress(this.currentMacroAddr) - 1;
         this.currentMacroAddr = offset;
-        console.log("%cHit Jump-Instruction offset. Jump to memory address: " + (this.currentMacroAddr + 1), "color: #248c46");
+        //console.log("%cHit Jump-Instruction offset. Jump to memory address: " + (this.currentMacroAddr + 1), "color: #248c46");
       }
       this.currentMacroAddr += 1;
 
@@ -326,7 +326,7 @@ export class DirectorService {
           }
         }
       }
-      console.log("next line is ", micro[parseInt(address)].lineNumber)
+      //console.log("next line is ", micro[parseInt(address)].lineNumber)
       this.currentAddress = parseInt(address);
     }
 
