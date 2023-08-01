@@ -34,6 +34,8 @@ export class MacroParserService {
   private currentLocalVarCount: number = 0; // temporary saves the number of current local variables when setVariable() is invoked
   private currentLine: number = 1;
 
+  private constantStrings = [{identifier: "", value:""}];
+
 
   constructor(
     private macroTokenizer: MacroTokenizerService,
@@ -99,6 +101,24 @@ export class MacroParserService {
       }
     }
     this.memory.setCode(this.parsedCode);
+
+    
+    let stringNames = []
+    for (let string of this.constantStrings){
+      stringNames.push(string.value);
+    }
+
+    const pointers = this.memory.setStrings(stringNames)
+
+    console.log(this.constantOffsetToCPP)
+
+    for (let i = 0; i < pointers.length; i++){
+      let offset = this.constantOffsetToCPP[this.constantStrings[i].identifier]
+      this.constants[offset] = pointers[i];
+      console.log(stringNames[i], "hat offset", offset)
+
+    }
+
     this.memory.setConstants(this.constants);
     this.memory.createVariables(this.variables.length);
 
@@ -189,6 +209,28 @@ export class MacroParserService {
     }
 
     constArr = this.tokens.slice(startConstIndex + 1, endConstIndex);
+
+    // Add Field for Strings >>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    let stringStart = 0;
+    let stringEnd = 0;
+    // check for string field
+    for( let i = 0; i < constArr.length; i++){
+      if(constArr[i].value === ".string"){
+        stringStart = i;
+      }
+      if(constArr[i].value === ".end-string"){
+        stringEnd = i;
+        break;
+      }
+    }
+
+    let strings = constArr.splice(stringStart, stringEnd + 1);
+    // remove first and last element
+    strings.shift();
+    strings.pop();
+    // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
     for(let constant of constArr){
       if(constant.type === 'NEW_CONSTANT'){
         let constName = constant.value.split(' ')[0];
@@ -203,9 +245,40 @@ export class MacroParserService {
         throw new Error("The following should not be in the constant field. \nType: " + constant.type + ", Value: " + constant.value);
       }
     }
+
+    
+
+    // strings >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    this.constantStrings = [];
+    for (let constant of strings){
+      if(constant.type === "NEW_STRING"){
+         
+        let [constName, constValue]  = constant.value.split(/ (.*)/s);
+
+        this.constantOffsetToCPP[constName] = this.constNumber;
+        this.constNumber += 1;
+        // init constant with 0, we change it later when we get the pointer Address
+        this.constants.push(0);
+        this.currentLine += 1;
+
+        // remove "" from string
+        constValue = constValue.split('"').join("");
+
+        this.constantStrings.push({identifier:constName, value: constValue})
+      }else{
+        throw new Error("The following should not be in the string field. \nType: " + constant.type + ", Value: " + constant.value);
+      }
+    }
+    //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+
+
     console.log("objref = 0 is also saved as a constant, but is not listed hiere. The offset to CPP is 0")
     console.table(constArr);
     this.tokens.splice(startConstIndex, endConstIndex + 1);
+
+    console.log(this.constants)
+    console.log(this.constantOffsetToCPP);
 
     this.currentLine += 2;
   }

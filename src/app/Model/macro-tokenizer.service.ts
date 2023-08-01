@@ -31,14 +31,19 @@ export class MacroTokenizerService {
     [/^.main/, "FIELD"],
     [/^.var/, "FIELD"],
     [/^.method [a-zA-Z]([a-zA-Z0-9]+)?\(([a-z]([a-zA-Z0-9]+)?(, )?)*\)/, "FIELD"],
+    [/^.string/, "FIELD"],
 
     //End Fields
     [/^.end-constant/, "FIELDEND"],
     [/^.end-main/, "FIELDEND"],
     [/^.end-var/, "FIELDEND"],
     [/^.end-method/, "FIELDEND"],
+    [/^.end-string/, "FIELDEND"],
+
+    
 
     //Constant & Variable
+    [/^[a-zA-Z]\w+\s+".+"/, "NEW_STRING"],
     [/^[a-z]([a-zA-Z0-9]+)? (-)?\d+/, "NEW_CONSTANT"],
     [/^[a-z]([a-zA-Z0-9]+)?/, "NEW_VARIABLE"],
   ];

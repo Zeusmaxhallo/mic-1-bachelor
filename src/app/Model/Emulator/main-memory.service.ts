@@ -14,10 +14,11 @@ export class MainMemoryService {
 
   public methodAreaSize: number;
   public constantPoolSize: number;
+  public stringAreaSize = 0;
 
   private _stackStartAddress = 0;
 
-  private _updateMemoryView = new BehaviorSubject({address: 0, value: 0});
+  private _updateMemoryView = new BehaviorSubject({ address: 0, value: 0 });
   public updateMemoryView$ = this._updateMemoryView.asObservable();
 
   constructor(
@@ -28,10 +29,11 @@ export class MainMemoryService {
     return this._stackStartAddress;
   }
 
-  public emptyMemory(){
+  public emptyMemory() {
     this.memory = {}
     this.methodAreaSize = 0;
     this.constantPoolSize = 0;
+    this.stringAreaSize = 0;
     this._stackStartAddress = 0;
   }
 
@@ -52,10 +54,9 @@ export class MainMemoryService {
     this.memory[address + 2] = view.getUint8(2);
     this.memory[address + 3] = view.getUint8(3);
 
-    this._updateMemoryView.next({address: address, value: value})
+    this._updateMemoryView.next({ address: address, value: value })
 
-
-    if(address === CURSOR_ADDRESS * 4){
+    if (address === CURSOR_ADDRESS * 4) {
       console.log("cursor: ", value);
     }
   }
@@ -95,6 +96,7 @@ export class MainMemoryService {
 
   public printMemory() {
     this.printCodeArea();
+    this.printStringArea();
     this.printConstantArea();
     this.printStack();
   }
@@ -105,6 +107,18 @@ export class MainMemoryService {
     for (let i = 0; i < this.methodAreaSize; i++) {
       console.log(`  ${this.dec2hex(i)}        0b${this.get_8(i, true).toString(2)} = ${this.get_8(i, true)}`)
     }
+    console.groupEnd();
+  }
+
+  private printStringArea() {
+    console.group('%cStringArea', 'color: magenta');
+    console.log(`  Address     Value  `)
+
+    const start = Math.ceil(this.methodAreaSize / 4) * 4;
+    for (let i = start; i < start + this.stringAreaSize * 4; i += 4) {
+      console.log(`  ${this.dec2hex(i)}        0b${this.get_32(i).toString(2)} = ${this.get_32(i)}`)
+    }
+
     console.groupEnd();
   }
 
@@ -153,12 +167,41 @@ export class MainMemoryService {
     }
   }
 
+
+  public setStrings(strings: string[]) {
+    let startAddress = Math.ceil(this.methodAreaSize / 4) * 4; // align startAddress
+    let pointers = [];
+    this.stringAreaSize = 0;
+
+
+    for (let string of strings) {
+      string = string.replace("\\n","\n");
+      console.log(string)
+      console.log(string.length)
+      for (let i = 0; i < string.length; i++) {
+        this.store_32(startAddress + 4 * i, string.charCodeAt(i));
+        console.warn("store", string.charCodeAt(i), "at Address", startAddress + 4 * i)
+        this.stringAreaSize += 1;
+      }
+
+      // write null Word
+      this.store_32(startAddress + 4 * string.length, 0);
+      this.stringAreaSize += 1;
+      pointers.push(startAddress / 4);
+
+      startAddress = startAddress + 4 * string.length + 4;
+
+    }
+    return pointers;
+
+  }
+
   /**
    * !!! Before setConstants() must come setCode() !!!
    */
   public setConstants(constants: number[]) {
     this.constantPoolSize = constants.length * 4;
-    let alignedMethodAreaSize = Math.ceil(this.methodAreaSize / 4) * 4;
+    let alignedMethodAreaSize = Math.ceil(this.methodAreaSize / 4) * 4 + this.stringAreaSize * 4;
 
     this.regProvider.getRegister("CPP").setValue(alignedMethodAreaSize / 4); // set CPP to first constant
     for (let i = 0; i < constants.length; i++) {
@@ -172,17 +215,6 @@ export class MainMemoryService {
 
     // init cursor Position
     this.store_32(CURSOR_ADDRESS * 4, 0);
-
-    // test string
-    let string = "BIPUSH 100\n\nILOAD var\n\nIADD\n\nBIPUSH 123";
-    //for (let i = 0; i < 80; i++){
-    //  string = string + "a";
-    //}
-    const start = 300;
-
-    for (let i = 0; i < string.length; i++){
-      this.store_32((start + i) * 4, string.charCodeAt(i));
-    }
   }
 
   public createVariables(amount: number) {
@@ -193,7 +225,7 @@ export class MainMemoryService {
     this.regProvider.getRegister("SP").setValue(this.regProvider.getRegister("SP").getValue() + amount);
   }
 
-  public getMemory(){
+  public getMemory() {
     return this.memory;
   }
 
