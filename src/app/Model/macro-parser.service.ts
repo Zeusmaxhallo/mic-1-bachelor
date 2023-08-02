@@ -488,6 +488,10 @@ export class MacroParserService {
     // mainblock is sliced out of the tokens when the block is parsed
     this.tokens.splice(startMainIndex, endMainIndex + 1);
 
+    if(this.currentLine > 10000){
+      throw new Error("To many Lines to parse. The main-field is probably not closed with '.end-main'")
+    }
+
     return hasError;
   }
 
@@ -774,6 +778,10 @@ export class MacroParserService {
 
     // methodblock is sliced out of the tokens when the block is parsed
     this.tokens.splice(startMethodIndex, endMethodIndex + 1);
+
+    if(this.currentLine > 10000){
+      throw new Error("To many Lines to parse. The method-field for the '" + methodName + "' method is probably not closed with '.end-method'")
+    }
 
     return hasError
   }
