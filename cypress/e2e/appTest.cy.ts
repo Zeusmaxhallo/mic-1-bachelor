@@ -19,6 +19,14 @@ describe('complete workflow test without animation', () => {
     cy.get('#mat-dialog-0 > app-getting-started-dialog > h2').should('include.text', 'Getting Started');
   });
 
+  it('Tests whether the navigation to the "Forum" is working', ()=> {
+    cy.get('body > app-root > app-tool-bar > mat-toolbar > a')
+      .should('be.visible')
+      .then(($a) => {
+        expect($a).to.have.attr('href','https://github.com/vs-ude/mic-1-toolbox/discussions/120')
+      })
+  });
+
   it('Load demo code from "Getting Started" Dialog', ()=> {
     cy.get('body > app-root > app-tool-bar > mat-toolbar > button:nth-child(8)')
       .click();
@@ -43,15 +51,96 @@ describe('complete workflow test without animation', () => {
       .should('include.text', 'testMacro9349856039');
   });
 
+  it('Tests whether the animate checkbox is persistant', () =>{
+    cy.get('#mat-checkbox-1-input').uncheck({force: true});
+    cy.visit('/');
+    cy.get('#mat-checkbox-1-input').should('not.be.checked')
+    cy.get('#mat-checkbox-1-input').check({force: true});
+    cy.visit('/');
+    cy.get('#mat-checkbox-1-input').should('be.checked')
+  })
+
+  xit('Tests whether the animatespeed slider is persistant', () =>{
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(1) > div > div > app-tool-bar-mic-view > div > div > mat-slider')
+      .type("{home}") // moves slider to the leftmost position which should set the value to 1
+    cy.visit('/');
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(1) > div > div > app-tool-bar-mic-view > div > div > div > label.speed-label')
+      .should('have.text', '1')
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(1) > div > div > app-tool-bar-mic-view > div > div > mat-slider')
+      .type("{end}")
+    cy.visit('/');
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(1) > div > div > app-tool-bar-mic-view > div > div > div > label.speed-label')
+      .should('have.text', '15')
+  })
+
+  it('Do the function button disable and enable like intended. It should only diable when the play button is pressed and animation is on. should enable again when reset/load is pressed', ()=>{
+    cy.getDemoCode1();
+    cy.get('#mat-checkbox-1-input').check({force: true});
+
+    // test after microstep button. buttons should not be disabled
+    cy.pushResetButton();
+    cy.pushMicStepButton();
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(1) > div > div > app-tool-bar-mic-view > section > button:nth-child(2)')
+      .should('not.be.disabled')
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(1) > div > div > app-tool-bar-mic-view > section > button:nth-child(3)')
+      .should('not.be.disabled')
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(1) > div > div > app-tool-bar-mic-view > section > button:nth-child(1)')
+      .should('not.be.disabled')
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(1) > div > div > app-tool-bar-mic-view > section > button:nth-child(4)')
+      .should('not.be.disabled')
+
+    // test after run button. buttons should be disabled besides reset/load button
+    cy.pushPlayButton();
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(1) > div > div > app-tool-bar-mic-view > section > button:nth-child(2)')
+      .should('be.disabled')
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(1) > div > div > app-tool-bar-mic-view > section > button:nth-child(3)')
+      .should('be.disabled')
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(1) > div > div > app-tool-bar-mic-view > section > button:nth-child(1)')
+      .should('be.disabled')
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(1) > div > div > app-tool-bar-mic-view > section > button:nth-child(4)')
+      .should('not.be.disabled')
+
+    // test after reset/load button. buttons should not be disabled
+    cy.pushResetButton();
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(1) > div > div > app-tool-bar-mic-view > section > button:nth-child(2)')
+      .should('not.be.disabled')
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(1) > div > div > app-tool-bar-mic-view > section > button:nth-child(3)')
+      .should('not.be.disabled')
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(1) > div > div > app-tool-bar-mic-view > section > button:nth-child(1)')
+      .should('not.be.disabled')
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(1) > div > div > app-tool-bar-mic-view > section > button:nth-child(4)')
+      .should('not.be.disabled')
+  })
+
+  it('tests the console', ()=>{
+    cy.getDemoCode1();
+
+    // test console after loading new code
+    cy.pushResetButton();
+    cy.get('#mat-tab-label-0-1').click();
+    cy.get('#mat-tab-content-0-1 > div > app-debug-console > div > p').should('include.text', 'Macrocode loaded successfully!')
+
+    // test console after inserting an error to the macrocode and loading
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > div')
+      .type('!', {delay: 1})
+    cy.pushResetButton();
+    cy.get('#mat-tab-label-0-1').click();
+    cy.get('#mat-tab-content-0-1 > div > app-debug-console > div > p').should('include.text', 'Unexpected')
+
+    // test console after inserting an error to the microcode and loading
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(3) > div > div > app-editor > div')
+      .type('{backspace}', {delay: 1})
+    cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(2) > div > div > app-micro-editor > div')
+      .type('{upArrow}{upArrow}{upArrow}{upArrow}{rightarrow}1', {delay: 1})
+    cy.pushResetButton();
+    cy.get('#mat-checkbox-1-input').uncheck({force: true});
+    cy.pushPlayButton();
+    cy.get('#mat-tab-label-0-1').click();
+    cy.get('#mat-tab-content-0-1 > div > app-debug-console > div > p').should('include.text', 'InvalidAluInstruction')
+  })
+
   it('Test demo code 1, the result has to be 15', {defaultCommandTimeout: 120000}, () => {
-    cy.emptyEditors();
-
-    // loads the first demo code from getting started dialog
-    cy.get('body > app-root > app-tool-bar > mat-toolbar > button:nth-child(8)')
-      .click();
-    cy.get('#mat-dialog-0 > app-getting-started-dialog > mat-dialog-content > ul > li:nth-child(13) > mat-dialog-actions > button:nth-child(1)')
-      .click();
-
+    cy.getDemoCode1();
     cy.pushResetButton();
     cy.get('#mat-checkbox-1-input').uncheck({force: true});
     cy.pushPlayButton();
@@ -60,14 +149,7 @@ describe('complete workflow test without animation', () => {
   });
 
   it('Test demo code 2(uses custom microprograms), the result has to be 15 ', {defaultCommandTimeout: 10000}, () => {
-    cy.emptyEditors();
-    
-    // loads the second demo code with custom microprograms from getting started dialog
-    cy.get('body > app-root > app-tool-bar > mat-toolbar > button:nth-child(8)')
-      .click();
-    cy.get('#mat-dialog-0 > app-getting-started-dialog > mat-dialog-content > ul > li:nth-child(13) > mat-dialog-actions > button:nth-child(2)')
-      .click();
-
+    cy.getDemoCode2();
     cy.pushResetButton();
     cy.get('#mat-checkbox-1-input').uncheck({force: true});
     cy.pushPlayButton();
@@ -76,14 +158,7 @@ describe('complete workflow test without animation', () => {
   });
 
   it('Test demo code 3(uses jumps), the 8 and 9 in the stack need to switch position for the result to be right', {defaultCommandTimeout: 10000}, () => {
-    cy.emptyEditors();
-    
-    // loads the third demo code from getting started dialog
-    cy.get('body > app-root > app-tool-bar > mat-toolbar > button:nth-child(8)')
-      .click();
-    cy.get('#mat-dialog-0 > app-getting-started-dialog > mat-dialog-content > ul > li:nth-child(13) > mat-dialog-actions > button:nth-child(3)')
-      .click();
-
+    cy.getDemoCode3();
     cy.pushResetButton();
     cy.get('#mat-checkbox-1-input').uncheck({force: true});
     cy.pushPlayButton();
