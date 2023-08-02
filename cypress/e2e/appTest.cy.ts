@@ -60,7 +60,7 @@ describe('complete workflow test without animation', () => {
     cy.get('#mat-checkbox-1-input').should('be.checked')
   })
 
-  xit('Tests whether the animatespeed slider is persistant', () =>{
+  it('Tests whether the animatespeed slider is persistant', () =>{
     cy.get('body > app-root > app-grid-view > mat-grid-list > div > mat-grid-tile:nth-child(1) > div > div > app-tool-bar-mic-view > div > div > mat-slider')
       .type("{home}") // moves slider to the leftmost position which should set the value to 1
     cy.visit('/');
