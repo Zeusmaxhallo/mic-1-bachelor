@@ -17,16 +17,19 @@ export class ScreenComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.ctx = this.canvas.nativeElement.getContext("2d");
-    
+
     this.wipeScreen();
 
     this.videoController.wipeScreen$.subscribe(val => {
       this.wipeScreen();
     })
 
-
     this.videoController.sendPixel$.subscribe(val => {
       this.setPixel(val.x, val.y, val.color)
+    })
+
+    this.videoController.sendBitmap$.subscribe(val => {
+      this.setBitmap(val.x, val.y, val.bitmap);
     })
   }
 
@@ -43,6 +46,13 @@ export class ScreenComponent implements AfterViewInit {
 
     this.ctx.fillRect(x, y, PixelWidth, PixelHeight);
   }
+
+  public setBitmap(x: number, y: number, bitmap: Uint8ClampedArray) {
+    this.ctx.putImageData(new ImageData(bitmap, 8, 8), x, y);
+  }
+
+
+
 
   private wipeScreen() {
     this.ctx.fillStyle = "rgb(0,0,0)";

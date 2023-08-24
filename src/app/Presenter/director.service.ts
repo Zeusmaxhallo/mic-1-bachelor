@@ -118,7 +118,7 @@ export class DirectorService {
         break;
       }
       // stop after 10000 steps (probably endless loop)
-      if (counter >= 70000) {
+      if (counter >= 140000) {
         this._consoleNotifier.next("Stopping run at Step " + counter + " - your program is probably in a endless loop. If that is not the case just press Run again!")
         break;
       }

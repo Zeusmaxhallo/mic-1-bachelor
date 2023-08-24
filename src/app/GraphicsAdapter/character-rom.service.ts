@@ -6,12 +6,19 @@ export interface Character {
   name?: string;
 }
 
+export interface CharacterMap {
+  address: number;
+  bitmap: Uint8ClampedArray;
+  name?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class CharacterROMService {
 
   private Characters = new Array<Character>;
+  private characterBitmap = new Array<CharacterMap>;
 
   constructor() {
 
@@ -103,12 +110,52 @@ export class CharacterROMService {
         "00000000",
         "00000000"]
     });
+
+    // create Uint8ClampedArray for each char
+    for (let char of this.Characters) {
+      this.characterBitmap.push({ address: char.address, name: char.name, bitmap: this.getBitmap(char.address) })
+    }
+  }
+
+  public getBitmap(ascii: number) {
+    let data = new Uint8ClampedArray(256);
+    let bitmap = this.getCharacter(ascii).bits;
+
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        let currentPixel = (i * 8 + j)
+
+        if (bitmap[i][j] === "1") {
+          this.setPixel(currentPixel, data)
+
+        } else {
+          this.noPixel(currentPixel, data);
+        }
+      }
+    }
+    return data;
+  }
+
+  private noPixel(n: number, array: Uint8ClampedArray) {
+    array[n * 4 + 3] = 255;
+  }
+
+  private setPixel(n: number, array: Uint8ClampedArray) {
+    array[n * 4 + 0] = 255;
+    array[n * 4 + 1] = 255;
+    array[n * 4 + 2] = 255;
+    array[n * 4 + 3] = 255;
   }
 
 
 
   public getCharacter(n: number) {
     return this.Characters.filter(x => x.address === n)[0];
+  }
+
+  public getCharacterBitmap(n: number) {
+    let char = this.characterBitmap.filter(x => x.address === n)[0];
+    return { address: char.address, name: char.name, bitmap: new Uint8ClampedArray(char.bitmap) }
   }
 
 
