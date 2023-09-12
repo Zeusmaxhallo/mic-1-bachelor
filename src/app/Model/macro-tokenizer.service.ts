@@ -72,7 +72,6 @@ export class MacroTokenizerService {
       if(this.token == null){
         break;
       }
-      console.log(this.token);
       this.tokens.push(this.token);
     }
     this.resetTokenizer();

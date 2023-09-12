@@ -51,7 +51,7 @@ export class VideoControllerService {
   private _wipeScreen = new BehaviorSubject(true);
   public wipeScreen$ = this._wipeScreen.asObservable();
 
-  private textMode = true;
+  public textMode = true;
 
 
   constructor(

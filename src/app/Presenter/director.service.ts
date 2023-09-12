@@ -452,6 +452,9 @@ export class DirectorService {
     // wipe Screen
     this.videoController.wipeScreen();
 
+    // reset Textmode
+    this.videoController.textMode = true;
+
 
     // notify console that reset was successful
     this._consoleNotifier.next("Macrocode loaded successfully!");
