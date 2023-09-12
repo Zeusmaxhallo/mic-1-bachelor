@@ -228,11 +228,14 @@ export class MacroParserService {
       throw new Error("StringField not closed. Close it with .end-string");
     }
 
-    let strings = constArr.splice(stringStart, stringEnd + 1);
+    let strings = constArr.splice(stringStart, stringEnd );
     // remove first and last element
     strings.shift();
     strings.pop();
     // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+    console.log(constArr)
+
 
 
     for(let constant of constArr){
@@ -249,6 +252,8 @@ export class MacroParserService {
         throw new Error("The following should not be in the constant field. \nType: " + constant.type + ", Value: " + constant.value);
       }
     }
+
+    console.log(this.constantOffsetToCPP);
 
     
 
