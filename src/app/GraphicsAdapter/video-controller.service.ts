@@ -58,12 +58,12 @@ export class VideoControllerService {
     private mainMemory: MainMemoryService,
     private characterROM: CharacterROMService,
   ) {
-    this.mainMemory.updateMemoryView$.subscribe(entry => {
+    this.mainMemory.updateMemory$.subscribe(entry => {
       //filter all relevant changes
 
       // detect changes in VRAM
       if (entry.address >= VRAM_ADDRESS * 4 && entry.address <= (VRAM_ADDRESS + VRAM_SIZE) * 4) {
-        this.updateVis(entry.address, entry.value);
+        this.textMode ? this.characterMode(entry.address, entry.value) : this.graphicsMode(entry.address, entry.value);
       }
 
       // detect Mode Change
@@ -76,13 +76,8 @@ export class VideoControllerService {
     })
   }
 
-  private updateVis(address: number, value: number) {
 
-    this.textMode ? this.characterMode(address, value) : this.bitmap(address, value);
-
-  }
-
-  private bitmap(address: number, value: number) {
+  private graphicsMode(address: number, value: number) {
     const buffer = new ArrayBuffer(4);
     const view = new DataView(buffer, 0);
 
@@ -138,7 +133,7 @@ export class VideoControllerService {
 
     // change bitmap colors if Char is not white on black
     if (color !== "#ffffff" || backgroundColor !== "#000000") {
-      bitField = this.setColor(color, backgroundColor, this.characterROM.getCharacterBitmap(first.character).bitmap);
+      bitField = this.changeBitmapColor(color, backgroundColor, this.characterROM.getCharacterBitmap(first.character).bitmap);
     }
 
 
@@ -158,14 +153,14 @@ export class VideoControllerService {
 
     // change bitmap colors if Char is not white on black
     if (color !== "#ffffff" || backgroundColor !== "#000000") {
-      bitField = this.setColor(color, backgroundColor, this.characterROM.getCharacterBitmap(first.character).bitmap);
+      bitField = this.changeBitmapColor(color, backgroundColor, this.characterROM.getCharacterBitmap(first.character).bitmap);
     }
 
     this._sendBitmap.next({ x: x + 8, y: y, bitmap: bitField });
 
   }
 
-  private setColor(color: string, backgroundColor: string, data: Uint8ClampedArray) {
+  private changeBitmapColor(color: string, backgroundColor: string, data: Uint8ClampedArray) {
 
     let array = new Uint8ClampedArray(data.length);
     for (let i = 0; i < array.length; i++) {

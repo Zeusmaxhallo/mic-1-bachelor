@@ -224,6 +224,10 @@ export class MacroParserService {
       }
     }
 
+    if(stringStart && !stringEnd){
+      throw new Error("StringField not closed. Close it with .end-string");
+    }
+
     let strings = constArr.splice(stringStart, stringEnd + 1);
     // remove first and last element
     strings.shift();

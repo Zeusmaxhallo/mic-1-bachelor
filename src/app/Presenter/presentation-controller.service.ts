@@ -34,7 +34,7 @@ export class PresentationControllerService {
   ) { }
 
   ngOnInit(){
-    this.mainMemory.updateMemoryView$.subscribe(content =>{
+    this.mainMemory.updateMemory$.subscribe(content =>{
       this.updateMemoryView(content.address, content.value);
     })
   }

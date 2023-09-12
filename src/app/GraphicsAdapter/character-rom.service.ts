@@ -126,27 +126,17 @@ export class CharacterROMService {
         let currentPixel = (i * 8 + j)
 
         if (bitmap[i][j] === "1") {
-          this.setPixel(currentPixel, data)
-
+          data[currentPixel * 4 + 0] = 255;
+          data[currentPixel * 4 + 1] = 255;
+          data[currentPixel * 4 + 2] = 255;
+          data[currentPixel * 4 + 3] = 255;    
         } else {
-          this.noPixel(currentPixel, data);
+          data[currentPixel * 4 + 3] = 255;
         }
       }
     }
     return data;
   }
-
-  private noPixel(n: number, array: Uint8ClampedArray) {
-    array[n * 4 + 3] = 255;
-  }
-
-  private setPixel(n: number, array: Uint8ClampedArray) {
-    array[n * 4 + 0] = 255;
-    array[n * 4 + 1] = 255;
-    array[n * 4 + 2] = 255;
-    array[n * 4 + 3] = 255;
-  }
-
 
 
   public getCharacter(n: number) {

@@ -10,7 +10,7 @@ const CURSOR_ADDRESS = 65536;
 })
 export class MainMemoryService {
 
-  private memory: { [key: number]: number } = {}
+  private memory: { [address: number]: number } = {}
 
   public methodAreaSize: number;
   public constantPoolSize: number;
@@ -19,7 +19,7 @@ export class MainMemoryService {
   private _stackStartAddress = 0;
 
   private _updateMemoryView = new BehaviorSubject({ address: 0, value: 0 });
-  public updateMemoryView$ = this._updateMemoryView.asObservable();
+  public updateMemory$ = this._updateMemoryView.asObservable();
 
   constructor(
     private regProvider: RegProviderService,

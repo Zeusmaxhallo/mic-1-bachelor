@@ -33,7 +33,7 @@ export class ScreenComponent implements AfterViewInit {
     })
   }
 
-  public setPixel(x: number, y: number, color: string) {
+  private setPixel(x: number, y: number, color: string): void {
 
     this.ctx.fillStyle = color;
 
@@ -47,7 +47,7 @@ export class ScreenComponent implements AfterViewInit {
     this.ctx.fillRect(x, y, PixelWidth, PixelHeight);
   }
 
-  public setBitmap(x: number, y: number, bitmap: Uint8ClampedArray) {
+  private setBitmap(x: number, y: number, bitmap: Uint8ClampedArray) {
     this.ctx.putImageData(new ImageData(bitmap, 8, 8), x, y);
   }
 
