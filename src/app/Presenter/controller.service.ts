@@ -10,44 +10,687 @@ import { BehaviorSubject } from 'rxjs';
 import { MainMemoryService } from '../Model/Emulator/main-memory.service';
 
 
-const code1: string = `.main
-BIPUSH 7
-BIPUSH 8
-INVOKEVIRTUAL add
+const code1: string = `.constant
+cursor 65536
+screenWidth 40          // 320 pixel / 8
+vram 1073677824         // 0xFFFC1800 / 4
+bitmaskZright -65536    // 0xFFFF0000 
+bitmaskZleft 65535      // 0x0000FFFF
+changeMode 1073677823   // 0xFFFC17FC / 4
+
+  .string
+      hallo "Hallo Welt!\\n"
+      
+  .end-string
+.end-constant
+
+.main
+  LDC_W hallo
+  DUP
+  INVOKEVIRTUAL print
+
+  
 .end-main
 
-.method add(p1, p2)
-ILOAD p1
-ILOAD p2
-IADD
+.method print(pointer)
+  loop: ILOAD pointer
+  PEEK
+  DUP
+  
+  // Check if we reached end of String
+  IFEQ null 
+  DUP 
+  INVOKEVIRTUAL printChar
+  IINC pointer 1
+  GOTO loop
+  
+  // return success
+  null: BIPUSH 0
+  IRETURN
+
+.end-method
+
+.method printChar(char)
+
+  // check for Enter (LF)
+  ILOAD char
+  BIPUSH 10 // 10 = LF
+  IF_ICMPEQ lf
+  
+  // get cursor Position
+  LDC_W cursor
+  PEEK
+  DUP
+  
+  // check if cursor is even or odd
+  BIPUSH 1
+  IAND
+  IFEQ even // even for left char odd for right char in Word
+  
+  // if Cursor is odd change right Char in Word
+  odd: SHIFT_R // divide cursor by two
+  
+      // add cursor to VRAM start Address
+      LDC_W vram
+      IADD
+      DUP
+      
+      // load old left character and remove 16 lower bits
+      PEEK
+      LDC_W bitmaskZright
+      IAND
+      
+      
+      // load right character
+      ILOAD char
+      SHIFT_L
+      BIPUSH 0x0F
+      IOR
+      IOR
+      
+      POKE // write characters
+      
+      GOTO inc
+  
+ // if cursor is even change left Char in Word
+ even: SHIFT_R // divide Cursor by two
+      
+      // add cursor to VRAM start Address
+      LDC_W vram
+      IADD
+      DUP
+      
+      // load old right character and remove 16 upper bits
+      PEEK
+      LDC_W bitmaskZleft
+      IAND
+      
+      // load left character
+      ILOAD char
+      SHIFT_L
+      BIPUSH 0x0F
+      IOR
+      SHIFT_L
+      SHIFT_L
+      IOR
+      
+      POKE // write characters
+  
+  // increment cursor position
+  inc: LDC_W cursor
+      DUP
+      PEEK
+      BIPUSH 1
+      IADD
+      POKE
+  
+  NOP // make Char visible 
+  
+  // return with Success -> 0
+  BIPUSH 0
+  IRETURN
+  
+  // handle Enter
+  lf: LDC_W cursor
+      PEEK
+      DUP
+      DUP
+      LDC_W screenWidth
+      
+      // calc how deep cursor is in line
+      INVOKEVIRTUAL modulo
+      
+      // subtract distance from cursorPos 
+      // to find start of line
+      ISUB
+      
+      // add screen width to start of line
+      LDC_W screenWidth
+      IADD
+      
+      // update cursor
+      LDC_W cursor
+      SWAP
+      POKE
+  
+  // return with Success -> 0
+  BIPUSH 0
+  IRETURN
+  
+.end-method
+
+
+.method modulo(x, y)
+loop: ILOAD x
+ILOAD y
+
+// x - y
+ISUB
+DUP 
+ISTORE x
+
+// loop if result > y
+ILOAD y
+ISUB
+IFLT checkSign
+GOTO loop
+
+// check if result is negative
+checkSign: ILOAD x
+IFLT turnSign
+GOTO end
+
+// if sign is negative -> y - result
+turnSign: ILOAD y
+ILOAD x
+  IADD
+ISTORE x
+
+end: ILOAD x
 IRETURN
 .end-method`;
 
-const code2: string = `.main
-CPUSH 7
-CPUSH 8
-CINVOKE met
+const code2: string = `.constant
+cursor 65536
+screenWidth 40          // 320 pixel / 8
+  vram 1073677824         // 0xFFFC1800 / 4
+bitmaskZright -65536    // 0xFFFF0000 
+bitmaskZleft 65535      // 0x0
+mode 64001
+rightBall 520626175 // 0x1f081fff darkgray|white
+leftBall 536813320  // 0x1fff1f08 white|darkgray
+start 1073677944
+end 1073677963
+
+.end-constant
+
+
+.main
+  BIPUSH 120
+  DUP
+  INVOKEVIRTUAL ball
 .end-main
 
-.method met(p1, p2)
-ILOAD p1
-ILOAD p2
+
+
+.method ball(pos)
+
+ILOAD pos
+LDC_W vram
 IADD
+ISTORE pos
+
+
+  // left to black
+right:       ILOAD pos
+  BIPUSH 0
+  POKE
+  
+  IINC pos 1
+  
+  // right to color
+  ILOAD pos
+  LDC_W rightBall
+  POKE
+  
+  NOP
+  
+  LDC_W end
+  ILOAD pos
+  IF_ICMPEQ left
+  
+  
+  GOTO right
+  
+  
+  // right to black
+left: ILOAD pos
+  BIPUSH 0
+  POKE
+  
+  IINC pos -1
+  
+  // left to color
+  ILOAD pos
+  LDC_W leftBall
+  POKE
+  
+  NOP
+  
+  LDC_W start
+  ILOAD pos
+  IF_ICMPEQ right
+  
+  GOTO left
+
+.end-method
+
+
+
+
+
+.method print(pointer)
+  loop: ILOAD pointer
+      PEEK
+      DUP
+      
+      IFEQ null 
+      
+      DUP 
+      INVOKEVIRTUAL printChar
+      
+      IINC pointer 1
+      GOTO loop
+  // return success
+  null: BIPUSH 0
+  IRETURN
+.end-method
+
+.method printChar(char)
+
+  // check for Enter (LF)
+  ILOAD char
+  BIPUSH 10 // 10 = LF
+  IF_ICMPEQ lf
+  
+  // get cursor Position
+  LDC_W cursor
+  PEEK
+  DUP
+  
+  // check if cursor is even or odd
+  BIPUSH 1
+  IAND
+  IFEQ even // even for left char odd for right char in Word
+  
+  // if Cursor is odd change right Char in Word
+  odd: SHIFT_R // divide cursor by two
+  
+      // add cursor to VRAM start Address
+      LDC_W vram
+      IADD
+      DUP
+      
+      // load old left character and remove 16 lower bits
+      PEEK
+      LDC_W bitmaskZright
+      IAND
+      
+      
+      // load right character
+      ILOAD char
+      SHIFT_L
+      BIPUSH 0x0F
+      IOR
+      IOR
+      
+      POKE // write characters
+      
+      GOTO inc
+  
+ // if cursor is even change left Char in Word
+ even: SHIFT_R // divide Cursor by two
+      
+      // add cursor to VRAM start Address
+      LDC_W vram
+      IADD
+      DUP
+      
+      // load old right character and remove 16 upper bits
+      PEEK
+      LDC_W bitmaskZleft
+      IAND
+      
+      // load left character
+      ILOAD char
+      SHIFT_L
+      BIPUSH 0x0F
+      IOR
+      SHIFT_L
+      SHIFT_L
+      IOR
+      
+      POKE // write characters
+  
+  // increment cursor position
+  inc: LDC_W cursor
+      DUP
+      PEEK
+      BIPUSH 1
+      IADD
+      POKE
+  
+  //NOP // make Char visible 
+  
+  // return with Success -> 0
+  BIPUSH 0
+  IRETURN
+  
+  // handle Enter
+  lf: LDC_W cursor
+      PEEK
+      DUP
+      DUP
+      LDC_W screenWidth
+      
+      // calc how deep cursor is in line
+      INVOKEVIRTUAL modulo
+      
+      // subtract distance from cursorPos 
+      // to find start of line
+      ISUB
+      
+      // add screen width to start of line
+      LDC_W screenWidth
+      IADD
+      
+      // update cursor
+      LDC_W cursor
+      SWAP
+      POKE
+  
+  // return with Success -> 0
+  BIPUSH 0
+  IRETURN
+  
+.end-method
+
+
+.method modulo(x, y)
+loop: ILOAD x
+ILOAD y
+
+// x - y
+ISUB
+DUP 
+ISTORE x
+
+// loop if result > y
+ILOAD y
+ISUB
+IFLT checkSign
+GOTO loop
+
+// check if result is negative
+checkSign: ILOAD x
+IFLT turnSign
+GOTO end
+
+// if sign is negative -> y - result
+turnSign: ILOAD y
+ILOAD x
+  IADD
+ISTORE x
+
+end: ILOAD x
 IRETURN
 .end-method`;
 
-const code3: string = `.main
-BIPUSH 0
-IFEQ skip
-test: BIPUSH 8
-BIPUSH 9
-INVOKEVIRTUAL switch
-skip: GOTO test
+const code3: string = `.constant
+cursor 65536
+screenWidth 40          // 320 pixel / 8
+vram 1073677824         // 0xFFFC1800 / 4
+bitmaskZright -65536    // 0xFFFF0000 
+bitmaskZleft 65535      // 0x0
+mode 64001
+rightBall 520626175 // 0x1f081fff darkgray|white
+leftBall 536813320  // 0x1fff1f08 white|darkgray
+start 1073677944
+end 1073677963
+
+.string
+    pong "!PONG!"
+.end-string
+
+.end-constant
+
+
+.main
+
+LDC_W cursor
+BIPUSH 54
+POKE
+
+
+// Text
+    BIPUSH 31
+    DUP
+    INVOKEVIRTUAL printChar
+    BIPUSH 31
+    INVOKEVIRTUAL printChar
+    BIPUSH 31
+    INVOKEVIRTUAL printChar
+    
+    LDC_W pong
+    INVOKEVIRTUAL print
+    
+    BIPUSH 31
+    INVOKEVIRTUAL printChar
+    BIPUSH 31
+    INVOKEVIRTUAL printChar
+    BIPUSH 31
+    INVOKEVIRTUAL printChar
+    
+    
+
+
+    BIPUSH 120
+    INVOKEVIRTUAL ball
 .end-main
 
-.method switch(p1, p2)
-ILOAD p2
-ILOAD p1
+
+
+.method ball(pos)
+
+ILOAD pos
+LDC_W vram
+IADD
+ISTORE pos
+
+
+  // left to black
+right:       ILOAD pos
+  BIPUSH 0
+  POKE
+  
+  IINC pos 1
+  
+  // right to color
+  ILOAD pos
+  LDC_W rightBall
+  POKE
+  
+  NOP
+  
+  LDC_W end
+  ILOAD pos
+  IF_ICMPEQ left
+  
+  
+  GOTO right
+  
+  
+  // right to black
+left: ILOAD pos
+  BIPUSH 0
+  POKE
+  
+  IINC pos -1
+  
+  // left to color
+  ILOAD pos
+  LDC_W leftBall
+  POKE
+  
+  NOP
+  
+  LDC_W start
+  ILOAD pos
+  IF_ICMPEQ right
+  
+  GOTO left
+
+.end-method
+
+
+
+
+
+.method print(pointer)
+  loop: ILOAD pointer
+      PEEK
+      DUP
+      
+      IFEQ null 
+      
+      DUP 
+      INVOKEVIRTUAL printChar
+      
+      IINC pointer 1
+      GOTO loop
+  // return success
+  null: BIPUSH 0
+  IRETURN
+.end-method
+
+.method printChar(char)
+
+  // check for Enter (LF)
+  ILOAD char
+  BIPUSH 10 // 10 = LF
+  IF_ICMPEQ lf
+  
+  // get cursor Position
+  LDC_W cursor
+  PEEK
+  DUP
+  
+  // check if cursor is even or odd
+  BIPUSH 1
+  IAND
+  IFEQ even // even for left char odd for right char in Word
+  
+  // if Cursor is odd change right Char in Word
+  odd: SHIFT_R // divide cursor by two
+  
+      // add cursor to VRAM start Address
+      LDC_W vram
+      IADD
+      DUP
+      
+      // load old left character and remove 16 lower bits
+      PEEK
+      LDC_W bitmaskZright
+      IAND
+      
+      
+      // load right character
+      ILOAD char
+      SHIFT_L
+      BIPUSH 0x0F
+      IOR
+      IOR
+      
+      POKE // write characters
+      
+      GOTO inc
+  
+ // if cursor is even change left Char in Word
+ even: SHIFT_R // divide Cursor by two
+      
+      // add cursor to VRAM start Address
+      LDC_W vram
+      IADD
+      DUP
+      
+      // load old right character and remove 16 upper bits
+      PEEK
+      LDC_W bitmaskZleft
+      IAND
+      
+      // load left character
+      ILOAD char
+      SHIFT_L
+      BIPUSH 0x0F
+      IOR
+      SHIFT_L
+      SHIFT_L
+      IOR
+      
+      POKE // write characters
+  
+  // increment cursor position
+  inc: LDC_W cursor
+      DUP
+      PEEK
+      BIPUSH 1
+      IADD
+      POKE
+  
+  //NOP // make Char visible 
+  
+  // return with Success -> 0
+  BIPUSH 0
+  IRETURN
+  
+  // handle Enter
+  lf: LDC_W cursor
+      PEEK
+      DUP
+      DUP
+      LDC_W screenWidth
+      
+      // calc how deep cursor is in line
+      INVOKEVIRTUAL modulo
+      
+      // subtract distance from cursorPos 
+      // to find start of line
+      ISUB
+      
+      // add screen width to start of line
+      LDC_W screenWidth
+      IADD
+      
+      // update cursor
+      LDC_W cursor
+      SWAP
+      POKE
+  
+  // return with Success -> 0
+  BIPUSH 0
+  IRETURN
+  
+.end-method
+
+
+.method modulo(x, y)
+loop: ILOAD x
+ILOAD y
+
+// x - y
+ISUB
+DUP 
+ISTORE x
+
+// loop if result > y
+ILOAD y
+ISUB
+IFLT checkSign
+GOTO loop
+
+// check if result is negative
+checkSign: ILOAD x
+IFLT turnSign
+GOTO end
+
+// if sign is negative -> y - result
+turnSign: ILOAD y
+ILOAD x
+  IADD
+ISTORE x
+
+end: ILOAD x
+IRETURN
 .end-method`;
 
 const microCode: string = `Main1: PC=PC+1; fetch; goto(MBR)
@@ -159,7 +802,7 @@ const microCode: string = `Main1: PC=PC+1; fetch; goto(MBR)
     PC=PC+1; fetch
     H = MBRU <<8
     H = MBRU OR H
-    MDR = SP + H +1; wr
+    MDR = SP + H +1; wr 
     MAR=SP=MDR
     MDR = OPC; wr
     MAR = SP = SP+1
@@ -174,7 +817,32 @@ const microCode: string = `Main1: PC=PC+1; fetch; goto(MBR)
     PC=MDR;rd;fetch
     MAR=SP
     LV=MDR
-    MDR=TOS; wr; goto Main1`
+    MDR=TOS; wr; goto Main1
+    
+    
+    
+//Push Parameters on Stack like this:
+//  01.Address
+//  02.Value
+(0xD5)POKE: MAR = SP = SP-1; rd // fetch Address
+    MAR = SP = SP-1;rd // fetch next TOS
+    MAR = MDR // put Address in MAR
+    H = TOS // put Value in Helper Register
+    TOS = MDR // Update TOS
+    MDR = H; wr; goto Main1 //Write Value to given Address
+
+// First push the Address you want to peek on Stack
+(0xDB)PEEK: MAR = TOS; rd // read Memory at given Address
+    TOS = TOS //wait
+    MAR = SP; wr // put Address on Stack
+    TOS = MDR; goto Main1 // Update TOS
+
+// shift word on stack by 8 Bits to the left
+(0x59)SHIFT_L: MDR = TOS = TOS << 8;
+    MAR = SP; wr; goto Main1
+
+(0x67)SHIFT_R: TOS = MDR = TOS >> 1;
+    MAR = SP;wr; goto Main1`
 
 const customMicroCode: string = `Main1: PC=PC+1; fetch; goto(MBR)
 
@@ -450,10 +1118,10 @@ export class ControllerService {
       this._microCode.next({ microCode: microCode});
     }
     if(demoCodeOption === "demo2"){
-      this.microProvider.setMicro(customMicroCode);
+      this.microProvider.setMicro(microCode);
       this.macroProvider.setMacro(code2);
       this._macroCode.next({ macroCode: code2});
-      this._microCode.next({ microCode: customMicroCode});
+      this._microCode.next({ microCode: microCode});
     }
     if(demoCodeOption === "demo3"){
       this.microProvider.setMicro(microCode);
