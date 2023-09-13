@@ -3,13 +3,13 @@ import { BehaviorSubject, timer } from 'rxjs';
 import { MainMemoryService } from '../Model/Emulator/main-memory.service';
 import { CharacterROMService } from './character-rom.service';
 
-const VRAM_ADDRESS = 1024;
+const VRAM_ADDRESS = 1073677824;  // 0x3fff0600 * 4 = 0xFFFC1800
 const VRAM_SIZE = 64000;
 
 const SCREEN_HEIGHT = 200;
 const SCREEN_WIDTH = 320;
 
-const CHANGE_MODE_ADDRESS = 64001
+const CHANGE_MODE_ADDRESS = 1073677823;  // 0x3fff05ff * 4 = 0xFFFC17FC
 
 const COLUMNS = SCREEN_WIDTH / 8;
 const ROWS = SCREEN_HEIGHT / 8;
